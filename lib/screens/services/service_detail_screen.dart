@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../../services/service_api.dart';
+import '../booking/checkout_webview.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final int serviceId;
@@ -135,7 +136,24 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
       // 4️⃣ Handle response
       if (response is Map && response['status'] == 1) {
-        _showSuccessDialog();
+        if (response['status'] == 1) {
+  final bookingCode = response['booking_code'];
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => CheckoutWebView(
+        bookingCode: bookingCode,
+      ),
+    ),
+  );
+} else {
+  _showSnackBar(
+    response['message'] ?? 'Booking failed',
+    Colors.red,
+  );
+}
+
       } else {
         _showSnackBar(
           response['message'] ?? 'Booking failed',
