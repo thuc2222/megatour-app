@@ -93,7 +93,7 @@ class _BookingsTabState extends State<BookingsTab> {
 }
 
 /// ---------------------------------------------------------------------------
-/// BOOKING CARD (CLICKABLE → BOOKING DETAIL)
+/// BOOKING CARD
 /// ---------------------------------------------------------------------------
 
 class BookingCard extends StatelessWidget {
@@ -135,14 +135,7 @@ class BookingCard extends StatelessWidget {
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(18)),
-              child: item.imageUrl != null
-                  ? Image.network(
-                      item.imageUrl!,
-                      height: 160,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : _imagePlaceholder(),
+              child: _buildImage(item.imageUrl),
             ),
 
             // CONTENT
@@ -187,6 +180,41 @@ class BookingCard extends StatelessWidget {
     );
   }
 
+  /// IMAGE HANDLER (URL OR ICON CLASS)
+  Widget _buildImage(String? value) {
+    if (value == null || value.isEmpty) {
+      return _imagePlaceholder();
+    }
+
+    // Real URL
+    if (value.startsWith('http')) {
+      return Image.network(
+        value,
+        height: 160,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _imagePlaceholder(),
+      );
+    }
+
+    // Icon class fallback (fa fa-*)
+    return Container(
+      height: 160,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF2C5364), Color(0xFF203A43)],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          _mapFaIcon(value),
+          size: 48,
+          color: Colors.white70,
+        ),
+      ),
+    );
+  }
+
   Widget _imagePlaceholder() {
     return Container(
       height: 160,
@@ -199,6 +227,14 @@ class BookingCard extends StatelessWidget {
         child: Icon(Icons.image, color: Colors.white54, size: 48),
       ),
     );
+  }
+
+  IconData _mapFaIcon(String fa) {
+    if (fa.contains('building')) return Icons.apartment;
+    if (fa.contains('hotel')) return Icons.hotel;
+    if (fa.contains('map')) return Icons.map;
+    if (fa.contains('car')) return Icons.directions_car;
+    return Icons.travel_explore;
   }
 
   Widget _serviceTypeChip(String type) {
@@ -302,7 +338,7 @@ class BookingItem {
           '${json['start_date'] ?? ''} → ${json['end_date'] ?? ''}',
       totalFormatted:
           json['total_formatted'] ?? '${json['total'] ?? 0}',
-      imageUrl: service?['image'],
+      imageUrl: json['service_icon'], // IMPORTANT
     );
   }
 }

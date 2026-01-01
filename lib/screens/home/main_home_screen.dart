@@ -16,12 +16,21 @@ class MainHomeScreen extends StatefulWidget {
 class _MainHomeScreenState extends State<MainHomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _tabs = [
-    const HomeTab(),
-    const SearchTab(),
-    const BookingsTab(),
-    const ProfileTab(),
-  ];
+  late final List<Widget> _tabs;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _tabs = [
+      const HomeTab(),
+      const SearchTab(),
+      const BookingsTab(),
+
+      const ProfileTab(),
+
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

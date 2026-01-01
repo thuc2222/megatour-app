@@ -29,7 +29,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   Future<BookingDetail> _loadDetail() async {
     final res = await http.get(
       Uri.parse('${API_BASE_URL}user/booking/${widget.bookingCode}'),
-      headers: {
+      headers: const {
         'Accept': 'application/json',
       },
     );
@@ -51,6 +51,37 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     setState(() {
       _future = _loadDetail();
     });
+  }
+
+  Future<void> _confirmCancel(String code) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Booking'),
+        content: const Text('Are you sure you want to cancel this booking?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await http.post(
+        Uri.parse('${API_BASE_URL}user/booking/$code/cancel'),
+        headers: const {'Accept': 'application/json'},
+      );
+      _reload();
+    }
   }
 
   @override
@@ -138,27 +169,56 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                         .toList(),
                   ),
 
-                if (detail.booking.isPayable)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BookingPaymentWebView(
-                              bookingCode: detail.booking.code,
-                            ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      if (detail.booking.isPayable)
+                        ElevatedButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BookingPaymentWebView(
+                                  bookingCode: detail.booking.code,
+                                ),
+                              ),
+                            );
+                            _reload();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 52),
                           ),
-                        );
-                        _reload();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 52),
-                      ),
-                      child: const Text('Pay Now'),
-                    ),
+                          child: const Text('Pay Now'),
+                        ),
+
+                      if (detail.booking.isCancelable)
+                        TextButton(
+                          onPressed: () =>
+                              _confirmCancel(detail.booking.code),
+                          child: const Text(
+                            'Cancel Booking',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+
+                      if (detail.invoiceUrl != null)
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => InvoiceWebView(
+                                  url: detail.invoiceUrl!,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text('View Invoice'),
+                        ),
+                    ],
                   ),
+                ),
               ],
             );
           },
@@ -189,12 +249,19 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
     return Align(
       alignment: Alignment.topRight,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.4),
+              blurRadius: 10,
+            ),
+          ],
         ),
         child: Text(
           status.toUpperCase(),
@@ -270,7 +337,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 }
 
 /// ---------------------------------------------------------------------------
-/// PAYMENT WEBVIEW (webview_flutter v4+)
+/// PAYMENT WEBVIEW
 /// ---------------------------------------------------------------------------
 
 class BookingPaymentWebView extends StatefulWidget {
@@ -282,7 +349,8 @@ class BookingPaymentWebView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<BookingPaymentWebView> createState() => _BookingPaymentWebViewState();
+  State<BookingPaymentWebView> createState() =>
+      _BookingPaymentWebViewState();
 }
 
 class _BookingPaymentWebViewState extends State<BookingPaymentWebView> {
@@ -311,18 +379,45 @@ class _BookingPaymentWebViewState extends State<BookingPaymentWebView> {
 }
 
 /// ---------------------------------------------------------------------------
-/// DATA MODELS (NULL SAFE)
+/// INVOICE WEBVIEW
+/// ---------------------------------------------------------------------------
+
+class InvoiceWebView extends StatelessWidget {
+  final String url;
+
+  const InvoiceWebView({
+    Key? key,
+    required this.url,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(url));
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Invoice')),
+      body: WebViewWidget(controller: controller),
+    );
+  }
+}
+
+/// ---------------------------------------------------------------------------
+/// DATA MODELS
 /// ---------------------------------------------------------------------------
 
 class BookingDetail {
   final Booking booking;
   final Service service;
   final List<BookingItem> items;
+  final String? invoiceUrl;
 
   BookingDetail({
     required this.booking,
     required this.service,
     required this.items,
+    this.invoiceUrl,
   });
 
   factory BookingDetail.fromJson(Map<String, dynamic> json) {
@@ -332,6 +427,7 @@ class BookingDetail {
       items: (json['items'] as List? ?? [])
           .map((e) => BookingItem.fromJson(e))
           .toList(),
+      invoiceUrl: json['invoice_url'],
     );
   }
 }
@@ -356,22 +452,36 @@ class Booking {
   });
 
   bool get isPayable =>
-      status == 'draft' || status == 'pending' || status == 'processing';
+      status == 'draft' ||
+      status == 'pending' ||
+      status == 'processing';
+
+  bool get isCancelable =>
+      status == 'draft' ||
+      status == 'pending' ||
+      status == 'processing';
 
   factory Booking.fromJson(Map<String, dynamic> json) {
-    return Booking(
-      code: json['code'] ?? '',
-      status: json['status'] ?? '',
-      startDate: json['start_date'] ?? '',
-      endDate: json['end_date'] ?? '',
-      adults: json['adults'] ?? 0,
-      children: json['children'] ?? 0,
-      totalFormatted:
-          json['total_formatted'] ??
-          json['total']?.toString() ??
-          '',
-    );
-  }
+  final adultsRaw = json['adults'];
+  final childrenRaw = json['children'];
+
+  return Booking(
+    code: json['code']?.toString() ?? '',
+    status: json['status']?.toString() ?? '',
+    startDate: json['start_date']?.toString() ?? '',
+    endDate: json['end_date']?.toString() ?? '',
+    adults: adultsRaw is int
+        ? adultsRaw
+        : int.tryParse(adultsRaw?.toString() ?? '0') ?? 0,
+    children: childrenRaw is int
+        ? childrenRaw
+        : int.tryParse(childrenRaw?.toString() ?? '0') ?? 0,
+    totalFormatted:
+        json['total_formatted']?.toString() ??
+        json['total']?.toString() ??
+        '',
+  );
+}
 }
 
 class Service {

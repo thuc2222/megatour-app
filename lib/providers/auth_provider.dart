@@ -1,238 +1,209 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import '../models/user_model.dart';
-import '../services/auth_service.dart';
-
-enum AuthStatus {
-  initial,
-  authenticated,
-  unauthenticated,
-  loading,
-}
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  final ApiService _api = ApiService();
 
-  AuthStatus _status = AuthStatus.initial;
-  UserModel? _user;
-  String? _errorMessage;
-  String? _token;
+  UserModel? user;
+  String? token;
 
-  AuthStatus get status => _status;
-  UserModel? get user => _user;
-  String? get errorMessage => _errorMessage;
-  bool get isAuthenticated => _status == AuthStatus.authenticated;
-  bool get isLoading => _status == AuthStatus.loading;
+  bool isAuthenticated = false;
+  bool isLoading = false;
+  String? errorMessage;
 
-  String? get token => _token;
-
-  // Initialize - check if user is already logged in
+  /// ================================
+  /// APP INIT
+  /// ================================
   Future<void> initialize() async {
-    try {
-      _status = AuthStatus.loading;
-      notifyListeners();
+  try {
+    token = await _api.getToken();
 
-      final isLoggedIn = await _authService.isLoggedIn();
-      
-      if (isLoggedIn) {
-        // --- FIX: Retrieve the token from storage during initialization ---
-        _token = await _authService.getToken(); 
-        _user = await _authService.getCurrentUser();
-        _status = AuthStatus.authenticated;
-      } else {
-        _status = AuthStatus.unauthenticated;
-        _token = null;
-      }
-    } catch (e) {
-      _status = AuthStatus.unauthenticated;
-      _errorMessage = e.toString();
-    } finally {
-      notifyListeners();
-    }
+    // No token = guest mode → OK
+    if (token == null) return;
+
+    // Try restoring user, but NEVER crash app
+    await fetchMe();
+  } catch (_) {
+    // If token is invalid → clear it, stay guest
+    await _api.removeToken();
+    token = null;
+    user = null;
+    isAuthenticated = false;
+  }
   }
 
-  // Login
+  /// ================================
+  /// LOGIN
+  /// ================================
   Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      _status = AuthStatus.loading;
-      _errorMessage = null;
-      notifyListeners();
+  required String email,
+  required String password,
+}) async {
+  try {
+    isLoading = true;
+    notifyListeners();
 
-      final response = await _authService.login(
-        email: email,
-        password: password,
-      );
+    final res = await _api.post(
+      'auth/login',
+      body: {
+        'email': email,
+        'password': password,
+        'device_name': 'flutter_app',
+      },
+      isFormData: true,
+    );
 
-      if (response.status) {
-        // --- FIX: Capture the token from the login response ---
-        // Assuming your response object or AuthService saves/returns the token
-        _token = await _authService.getToken(); 
-        
-        _user = await _authService.getCurrentUser();
-        _status = AuthStatus.authenticated;
-        notifyListeners();
-        return true;
-      } else {
-        _status = AuthStatus.unauthenticated;
-        _errorMessage = response.message ?? 'Login failed';
-        _token = null;
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      _status = AuthStatus.unauthenticated;
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
-      _token = null;
-      notifyListeners();
+    if (res['status'] != 1) {
+      errorMessage = 'Login failed';
       return false;
     }
-  }
 
-  // Register
+    token = res['access_token']; // ✅ FIX
+    await _api.saveToken(token!);
+
+    user = UserModel.fromJson(res['user']);
+    isAuthenticated = true;
+    return true;
+  } catch (e) {
+    errorMessage = e.toString();
+    return false;
+  } finally {
+    isLoading = false;
+    notifyListeners();
+  }
+}
+
+  /// ================================
+  /// REGISTER
+  /// ================================
   Future<bool> register({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
-    bool acceptTerms = true,
-  }) async {
-    try {
-      _status = AuthStatus.loading;
-      _errorMessage = null;
-      notifyListeners();
-
-      final response = await _authService.register(
-        email: email,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-        acceptTerms: acceptTerms,
-      );
-
-      if (response.status) {
-        _status = AuthStatus.unauthenticated;
-        notifyListeners();
-        return true;
-      } else {
-        _status = AuthStatus.unauthenticated;
-        _errorMessage = response.message ?? 'Registration failed';
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      _status = AuthStatus.unauthenticated;
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
-      notifyListeners();
-      return false;
-    }
-  }
-
-  // Update profile
-  Future<bool> updateProfile({
-    String? businessName,
-    String? email,
     String? firstName,
     String? lastName,
-    String? phone,
-    String? birthday,
-    String? bio,
-    String? address,
-    String? address2,
-    String? city,
-    String? country,
-    String? zipCode,
-    int? avatarId,
+    bool? acceptTerms,
   }) async {
     try {
-      _errorMessage = null;
+      isLoading = true;
+      notifyListeners();
 
-      final success = await _authService.updateProfile(
-        businessName: businessName,
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        phone: phone,
-        birthday: birthday,
-        bio: bio,
-        address: address,
-        address2: address2,
-        city: city,
-        country: country,
-        zipCode: zipCode,
-        avatarId: avatarId,
+      final res = await _api.post(
+        'auth/register',
+        body: {
+          'email': email,
+          'password': password,
+          'first_name': firstName,
+          'last_name': lastName,
+          'device_name': 'flutter_app',
+          'accept_terms': acceptTerms == true ? 1 : 0,
+        },
+        isFormData: true,
       );
 
-      if (success) {
-        _user = await _authService.getCurrentUser();
-        notifyListeners();
+      if (res['status'] != 1) {
+        errorMessage = res['errors']?.values.first.first;
+        return false;
       }
 
-      return success;
+      token = res['token'];
+      await _api.saveToken(token!);
+
+      user = UserModel.fromJson(res['user']);
+      isAuthenticated = true;
+      return true;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
-      notifyListeners();
+      errorMessage = e.toString();
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Change password
+  /// ================================
+  /// CURRENT USER
+  /// ================================
+  Future<void> fetchMe() async {
+    final res = await _api.get(
+      'auth/me',
+      requiresAuth: true,
+    );
+
+    user = UserModel.fromJson(res['data']);
+    isAuthenticated = true;
+    notifyListeners();
+  }
+
+  /// ================================
+  /// UPDATE PROFILE
+  /// ================================
+  Future<bool> updateProfile(Map<String, dynamic> payload) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      final res = await _api.post(
+        'auth/me',
+        body: payload,
+        requiresAuth: true,
+      );
+
+      user = UserModel.fromJson(res['data']);
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// ================================
+  /// CHANGE PASSWORD
+  /// ================================
   Future<bool> changePassword({
     required String currentPassword,
     required String newPassword,
   }) async {
     try {
-      _errorMessage = null;
+      isLoading = true;
+      notifyListeners();
 
-      final success = await _authService.changePassword(
-        currentPassword: currentPassword,
-        newPassword: newPassword,
+      await _api.post(
+        'auth/change-password',
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+        requiresAuth: true,
       );
-
-      if (!success) {
-        _errorMessage = 'Failed to change password';
-      }
-
-      notifyListeners();
-      return success;
+      return true;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
-      notifyListeners();
+      errorMessage = e.toString();
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Logout
+  /// ================================
+  /// LOGOUT
+  /// ================================
   Future<void> logout() async {
     try {
-      await _authService.logout();
-      _user = null;
-      _token = null; // --- FIX: Clear token on logout ---
-      _status = AuthStatus.unauthenticated;
-      _errorMessage = null;
-      notifyListeners();
-    } catch (e) {
-      _errorMessage = e.toString();
-      notifyListeners();
-    }
-  }
+      await _api.post(
+        'auth/logout',
+        requiresAuth: true,
+      );
+    } catch (_) {}
 
-  // Clear error message
-  void clearError() {
-    _errorMessage = null;
+    await _api.removeToken();
+    token = null;
+    user = null;
+    isAuthenticated = false;
     notifyListeners();
-  }
-
-  // Refresh user data
-  Future<void> refreshUser() async {
-    try {
-      _user = await _authService.getCurrentUser();
-      _token = await _authService.getToken(); // Keep token in sync
-      notifyListeners();
-    } catch (e) {
-      _errorMessage = e.toString();
-      notifyListeners();
-    }
   }
 }

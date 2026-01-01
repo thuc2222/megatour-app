@@ -1,18 +1,20 @@
-// lib/main.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'providers/auth_provider.dart';
 import 'providers/home_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/wishlist_provider.dart';
+
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/home/main_home_screen.dart';
-import 'screens/services/service_list_screen.dart';
 import 'screens/services/service_detail_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
 import 'screens/cart/cart_screen.dart';
+//import 'screens/booking/booking_history_screen.dart';
+//import 'screens/profile/edit_profile_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -74,48 +76,58 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+
+        /// App entry
         home: const SplashScreen(),
+
+        /// Dynamic service detail routing
         onGenerateRoute: (settings) {
-          // Fix: Handle the specific name being called ('/hotel-detail')
-          if (settings.name == '/service-detail' || settings.name == '/hotel-detail' || settings.name == '/tour-detail') {
-            
-            // Safety Check: If arguments are just an int (like the error shows), wrap it
-            final dynamic args = settings.arguments;
-            
+          if (settings.name == '/service-detail' ||
+              settings.name == '/hotel-detail' ||
+              settings.name == '/tour-detail') {
+            final args = settings.arguments;
+
             if (args is Map<String, dynamic>) {
               return MaterialPageRoute(
-                builder: (context) => ServiceDetailScreen(
+                builder: (_) => ServiceDetailScreen(
                   serviceId: args['id'],
-                  serviceType: args['type'] ?? (settings.name == '/hotel-detail' ? 'hotel' : 'tour'),
+                  serviceType: args['type'] ??
+                      (settings.name == '/hotel-detail' ? 'hotel' : 'tour'),
                 ),
               );
-            } 
-            
-            // Fallback if only an ID was passed (matches your error log: RouteSettings("/hotel-detail", 1))
+            }
+
             if (args is int) {
               return MaterialPageRoute(
-                builder: (context) => ServiceDetailScreen(
+                builder: (_) => ServiceDetailScreen(
                   serviceId: args,
-                  serviceType: settings.name == '/hotel-detail' ? 'hotel' : 'tour',
+                  serviceType:
+                      settings.name == '/hotel-detail' ? 'hotel' : 'tour',
                 ),
               );
             }
           }
           return null;
         },
+
         routes: {
-          '/login': (context) => const LoginScreen(),
-          '/register': (context) => const RegisterScreen(),
-          '/home': (context) => const MainHomeScreen(),
-          '/wishlist': (context) => const WishlistScreen(),
-          '/cart': (context) => const CartScreen(),
+          '/login': (_) => const LoginScreen(),
+          '/register': (_) => const RegisterScreen(),
+          '/home': (_) => const MainHomeScreen(),
+          '/wishlist': (_) => const WishlistScreen(),
+          '/cart': (_) => const CartScreen(),
+          //'/booking-history': (_) => const BookingHistoryScreen(),
+          //'/edit-profile': (_) => const EditProfileScreen(),
         },
       ),
     );
   }
 }
 
-// Splash Screen - Check authentication status
+/// ---------------------------------------------------------------------------
+/// Splash Screen (Guest-First, No Login Gate)
+/// ---------------------------------------------------------------------------
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -127,24 +139,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuthStatus();
+    _startApp();
   }
 
-  Future<void> _checkAuthStatus() async {
-  final authProvider = context.read<AuthProvider>();
+  Future<void> _startApp() async {
+    // Restore auth silently (guest or logged-in)
+    await context.read<AuthProvider>().initialize();
 
-  // Initialize auth silently (restore token if exists)
-  await authProvider.initialize();
+    // Splash delay (branding / perceived performance)
+    await Future.delayed(const Duration(seconds: 2));
 
-  // Optional splash delay
-  await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
 
-  if (!mounted) return;
-
-  // ALWAYS go to home
-  Navigator.of(context).pushReplacementNamed('/home');
+    // Always go to Home (guest-first)
+    Navigator.of(context).pushReplacementNamed('/home');
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -163,11 +172,22 @@ class _SplashScreenState extends State<SplashScreen> {
               'Megatour',
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
                     color: Colors.blue,
                   ),
             ),
             const SizedBox(height: 48),
-            const CircularProgressIndicator(),
+
+            /// Subtle animation (no controller, no risk)
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.85, end: 1.0),
+              duration: const Duration(milliseconds: 1200),
+              curve: Curves.easeOut,
+              builder: (_, scale, child) {
+                return Transform.scale(scale: scale, child: child);
+              },
+              child: const CircularProgressIndicator(),
+            ),
           ],
         ),
       ),
