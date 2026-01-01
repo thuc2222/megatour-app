@@ -131,22 +131,20 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuthStatus() async {
-    // Initialize auth provider
-    final authProvider = context.read<AuthProvider>();
-    await authProvider.initialize();
+  final authProvider = context.read<AuthProvider>();
 
-    // Wait a bit for splash screen effect
-    await Future.delayed(const Duration(seconds: 2));
+  // Initialize auth silently (restore token if exists)
+  await authProvider.initialize();
 
-    if (!mounted) return;
+  // Optional splash delay
+  await Future.delayed(const Duration(seconds: 2));
 
-    // Navigate based on auth status
-    if (authProvider.isAuthenticated) {
-      Navigator.of(context).pushReplacementNamed('/home');
-    } else {
-      Navigator.of(context).pushReplacementNamed('/login');
-    }
+  if (!mounted) return;
+
+  // ALWAYS go to home
+  Navigator.of(context).pushReplacementNamed('/home');
   }
+
 
   @override
   Widget build(BuildContext context) {
