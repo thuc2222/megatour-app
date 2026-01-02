@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 import '../../services/service_api.dart';
-import '../booking/checkout_webview.dart';
+import '../booking/checkout_screen.dart';
+import '../booking/booking_success_screen.dart';
 
 class TourDetailScreen extends StatefulWidget {
   final int tourId;
@@ -65,7 +66,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // BOOK TOUR (✅ MOBILE SAFE – /booking/create)
+  // BOOK TOUR (MOBILE SAFE – CUSTOM API)
   // ---------------------------------------------------------------------------
 
   Future<void> _submitBooking() async {
@@ -77,55 +78,38 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      // -----------------------------
-      // PERSON TYPES
-      // -----------------------------
-      final Map<String, int> personTypes = {};
-      _personCounts.forEach((name, qty) {
-        if (qty > 0) personTypes[name] = qty;
-      });
-
-      // -----------------------------
-      // EXTRA PRICE
-      // -----------------------------
-      final List<Map<String, dynamic>> extraPrice = [];
-      final extras = _data?['extra_price'];
-      if (extras is List) {
-        for (final i in _selectedExtras) {
-          extraPrice.add({
-            'name': extras[i]['name'],
-            'number': 1,
-          });
-        }
-      }
-
-      // -----------------------------
-      // SEND TO CUSTOM API
-      // -----------------------------
+      // Dates (end date must be AFTER start date)
       final startDate = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-final endDate = DateFormat('yyyy-MM-dd')
-    .format(_selectedDate!.add(const Duration(days: 1)));
+      final endDate = DateFormat('yyyy-MM-dd')
+          .format(_selectedDate!.add(const Duration(days: 1)));
 
-final res = await _api.createBooking(
-  objectModel: 'tour',
-  objectId: widget.tourId,
-  startDate: startDate,
-  endDate: endDate,
+      final res = await _api.createBooking(
+        objectModel: 'tour',
+        objectId: widget.tourId,
+        startDate: startDate,
+        endDate: endDate,
 
-  // 🔑 BookingCore REQUIRES items — send dummy
-  items: {0: 1},
-);
+        // 🔑 BookingCore requires items → dummy is OK for tour
+        items: {0: 1},
+      );
 
       setState(() => _isSubmitting = false);
 
+      // ✅ FIX: extract booking code
+      final bookingCode = res['booking_code'];
+
       if (res['status'] == 1 && res['booking_code'] != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) =>
-                CheckoutWebView(bookingCode: res['booking_code']),
+        final bookingCode = res['booking_code'];
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CheckoutScreen(
+            bookingCode: bookingCode,
           ),
-        );
+        ),
+      );
+
       } else {
         _snack(res['error'] ?? 'Booking failed', Colors.red);
       }
@@ -177,7 +161,7 @@ final res = await _api.createBooking(
   }
 
   // ---------------------------------------------------------------------------
-  // UI COMPONENTS (UNCHANGED)
+  // UI COMPONENTS
   // ---------------------------------------------------------------------------
 
   Widget _buildGallery() {
@@ -252,8 +236,10 @@ final res = await _api.createBooking(
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Participants',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'Participants',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         ...persons.map<Widget>((p) {
           final name = p['name'];
@@ -299,8 +285,10 @@ final res = await _api.createBooking(
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Extras',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'Extras',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         ...extras.asMap().entries.map((e) {
           return CheckboxListTile(
             title: Text(e.value['name']),

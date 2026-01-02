@@ -177,7 +177,29 @@ class ServiceApi {
   // ---------------------------------------------------------------------------
 
   Future<dynamic> doCheckout(String bookingCode) async {
-    return await _apiService.get('booking/$bookingCode/checkout');
+      return await _apiService.get('booking/$bookingCode/checkout');
+    }
+
+    Future<Map<String, dynamic>> confirmBooking({
+    required String bookingCode,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phone,
+    required String paymentMethod,
+  }) async {
+    return _apiService.post(
+    '/booking/mobile-confirm',
+    body: {
+      'booking_code': bookingCode,
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+      'phone': phone,
+      'payment_method': paymentMethod,
+    },
+    isFormData: true,
+  );
   }
 
   // ---------------------------------------------------------------------------
