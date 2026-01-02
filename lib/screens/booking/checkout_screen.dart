@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../services/service_api.dart';
+import '../../storage/booking_storage.dart';
 import 'booking_success_screen.dart';
+import '../../services/guest_booking_storage.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final String bookingCode;
+  final String serviceType;
 
   const CheckoutScreen({
     Key? key,
     required this.bookingCode,
+    required this.serviceType,
   }) : super(key: key);
 
   @override
@@ -15,29 +19,16 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  final ServiceApi _api = ServiceApi();
   final _formKey = GlobalKey<FormState>();
+  final ServiceApi _api = ServiceApi();
 
-  final TextEditingController _firstNameCtrl = TextEditingController();
-  final TextEditingController _lastNameCtrl = TextEditingController();
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _phoneCtrl = TextEditingController();
+  final _firstName = TextEditingController();
+  final _lastName = TextEditingController();
+  final _email = TextEditingController();
+  final _phone = TextEditingController();
 
   bool _submitting = false;
   String _paymentMethod = 'offline';
-
-  @override
-  void dispose() {
-    _firstNameCtrl.dispose();
-    _lastNameCtrl.dispose();
-    _emailCtrl.dispose();
-    _phoneCtrl.dispose();
-    super.dispose();
-  }
-
-  // ---------------------------------------------------------------------------
-  // SUBMIT CHECKOUT
-  // ---------------------------------------------------------------------------
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -47,17 +38,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final res = await _api.confirmBooking(
         bookingCode: widget.bookingCode,
-        firstName: _firstNameCtrl.text.trim(),
-        lastName: _lastNameCtrl.text.trim(),
-        email: _emailCtrl.text.trim(),
-        phone: _phoneCtrl.text.trim(),
+        firstName: _firstName.text.trim(),
+        lastName: _lastName.text.trim(),
+        email: _email.text.trim(),
+        phone: _phone.text.trim(),
         paymentMethod: _paymentMethod,
       );
 
-      if (!mounted) return;
       setState(() => _submitting = false);
 
       if (res['status'] == 1) {
+      await GuestBookingStorage.saveBooking(
+        bookingCode: widget.bookingCode,
+        serviceType: widget.serviceType,
+        serviceName: res['service_title'] ?? 'Booking',
+        startDate: res['start_date'] ?? '',
+        endDate: res['end_date'] ?? '',
+        total: res['total_formatted'] ?? '',
+        imageUrl: res['service_icon'],
+      );
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -67,90 +67,51 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         );
       } else {
-        _snack(res['message'] ?? 'Checkout failed', Colors.red);
+        _snack(res['message'] ?? 'Checkout failed');
       }
     } catch (e) {
-      if (!mounted) return;
       setState(() => _submitting = false);
-      _snack(e.toString(), Colors.red);
+      _snack(e.toString());
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // UI
-  // ---------------------------------------------------------------------------
+  void _snack(String msg) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Guest Checkout'),
-      ),
-      body: SingleChildScrollView(
+      appBar: AppBar(title: const Text("Guest Checkout")),
+      body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
-              _buildTextField(
-                controller: _firstNameCtrl,
-                label: 'First Name',
-              ),
-              _buildTextField(
-                controller: _lastNameCtrl,
-                label: 'Last Name',
-              ),
-              _buildTextField(
-                controller: _emailCtrl,
-                label: 'Email',
-                keyboardType: TextInputType.emailAddress,
-              ),
-              _buildTextField(
-                controller: _phoneCtrl,
-                label: 'Phone',
-                keyboardType: TextInputType.phone,
+              _field(_firstName, "First name"),
+              _field(_lastName, "Last name"),
+              _field(_email, "Email", TextInputType.emailAddress),
+              _field(_phone, "Phone", TextInputType.phone),
+
+              const SizedBox(height: 16),
+              const Text("Payment Method",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+
+              RadioListTile(
+                value: 'offline',
+                groupValue: _paymentMethod,
+                title: const Text("Pay later (Offline)"),
+                onChanged: (v) => setState(() => _paymentMethod = v.toString()),
               ),
 
               const SizedBox(height: 24),
-
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Payment Method',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              RadioListTile<String>(
-                value: 'offline',
-                groupValue: _paymentMethod,
-                title: const Text('Pay later (Offline)'),
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() => _paymentMethod = v);
-                  }
-                },
-              ),
-
-              const SizedBox(height: 32),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _submitting ? null : _submit,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('CONFIRM BOOKING'),
-                ),
+              ElevatedButton(
+                onPressed: _submitting ? null : _submit,
+                child: _submitting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("CONFIRM BOOKING"),
               ),
             ],
           ),
@@ -159,41 +120,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // HELPERS
-  // ---------------------------------------------------------------------------
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+  Widget _field(TextEditingController c, String label,
+      [TextInputType type = TextInputType.text]) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        validator: (v) {
-          if (v == null || v.trim().isEmpty) {
-            return '$label is required';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  void _snack(String msg, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        backgroundColor: color,
+        controller: c,
+        keyboardType: type,
+        validator: (v) => v == null || v.isEmpty ? "$label required" : null,
+        decoration: InputDecoration(labelText: label),
       ),
     );
   }

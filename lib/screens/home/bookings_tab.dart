@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-
+import '../../services/guest_booking_storage.dart';
 import '../../providers/auth_provider.dart';
 import '../booking/booking_detail_screen.dart';
 
@@ -25,9 +25,10 @@ class _BookingsTabState extends State<BookingsTab> {
   }
 
   Future<List<BookingItem>> _loadBookings() async {
-    final auth = context.read<AuthProvider>();
-    if (!auth.isAuthenticated || auth.token == null) return [];
+  final auth = context.read<AuthProvider>();
 
+  // ✅ LOGGED-IN → API
+  if (auth.isAuthenticated && auth.token != null) {
     final res = await http.get(
       Uri.parse('${API_BASE_URL}user/booking-history'),
       headers: {
@@ -43,6 +44,14 @@ class _BookingsTabState extends State<BookingsTab> {
 
     return data.map((e) => BookingItem.fromJson(e)).toList();
   }
+
+  // 👤 GUEST → LOCAL STORAGE
+  final local =
+      await GuestBookingStorage.loadBookings();
+
+  return local.map((e) => BookingItem.fromJson(e)).toList();
+}
+
 
   @override
   Widget build(BuildContext context) {

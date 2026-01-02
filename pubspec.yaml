@@ -19,7 +19,7 @@ dependencies:
   # hoặc riverpod: ^2.4.9
   
   # Local Storage
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.3
   flutter_secure_storage: ^9.0.0
   
   # Navigation
