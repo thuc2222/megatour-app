@@ -53,7 +53,15 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
         serviceType: 'tour',
       );
 
-      _data = res['data'];
+      Map<String, dynamic> safeData = {};
+      if (res is Map<String, dynamic>) {
+        final raw = res['data'];
+        if (raw is Map<String, dynamic>) {
+          safeData = raw;
+        }
+      }
+
+      _data = safeData;
       _initPersons();
       _startAutoSlide();
 
@@ -62,6 +70,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
       setState(() => _loading = false);
     }
   }
+
 
   void _initPersons() {
     final persons = _data?['person_types'];

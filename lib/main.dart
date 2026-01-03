@@ -12,9 +12,7 @@ import 'screens/home/main_home_screen.dart';
 import 'screens/services/service_detail_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
 import 'screens/cart/cart_screen.dart';
-//import 'screens/booking/booking_history_screen.dart';
-//import 'screens/profile/edit_profile_screen.dart';
-
+import 'screens/news/article_detail_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +33,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Megatour',
         debugShowCheckedModeBanner: false,
+
         theme: ThemeData(
           primarySwatch: Colors.blue,
           scaffoldBackgroundColor: Colors.white,
@@ -44,44 +43,32 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
           ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.blue, width: 2),
-            ),
-          ),
         ),
 
-        /// App entry
+        /// ---------------------------------------------------------
+        /// APP ENTRY
+        /// ---------------------------------------------------------
         home: const SplashScreen(),
 
-        /// Dynamic service detail routing
-        onGenerateRoute: (settings) {
+        /// ---------------------------------------------------------
+        /// DYNAMIC ROUTES
+        /// ---------------------------------------------------------
+        onGenerateRoute: (RouteSettings settings) {
+          // =========================
+          // ARTICLE DETAIL (NEWS)
+          // =========================
+          if (settings.name == '/article-detail') {
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) => ArticleDetailScreen(
+                article: args['article'],
+              ),
+            );
+          }
+
+          // =========================
+          // SERVICE DETAIL
+          // =========================
           if (settings.name == '/service-detail' ||
               settings.name == '/hotel-detail' ||
               settings.name == '/tour-detail') {
@@ -92,7 +79,9 @@ class MyApp extends StatelessWidget {
                 builder: (_) => ServiceDetailScreen(
                   serviceId: args['id'],
                   serviceType: args['type'] ??
-                      (settings.name == '/hotel-detail' ? 'hotel' : 'tour'),
+                      (settings.name == '/hotel-detail'
+                          ? 'hotel'
+                          : 'tour'),
                 ),
               );
             }
@@ -107,17 +96,19 @@ class MyApp extends StatelessWidget {
               );
             }
           }
+
           return null;
         },
 
+        /// ---------------------------------------------------------
+        /// STATIC ROUTES
+        /// ---------------------------------------------------------
         routes: {
           '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),
           '/home': (_) => const MainHomeScreen(),
           '/wishlist': (_) => const WishlistScreen(),
           '/cart': (_) => const CartScreen(),
-          //'/booking-history': (_) => const BookingHistoryScreen(),
-          //'/edit-profile': (_) => const EditProfileScreen(),
         },
       ),
     );
@@ -125,7 +116,7 @@ class MyApp extends StatelessWidget {
 }
 
 /// ---------------------------------------------------------------------------
-/// Splash Screen (Guest-First, No Login Gate)
+/// SPLASH SCREEN
 /// ---------------------------------------------------------------------------
 
 class SplashScreen extends StatefulWidget {
@@ -143,51 +134,23 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _startApp() async {
-    // Restore auth silently (guest or logged-in)
     await context.read<AuthProvider>().initialize();
-
-    // Splash delay (branding / perceived performance)
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
-
-    // Always go to Home (guest-first)
     Navigator.of(context).pushReplacementNamed('/home');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.travel_explore,
-              size: 100,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Megatour',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    color: Colors.blue,
-                  ),
-            ),
-            const SizedBox(height: 48),
-
-            /// Subtle animation (no controller, no risk)
-            TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.85, end: 1.0),
-              duration: const Duration(milliseconds: 1200),
-              curve: Curves.easeOut,
-              builder: (_, scale, child) {
-                return Transform.scale(scale: scale, child: child);
-              },
-              child: const CircularProgressIndicator(),
-            ),
+            Icon(Icons.travel_explore, size: 96, color: Colors.blue),
+            SizedBox(height: 24),
+            CircularProgressIndicator(),
           ],
         ),
       ),

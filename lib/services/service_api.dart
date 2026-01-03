@@ -207,42 +207,38 @@ class ServiceApi {
   // ---------------------------------------------------------------------------
 
   Future<SearchResponse> searchServices({
-    required String serviceType,
-    String? serviceName,
-    int? locationId,
-    String? priceRange,
-    List<int>? reviewScore,
-    String? orderBy,
-    int limit = 9,
-    int page = 1,
-  }) async {
-    final queryParams = <String, dynamic>{
-      'limit': limit,
-      'page': page,
-    };
+  required String serviceType,
+  String? serviceName,
+  String? locationName,
+  String? orderBy,
+  int page = 1,
+}) async {
+  final queryParams = <String, String>{
+    'page': page.toString(),
+    'limit': '9',
+  };
 
-    if (serviceName?.isNotEmpty == true) {
-      queryParams['service_name'] = serviceName;
-    }
-    if (locationId != null) {
-      queryParams['location_id'] = locationId;
-    }
-    if (priceRange != null) {
-      queryParams['price_range'] = priceRange;
-    }
-    if (reviewScore != null && reviewScore.isNotEmpty) {
-      queryParams['review_score[]'] = reviewScore;
-    }
-    if (orderBy != null) {
-      queryParams['orderby'] = orderBy;
-    }
-
-    final endpoint = _getSearchEndpoint(serviceType);
-    final response =
-        await _apiService.get(endpoint, queryParameters: queryParams);
-
-    return SearchResponse.fromJson(response);
+  if (serviceName != null && serviceName.isNotEmpty) {
+    queryParams['service_name'] = serviceName;
   }
+
+  if (locationName != null && locationName.isNotEmpty) {
+    queryParams['location_name'] = locationName;
+  }
+
+  if (orderBy != null && orderBy.isNotEmpty) {
+    queryParams['orderby'] = orderBy;
+  }
+
+  final uri = Uri.parse('/$serviceType/search')
+      .replace(queryParameters: queryParams);
+
+  final Map<String, dynamic> response =
+      await _apiService.get(uri.toString());
+
+  return SearchResponse.fromJson(response);
+}
+
 
   // ---------------------------------------------------------------------------
   // ⭐ REVIEWS

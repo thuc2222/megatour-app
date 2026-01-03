@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:intl/intl.dart';
+
 import '../../services/service_api.dart';
 import '../booking/checkout_screen.dart';
 
@@ -12,7 +13,7 @@ class ServiceDetailScreen extends StatefulWidget {
   const ServiceDetailScreen({
     Key? key,
     required this.serviceId,
-    required this.serviceType,
+    this.serviceType = 'hotel',
   }) : super(key: key);
 
   @override
@@ -21,134 +22,143 @@ class ServiceDetailScreen extends StatefulWidget {
 
 class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   final ServiceApi _api = ServiceApi();
-  final PageController _galleryController = PageController();
 
   Map<String, dynamic>? _data;
-  List<dynamic> _rooms = [];
-  List<dynamic> _reviews = [];
-  Map<int, int> _selectedRoomCounts = {};
+  bool _loading = true;
+  bool _checking = false;
+  bool _submitting = false;
 
-  bool _isLoading = true;
-  bool _isCheckingAvailability = false;
-  bool _isSubmitting = false;
-
-  int _currentGalleryIndex = 0;
+  DateTime _startDate = DateTime.now();
+  DateTime _endDate = DateTime.now().add(const Duration(days: 1));
 
   int _adults = 2;
   int _children = 0;
-  DateTime? _startDate = DateTime.now();
-  DateTime? _endDate = DateTime.now().add(const Duration(days: 1));
+
+  List<dynamic> _rooms = [];
+  final Map<int, int> _roomQty = {};
+
+  // 🔹 Gallery
+  final PageController _pageController = PageController();
+  Timer? _galleryTimer;
+  int _currentPage = 0;
+
+  // ---------------------------------------------------------------------------
+  // INIT
+  // ---------------------------------------------------------------------------
 
   @override
   void initState() {
     super.initState();
-    _loadData();
-    _loadReviews();
+    _loadHotel();
+  }
 
-    Timer.periodic(const Duration(seconds: 5), (_) {
-      if (!_galleryController.hasClients) return;
-      final total = _getSafeGallery().length;
-      if (total <= 1) return;
+  @override
+  void dispose() {
+    _galleryTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
-      final next = (_currentGalleryIndex + 1) % total;
-      _galleryController.animateToPage(
-        next,
-        duration: const Duration(milliseconds: 800),
+  // ---------------------------------------------------------------------------
+  // LOAD
+  // ---------------------------------------------------------------------------
+
+  Future<void> _loadHotel() async {
+    try {
+      final res = await _api.getServiceDetailRaw(
+        id: widget.serviceId,
+        serviceType: 'hotel',
+      );
+
+      setState(() {
+        _data = res is Map ? res['data'] : null;
+        _loading = false;
+      });
+
+      _startGalleryAutoSlide();
+    } catch (_) {
+      setState(() => _loading = false);
+    }
+  }
+
+  void _startGalleryAutoSlide() {
+    final gallery = _data?['gallery'];
+    if (gallery is! List || gallery.length <= 1) return;
+
+    _galleryTimer?.cancel();
+    _galleryTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted) return;
+
+      _currentPage = (_currentPage + 1) % gallery.length;
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
     });
   }
 
   // ---------------------------------------------------------------------------
-  // API
+  // AVAILABILITY
   // ---------------------------------------------------------------------------
 
-  Future<void> _loadData() async {
-    try {
-      final res = await _api.getServiceDetailRaw(
-        id: widget.serviceId,
-        serviceType: widget.serviceType,
-      );
-      if (!mounted) return;
-
-      setState(() {
-        _data = res['data'] ?? {};
-        _isLoading = false;
-      });
-    } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _loadReviews() async {
-    try {
-      final data = await _api.getReviews(
-        serviceId: widget.serviceId,
-        serviceType: widget.serviceType,
-      );
-      if (mounted) setState(() => _reviews = data);
-    } catch (_) {}
-  }
-
   Future<void> _checkAvailability() async {
-    setState(() => _isCheckingAvailability = true);
+  setState(() => _checking = true);
 
-    try {
-      final res = await _api.checkAvailability(
-        id: widget.serviceId,
-        serviceType: widget.serviceType,
-        start: DateFormat('yyyy-MM-dd').format(_startDate!),
-        end: DateFormat('yyyy-MM-dd').format(_endDate!),
-        adults: _adults,
-        children: _children,
-      );
+  try {
+    final res = await _api.checkAvailability(
+      id: widget.serviceId,
+      serviceType: 'hotel',
+      start: DateFormat('yyyy-MM-dd').format(_startDate),
+      end: DateFormat('yyyy-MM-dd').format(_endDate),
+      adults: _adults,
+      children: _children,
+    );
 
-      if (!mounted) return;
+    final data = res is Map<String, dynamic> ? res['data'] : null;
 
-      final data = res?['data'];
-      setState(() {
-        _rooms = data is List
-            ? data
-            : data is Map
-                ? data.values.toList()
-                : [];
-        _isCheckingAvailability = false;
-      });
-    } catch (_) {
-      if (mounted) setState(() => _isCheckingAvailability = false);
-    }
+    setState(() {
+      _rooms = data is List ? data : [];
+      _checking = false;
+    });
+  } catch (_) {
+    setState(() => _checking = false);
   }
+}
 
-  Future<void> _submitBooking() async {
-    if (_selectedRoomCounts.values.every((v) => v == 0)) {
-      _snack('Please select at least one room.', Colors.orange);
+
+  // ---------------------------------------------------------------------------
+  // BOOK
+  // ---------------------------------------------------------------------------
+
+  Future<void> _bookNow() async {
+    if (_roomQty.values.every((e) => e == 0)) {
+      _snack('Please select at least one room', Colors.orange);
       return;
     }
 
-    setState(() => _isSubmitting = true);
+    setState(() => _submitting = true);
 
     try {
       final res = await _api.createBooking(
-        objectModel: widget.serviceType,
+        objectModel: 'hotel',
         objectId: widget.serviceId,
-        startDate: DateFormat('yyyy-MM-dd').format(_startDate!),
-        endDate: DateFormat('yyyy-MM-dd').format(_endDate!),
+        startDate: DateFormat('yyyy-MM-dd').format(_startDate),
+        endDate: DateFormat('yyyy-MM-dd').format(_endDate),
         adults: _adults,
         children: _children,
-        items: _selectedRoomCounts,
+        items: _roomQty,
       );
 
-      setState(() => _isSubmitting = false);
+      setState(() => _submitting = false);
 
       if (res is Map && res['status'] == 1) {
-        final String bookingCode = res['booking_code'];
-
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => CheckoutScreen(
-              bookingCode: bookingCode,
-              serviceType: widget.serviceType,
+              bookingCode: res['booking_code'],
+              serviceType: 'hotel',
             ),
           ),
         );
@@ -156,38 +166,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         _snack(res['message'] ?? 'Booking failed', Colors.red);
       }
     } catch (e) {
-      setState(() => _isSubmitting = false);
+      setState(() => _submitting = false);
       _snack(e.toString(), Colors.red);
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // SAFE HELPERS
-  // ---------------------------------------------------------------------------
-
-  List<String> _getSafeGallery() {
-    final g = _data?['gallery'];
-    final list = <String>[];
-
-    if (g is List) {
-      for (final i in g) {
-        if (i is String) list.add(i);
-        if (i is Map && i['large'] != null) list.add(i['large']);
-      }
-    }
-
-    if (list.isEmpty && _data?['image'] != null) {
-      list.add(_data!['image']);
-    }
-
-    return list;
-  }
-
-  List<dynamic> _getSafeList(String key) {
-    final d = _data?[key];
-    if (d is List) return d;
-    if (d is Map) return d.values.toList();
-    return [];
   }
 
   // ---------------------------------------------------------------------------
@@ -196,260 +177,458 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (_loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
+    if (_data == null) {
+      return const Scaffold(
+        body: Center(child: Text('Hotel not found')),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
+          ListView(
+            padding: EdgeInsets.zero,
+            children: [
               _buildGallery(),
-              SliverToBoxAdapter(child: _buildBody()),
+              _buildHeader(),
+              _buildConfig(),
+              _buildAvailability(),
+              _section('Description', HtmlWidget(_data!['content'] ?? '')),
+              _buildFacilities(),
+              _buildHotelServices(),
+              _buildPolicies(),
+              _buildReviews(),
+              _buildRelatedHotels(),
+              const SizedBox(height: 120),
             ],
           ),
-          _buildBottomBar(),
+          _bottomBar(),
         ],
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // SECTIONS
+  // ---------------------------------------------------------------------------
 
   Widget _buildGallery() {
-    final images = _getSafeGallery();
-
-    return SliverAppBar(
-      expandedHeight: 320,
-      backgroundColor: Colors.white,
-      flexibleSpace: FlexibleSpaceBar(
-        background: PageView.builder(
-          controller: _galleryController,
-          itemCount: images.length,
-          onPageChanged: (i) => _currentGalleryIndex = i,
-          itemBuilder: (_, i) => Image.network(images[i], fit: BoxFit.cover),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBody() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          _buildConfigCard(),
-          _buildAvailabilitySection(),
-          _section('Description', HtmlWidget(_data?['content'] ?? '')),
-          _section('Amenities', _buildFacilitiesGrid()),
-          _section('Reviews', _buildReviewList()),
-          _section('Related Stays', _buildRelatedHotels()),
-          const SizedBox(height: 140),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() => Text(
-        _data?['title'] ?? '',
-        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-      );
-
-  Widget _buildConfigCard() {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 20),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _counter('Adults', _adults, (v) => setState(() => _adults = v)),
-            _counter('Children', _children, (v) => setState(() => _children = v)),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.calendar_month),
-              title: Text(
-                '${DateFormat('MMM dd').format(_startDate!)} → ${DateFormat('MMM dd').format(_endDate!)}',
-              ),
-              onTap: _selectDates,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvailabilitySection() {
-    return Column(
-      children: [
-        ElevatedButton(
-          onPressed: _isCheckingAvailability ? null : _checkAvailability,
-          child: _isCheckingAvailability
-              ? const CircularProgressIndicator()
-              : const Text('CHECK AVAILABILITY'),
-        ),
-        ..._rooms.map(_buildRoomTile),
-      ],
-    );
-  }
-
-  Widget _buildRoomTile(dynamic room) {
-    final id = int.tryParse(room['id'].toString()) ?? 0;
-    final count = _selectedRoomCounts[id] ?? 0;
-
-    return ListTile(
-      title: Text(room['title'] ?? ''),
-      subtitle: Text('\$${room['price']}'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: count > 0
-                ? () => setState(() => _selectedRoomCounts[id] = count - 1)
-                : null,
-          ),
-          Text('$count'),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () =>
-                setState(() => _selectedRoomCounts[id] = count + 1),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReviewList() {
-    if (_reviews.isEmpty) return const Text('No reviews yet');
-    return SizedBox(
-      height: 120,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: _reviews
-            .map((r) => Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(r['content'] ?? ''),
-                  ),
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildRelatedHotels() {
-    final related = _getSafeList('related');
-    if (related.isEmpty) return const SizedBox.shrink();
+    final gallery = _data!['gallery'];
+    if (gallery is! List || gallery.isEmpty) {
+      return Container(height: 260, color: Colors.grey[300]);
+    }
 
     return SizedBox(
-      height: 160,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: related.length,
+      height: 260,
+      child: PageView.builder(
+        controller: _pageController,
+        itemCount: gallery.length,
+        onPageChanged: (i) => _currentPage = i,
         itemBuilder: (_, i) {
-          final item = related[i];
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ServiceDetailScreen(
-                    serviceId: int.tryParse(item['id'].toString()) ?? 0,
-                    serviceType: widget.serviceType,
-                  ),
-                ),
-              );
-            },
-            child: Card(
-              child: SizedBox(
-                width: 140,
-                child: Column(
-                  children: [
-                    Image.network(item['image'] ?? '', height: 80),
-                    Text(item['title'] ?? ''),
-                  ],
-                ),
-              ),
-            ),
+          return Image.network(
+            gallery[i],
+            fit: BoxFit.cover,
           );
         },
       ),
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildHeader() {
+    final review = _data!['review_score'];
+    final stars = _data!['star_rate'] ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(
+          _data!['title'],
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: List.generate(
+            stars,
+            (_) => const Icon(Icons.star, size: 18, color: Colors.amber),
+          ),
+        ),
+        const SizedBox(height: 6),
+        if (_data!['location'] != null)
+          Row(
+            children: [
+              const Icon(Icons.location_on, size: 16),
+              const SizedBox(width: 4),
+              Text(_data!['location']['name']),
+            ],
+          ),
+        const SizedBox(height: 12),
+        if (review != null)
+          Row(
+            children: [
+              const Icon(Icons.star, color: Colors.orange),
+              const SizedBox(width: 4),
+              Text(
+                '${review['score_total']} • ${review['score_text']} (${review['total_review']} reviews)',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+      ]),
+    );
+  }
+
+  Widget _buildConfig() {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(children: [
+          Row(
+            children: [
+              Expanded(child: _dateTile('Check in', _startDate, true)),
+              Expanded(child: _dateTile('Check out', _endDate, false)),
+            ],
+          ),
+          const Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _counter('Adults', _adults, (v) => setState(() => _adults = v)),
+              _counter('Children', _children, (v) => setState(() => _children = v)),
+            ],
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildAvailability() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(children: [
+        ElevatedButton(
+          onPressed: _checking ? null : _checkAvailability,
+          child: _checking
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text('CHECK AVAILABILITY'),
+        ),
+        const SizedBox(height: 12),
+        ..._rooms.map(_roomTile),
+      ]),
+    );
+  }
+
+  Widget _roomTile(dynamic room) {
+    final id = int.tryParse(room['id'].toString()) ?? 0;
+    final qty = _roomQty[id] ?? 0;
+
+    return Card(
+      child: ListTile(
+        leading: Image.network(room['image'] ?? '', width: 60, fit: BoxFit.cover),
+        title: Text(room['title'] ?? ''),
+        subtitle: Text('\$${room['price']}'),
+        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+          IconButton(
+            icon: const Icon(Icons.remove),
+            onPressed: qty > 0 ? () => setState(() => _roomQty[id] = qty - 1) : null,
+          ),
+          Text('$qty'),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => setState(() => _roomQty[id] = qty + 1),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildFacilities() {
+    final terms = _data!['terms']?['6']?['child'];
+    if (terms is! List) return const SizedBox.shrink();
+
+    return _section(
+      'Hotel Facilities',
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: terms.map<Widget>((e) => Chip(label: Text(e['title']))).toList(),
+      ),
+    );
+  }
+
+  Widget _buildHotelServices() {
+    final terms = _data!['terms']?['7']?['child'];
+    if (terms is! List) return const SizedBox.shrink();
+
+    return _section(
+      'Hotel Services',
+      Column(
+        children: terms.map<Widget>((e) => ListTile(
+          leading: const Icon(Icons.check_circle_outline),
+          title: Text(e['title']),
+        )).toList(),
+      ),
+    );
+  }
+
+  Widget _buildPolicies() {
+    final policies = _data!['policy'];
+    if (policies is! List) return const SizedBox.shrink();
+
+    return _section(
+      'Rules',
+      ExpansionPanelList.radio(
+        children: policies.map<ExpansionPanelRadio>((p) {
+          return ExpansionPanelRadio(
+            value: p['title'],
+            headerBuilder: (_, __) => ListTile(title: Text(p['title'])),
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(p['content']),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _reviewSummaryBox() {
+  final r = _data?['review_score'];
+  if (r == null) return const SizedBox.shrink();
+
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 16),
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [Color(0xFF0EA5E9), Color(0xFF2563EB)],
+      ),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      children: [
+        Text(
+          r['score_total'] ?? '0',
+          style: const TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              r['score_text'] ?? '',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              'Based on ${r['total_review']} reviews',
+              style: const TextStyle(color: Colors.white70),
+            ),
+          ],
+        )
+      ],
+    ),
+  );
+}
+
+
+  Widget _buildReviews() {
+    final reviews = _data?['review_lists']?['data'];
+    if (reviews is! List || reviews.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return _section(
+      'Reviews',
+      SizedBox(
+        height: 230,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: reviews.length,
+          itemBuilder: (_, i) {
+            final r = reviews[i];
+            final rating = int.tryParse(r['rate_number'].toString()) ?? 0;
+
+            return Container(
+              width: 320,
+              margin: const EdgeInsets.only(right: 14),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(r['author']?['name'] ?? 'Guest',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Row(
+                        children: List.generate(
+                          5,
+                          (i) => Icon(
+                            i < rating ? Icons.star : Icons.star_border,
+                            color: Colors.orange,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Text(r['content'] ?? ''),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRelatedHotels() {
+    final related = _data!['related'];
+    if (related is! List) return const SizedBox.shrink();
+
+    return _section(
+      'Related Hotels',
+      SizedBox(
+        height: 200,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: related.length,
+          itemBuilder: (_, i) {
+            final h = related[i];
+            return GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ServiceDetailScreen(
+                      serviceId: h['id'],
+                      serviceType: 'hotel',
+                    ),
+                  ),
+                );
+              },
+              child: SizedBox(
+                width: 160,
+                child: Card(
+                  child: Column(
+                    children: [
+                      Image.network(h['image'], height: 100, fit: BoxFit.cover),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          h['title'],
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------------------
+
+  Widget _section(String title, Widget child) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        child,
+      ]),
+    );
+  }
+
+  Widget _dateTile(String label, DateTime date, bool start) {
+    return ListTile(
+      title: Text(label),
+      subtitle: Text(DateFormat('MMM dd, yyyy').format(date)),
+      onTap: () async {
+        final d = await showDatePicker(
+          context: context,
+          firstDate: DateTime.now(),
+          lastDate: DateTime.now().add(const Duration(days: 365)),
+          initialDate: date,
+        );
+        if (d != null) {
+          setState(() {
+            start ? _startDate = d : _endDate = d;
+          });
+        }
+      },
+    );
+  }
+
+  Widget _counter(String label, int value, Function(int) onSet) {
+    return Column(children: [
+      Text(label),
+      Row(children: [
+        IconButton(
+          onPressed: value > 0 ? () => onSet(value - 1) : null,
+          icon: const Icon(Icons.remove),
+        ),
+        Text('$value'),
+        IconButton(
+          onPressed: () => onSet(value + 1),
+          icon: const Icon(Icons.add),
+        ),
+      ]),
+    ]);
+  }
+
+  Widget _bottomBar() {
     return Positioned(
       left: 0,
       right: 0,
       bottom: 0,
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+        ),
         child: ElevatedButton(
-          onPressed: _isSubmitting ? null : _submitBooking,
-          child: _isSubmitting
-              ? const CircularProgressIndicator()
+          onPressed: _submitting ? null : _bookNow,
+          child: _submitting
+              ? const CircularProgressIndicator(color: Colors.white)
               : const Text('BOOK NOW'),
         ),
       ),
     );
   }
 
-  Widget _counter(String label, int v, Function(int) set) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label),
-        Row(
-          children: [
-            IconButton(onPressed: () => set(v > 0 ? v - 1 : 0), icon: const Icon(Icons.remove)),
-            Text('$v'),
-            IconButton(onPressed: () => set(v + 1), icon: const Icon(Icons.add)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _section(String title, Widget child) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFacilitiesGrid() {
-    final terms = _getSafeList('terms');
-    return Wrap(
-      spacing: 8,
-      children: terms.map((t) => Chip(label: Text(t['name'] ?? ''))).toList(),
-    );
-  }
-
-  void _selectDates() async {
-    final r = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (r != null) setState(() {
-      _startDate = r.start;
-      _endDate = r.end;
-    });
-  }
-
-  void _snack(String msg, Color c) {
+  void _snack(String msg, Color color) {
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg), backgroundColor: c));
+        .showSnackBar(SnackBar(content: Text(msg), backgroundColor: color));
   }
 }

@@ -1,5 +1,3 @@
-// lib/providers/search_provider.dart
-
 import 'package:flutter/material.dart';
 import '../models/service_models.dart';
 import '../services/service_api.dart';
@@ -9,31 +7,32 @@ class SearchProvider extends ChangeNotifier {
 
   List<ServiceModel> _services = [];
   List<LocationModel> _locations = [];
+
   bool _isLoading = false;
   String? _errorMessage;
+
   int _currentPage = 1;
   int _totalPages = 1;
   String _currentServiceType = 'hotel';
+
+  // ================= GETTERS =================
 
   List<ServiceModel> get services => _services;
   List<LocationModel> get locations => _locations;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  int get currentPage => _currentPage;
-  int get totalPages => _totalPages;
+
   bool get hasMorePages => _currentPage < _totalPages;
 
-  // Search services
+  // ================= SEARCH SERVICES =================
+
   Future<void> searchServices({
-    required String serviceType,
-    String? serviceName,
-    int? locationId,
-    String? priceRange,
-    List<int>? reviewScore,
-    String? orderBy,
-    int limit = 9,
-    bool loadMore = false,
-  }) async {
+  required String serviceType,
+  String? serviceName,
+  String? locationName,
+  String? orderBy,
+  bool loadMore = false,
+}) async {
     try {
       if (!loadMore) {
         _isLoading = true;
@@ -41,18 +40,15 @@ class SearchProvider extends ChangeNotifier {
         _currentPage = 1;
         _currentServiceType = serviceType;
       }
-      
+
       _errorMessage = null;
       notifyListeners();
 
       final response = await _serviceApi.searchServices(
         serviceType: serviceType,
         serviceName: serviceName,
-        locationId: locationId,
-        priceRange: priceRange,
-        reviewScore: reviewScore,
+        locationName: serviceName,
         orderBy: orderBy,
-        limit: limit,
         page: loadMore ? _currentPage + 1 : 1,
       );
 
@@ -65,29 +61,33 @@ class SearchProvider extends ChangeNotifier {
       }
 
       _totalPages = response.lastPage;
-      _isLoading = false;
-      notifyListeners();
     } catch (e) {
-      _isLoading = false;
       _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Load more services
+  // ================= LOAD MORE =================
+
   Future<void> loadMore() async {
-    if (!hasMorePages || _isLoading) return;
-    
+    if (_isLoading || !hasMorePages) return;
+
     await searchServices(
       serviceType: _currentServiceType,
       loadMore: true,
     );
   }
 
-  // Load locations
-  Future<void> loadLocations({String? serviceName}) async {
+  // ================= LOAD LOCATIONS =================
+  // Used for autocomplete
+
+  Future<void> loadLocations({String? keyword}) async {
     try {
-      _locations = await _serviceApi.getLocations(serviceName: serviceName);
+      _locations = await _serviceApi.getLocations(
+        serviceName: keyword,
+      );
       notifyListeners();
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -95,7 +95,8 @@ class SearchProvider extends ChangeNotifier {
     }
   }
 
-  // Clear search
+  // ================= CLEAR =================
+
   void clearSearch() {
     _services = [];
     _currentPage = 1;

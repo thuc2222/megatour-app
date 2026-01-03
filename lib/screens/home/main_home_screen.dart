@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'home_tab.dart';
-import 'search_tab.dart';
+import 'news_tab.dart';
 import 'bookings_tab.dart';
 import 'profile_tab.dart';
 
@@ -22,13 +22,11 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   void initState() {
     super.initState();
 
-    _tabs = [
-      const HomeTab(),
-      const SearchTab(),
-      const BookingsTab(),
-
-      const ProfileTab(),
-
+    _tabs = const [
+      HomeTab(),
+      NewsTab(),
+      BookingsTab(),
+      ProfileTab(),
     ];
   }
 
@@ -55,8 +53,8 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.newspaper),
+            label: 'News',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.book_online),
