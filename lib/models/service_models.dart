@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 /// ===============================================================
-/// SERVICE MODEL (USED EVERYWHERE)
+/// SERVICE MODEL (USED EVERYWHERE – SAFE & COMPLETE)
 /// ===============================================================
 class ServiceModel {
   final int id;
   final String title;
   final String? objectModel;
+
+  /// RAW API VALUES (DO NOT CHANGE TYPES – UI DEPENDS ON THESE)
   final String? price;
   final String? salePrice;
   final String? image;
@@ -43,35 +45,65 @@ class ServiceModel {
       id: json['id'] ?? 0,
       title: json['title'] ?? '',
       objectModel: json['object_model'],
+
+      // ✅ PRICE (keep as String, but parsed safely)
       price: json['price']?.toString(),
       salePrice: json['sale_price']?.toString(),
+
       image: json['image'],
+
       isFeatured: json['is_featured'] is int
           ? json['is_featured']
           : int.tryParse(json['is_featured']?.toString() ?? '0') ?? 0,
+
+      // ✅ LOCATION (single source)
       locationName: json['location']?['name'],
       address: json['address'] ?? json['location']?['name'],
+
       content: json['content'],
+
+      // ✅ REVIEW
       reviewScore:
           review is Map ? review['score_total']?.toString() : null,
       reviewCount:
           review is Map ? review['total_review'] : null,
 
-      /// ⭐ SAFE parse
+      /// ⭐ STAR RATE (SAFE PARSE)
       starRate: json['star_rate'] is int
           ? json['star_rate']
           : int.tryParse(json['star_rate']?.toString() ?? ''),
     );
   }
 
-  /// ---------------------------------------------------------------
-  /// SAFE HELPERS (NO UI CRASH)
-  /// ---------------------------------------------------------------
+  // ===============================================================
+  // SAFE HELPERS (USE THESE IN UI)
+  // ===============================================================
+
+  /// ✅ Price as double (for sorting / math)
+  double get priceValue =>
+      double.tryParse(price ?? '') ?? 0;
+
+  double get salePriceValue =>
+      double.tryParse(salePrice ?? '') ?? 0;
+
+  bool get hasSale =>
+      salePriceValue > 0 && salePriceValue < priceValue;
+
+  /// ⭐ Star helpers (NO CRASH)
   bool get hasStar =>
       starRate != null && starRate! >= 1 && starRate! <= 5;
 
-  int get safeStar =>
-      hasStar ? starRate! : 0;
+  int get safeStar => hasStar ? starRate! : 0;
+
+  /// ⭐ Review helpers
+  double get reviewValue =>
+      double.tryParse(reviewScore ?? '') ?? 0;
+
+  bool get hasReview => reviewValue > 0;
+
+  /// 📍 Location fallback
+  String get displayLocation =>
+      address ?? locationName ?? 'Global';
 }
 
 /// ===============================================================

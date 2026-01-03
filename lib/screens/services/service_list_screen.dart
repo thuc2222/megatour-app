@@ -22,7 +22,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchCtrl = TextEditingController();
 
-  String? _searchText; // ✅ SINGLE SOURCE OF TRUTH
+  String? _searchText; // 🔑 keyword / location name
   String _selectedSort = 'price_low_high';
 
   @override
@@ -35,10 +35,10 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       final args =
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-      _searchText = args?['keyword']; // ✅ READ ARGUMENT
+      _searchText = args?['keyword'];
       _searchCtrl.text = _searchText ?? '';
 
-      _loadServices(); // 🔑 INITIAL LOAD
+      _loadServices();
     });
   }
 
@@ -56,7 +56,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   void _loadServices({bool loadMore = false}) {
     context.read<SearchProvider>().searchServices(
           serviceType: widget.serviceType,
-          locationName: _searchText,
+          locationName: _searchText, // 🔑 LOCATION NAME
           orderBy: _selectedSort,
           loadMore: loadMore,
         );
@@ -90,7 +90,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   }
 
   // ============================================================
-  // SEARCH BAR (AUTO-COMPLETE)
+  // SEARCH BAR
   // ============================================================
 
   Widget _buildSearchBar(SearchProvider provider) {
@@ -115,6 +115,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           _loadServices();
         },
         fieldViewBuilder: (_, controller, focusNode, __) {
+          controller.text = _searchCtrl.text;
           return TextField(
             controller: controller,
             focusNode: focusNode,
@@ -157,82 +158,153 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   }
 
   Widget _hotelCard(ServiceModel s) {
-    final stars = s.starRate ?? 0;
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/service-detail',
-          arguments: {'id': s.id, 'type': widget.serviceType},
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (s.image != null)
-              ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(18)),
-                child: Image.network(
-                  s.image!,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+  return GestureDetector(
+    onTap: () {
+      Navigator.pushNamed(
+        context,
+        '/service-detail',
+        arguments: {'id': s.id, 'type': widget.serviceType},
+      );
+    },
+    child: Card(
+      margin: const EdgeInsets.only(bottom: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ================= IMAGE + STAR BADGE =================
+          if (s.image != null)
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(18)),
+                  child: Image.network(
+                    s.image!,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (s.address != null || s.locationName != null)
-                    Text(
-                      s.address ?? s.locationName!,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      if (s.reviewScore != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            s.reviewScore!,
-                            style: const TextStyle(color: Colors.white),
+
+                // ⭐ STAR BADGE (FIXED)
+                if (s.safeStar > 0)
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: List.generate(
+                          s.safeStar,
+                          (_) => const Icon(
+                            Icons.star,
+                            size: 14,
+                            color: Colors.amber,
                           ),
                         ),
-                      const Spacer(),
-                      if (stars > 0)
-                        Row(
-                          children: List.generate(
-                            stars,
-                            (_) => const Icon(Icons.star,
-                                size: 16, color: Colors.amber),
-                          ),
-                        ),
-                    ],
+                      ),
+                    ),
                   ),
-                ],
-              ),
+              ],
             ),
-          ],
-        ),
+
+          // ================= CONTENT =================
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // TITLE
+                Text(
+                  s.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                // LOCATION
+                Text(
+                  s.displayLocation,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+
+                const SizedBox(height: 10),
+
+                // ================= PRICE + REVIEW =================
+                Row(
+                  children: [
+                    // 💰 PRICE (FIXED)
+                    Text(
+                      '\$${s.priceValue.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    // ⭐ REVIEW SCORE
+                    if (s.hasReview)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          s.reviewValue.toStringAsFixed(1),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+
+  Widget _starBadge(int stars) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.star, size: 14, color: Colors.amber),
+          const SizedBox(width: 4),
+          Text(
+            '$stars',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }
