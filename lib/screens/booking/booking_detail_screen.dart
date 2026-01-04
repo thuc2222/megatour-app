@@ -1,9 +1,12 @@
+// lib/screens/booking/booking_detail_screen.dart
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:intl/intl.dart';
 
-const String API_BASE_URL = 'https://megatour.vn/api/';
+import '../../providers/auth_provider.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingCode;
@@ -18,260 +21,112 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
-  late Future<BookingDetail> _future;
+  bool _loading = true;
+  Map<String, dynamic>? _booking;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _future = _loadDetail();
+    _loadBooking();
   }
 
-  Future<BookingDetail> _loadDetail() async {
-    final res = await http.get(
-      Uri.parse('${API_BASE_URL}user/booking/${widget.bookingCode}'),
-      headers: const {
-        'Accept': 'application/json',
-      },
-    );
+  Future<void> _loadBooking() async {
+    final auth = context.read<AuthProvider>();
+    final token = auth.token;
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to load booking');
+    if (token == null) {
+      setState(() {
+        _error = 'Please login to continue';
+        _loading = false;
+      });
+      return;
     }
 
-    final decoded = jsonDecode(res.body);
-
-    if (decoded['status'] != 1) {
-      throw Exception('Booking not found');
-    }
-
-    return BookingDetail.fromJson(decoded);
-  }
-
-  Future<void> _reload() async {
-    setState(() {
-      _future = _loadDetail();
-    });
-  }
-
-  Future<void> _confirmCancel(String code) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancel Booking'),
-        content: const Text('Are you sure you want to cancel this booking?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Yes, Cancel',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await http.post(
-        Uri.parse('${API_BASE_URL}user/booking/$code/cancel'),
-        headers: const {'Accept': 'application/json'},
+    try {
+      final res = await http.get(
+        Uri.parse(
+          'https://megatour.vn/api/booking/${widget.bookingCode}',
+        ),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
       );
-      _reload();
+
+      final body = json.decode(res.body);
+
+      if (res.statusCode != 200 || body['status'] != 1) {
+        throw Exception(body['message'] ?? 'Failed to load booking');
+      }
+
+      setState(() {
+        _booking = body['data'];
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
         title: const Text('Booking Details'),
-        centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: _reload,
-        child: FutureBuilder<BookingDetail>(
-          future: _future,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (!snapshot.hasData) {
-              return const Center(child: Text('Booking not found'));
-            }
-
-            final detail = snapshot.data!;
-
-            return ListView(
-              padding: const EdgeInsets.only(bottom: 24),
-              children: [
-                _headerImage(detail.service.image),
-                _statusBadge(detail.booking.status),
-
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    detail.service.title,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    '${detail.booking.startDate} → ${detail.booking.endDate}',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
-
-                if (detail.service.location != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.location_on, size: 16),
-                        const SizedBox(width: 4),
-                        Text(detail.service.location!),
-                      ],
-                    ),
-                  ),
-
-                _section(
-                  title: 'Booking Summary',
-                  children: [
-                    _row('Status', detail.booking.status.toUpperCase()),
-                    _row(
-                      'Guests',
-                      '${detail.booking.adults} Adults, ${detail.booking.children} Children',
-                    ),
-                    _row('Total', detail.booking.totalFormatted),
-                  ],
-                ),
-
-                if (detail.items.isNotEmpty)
-                  _section(
-                    title: 'Items',
-                    children: detail.items
-                        .map(
-                          (i) => _row(
-                            '${i.quantity} × ${i.name}',
-                            i.price ?? '',
-                          ),
-                        )
-                        .toList(),
-                  ),
-
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      if (detail.booking.isPayable)
-                        ElevatedButton(
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BookingPaymentWebView(
-                                  bookingCode: detail.booking.code,
-                                ),
-                              ),
-                            );
-                            _reload();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 52),
-                          ),
-                          child: const Text('Pay Now'),
-                        ),
-
-                      if (detail.booking.isCancelable)
-                        TextButton(
-                          onPressed: () =>
-                              _confirmCancel(detail.booking.code),
-                          child: const Text(
-                            'Cancel Booking',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-
-                      if (detail.invoiceUrl != null)
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => InvoiceWebView(
-                                  url: detail.invoiceUrl!,
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text('View Invoice'),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(child: Text(_error!))
+              : _buildContent(),
     );
   }
 
-  Widget _headerImage(String? image) {
-    if (image == null || image.isEmpty) {
-      return Container(
-        height: 220,
-        color: Colors.grey[300],
-        child: const Icon(Icons.image, size: 64),
-      );
-    }
+  Widget _buildContent() {
+    final b = _booking!;
+    final df = DateFormat('yyyy-MM-dd');
 
-    return Image.network(
-      image,
-      height: 220,
-      width: double.infinity,
-      fit: BoxFit.cover,
-    );
-  }
-
-  Widget _statusBadge(String status) {
-    final color = _statusColor(status);
-
-    return Align(
-      alignment: Alignment.topRight,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.4),
-              blurRadius: 10,
-            ),
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        _section(
+          title: 'Booking Info',
+          children: [
+            _row('Code', b['code']),
+            _row('Status', b['status']),
+            _row('Service', b['object_model']),
+            _row('Service ID', b['object_id'].toString()),
           ],
         ),
-        child: Text(
-          status.toUpperCase(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+        _section(
+          title: 'Date',
+          children: [
+            _row('Start', df.format(DateTime.parse(b['start_date']))),
+            _row('End', df.format(DateTime.parse(b['end_date']))),
+          ],
         ),
-      ),
+        _section(
+          title: 'Guest',
+          children: [
+            _row('Name', '${b['first_name']} ${b['last_name']}'),
+            _row('Email', b['email']),
+            _row('Phone', b['phone']),
+            _row('Guests', b['total_guests'].toString()),
+          ],
+        ),
+        _section(
+          title: 'Payment',
+          children: [
+            _row('Total', '\$${b['total']}'),
+            _row('Paid', '\$${b['paid'] ?? 0}'),
+            _row('Pay Now', '\$${b['pay_now'] ?? 0}'),
+          ],
+        ),
+      ],
     );
   }
 
@@ -279,8 +134,19 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     required String title,
     required List<Widget> children,
   }) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -291,14 +157,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(children: children),
-          ),
+          const SizedBox(height: 12),
+          ...children,
         ],
       ),
     );
@@ -306,220 +166,23 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
   Widget _row(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label),
           Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            label,
+            style: const TextStyle(color: Colors.grey),
+          ),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Color _statusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-      case 'paid':
-        return Colors.green;
-      case 'processing':
-      case 'pending':
-        return Colors.orange;
-      case 'cancelled':
-        return Colors.red;
-      default:
-        return Colors.blue;
-    }
-  }
-}
-
-/// ---------------------------------------------------------------------------
-/// PAYMENT WEBVIEW
-/// ---------------------------------------------------------------------------
-
-class BookingPaymentWebView extends StatefulWidget {
-  final String bookingCode;
-
-  const BookingPaymentWebView({
-    Key? key,
-    required this.bookingCode,
-  }) : super(key: key);
-
-  @override
-  State<BookingPaymentWebView> createState() =>
-      _BookingPaymentWebViewState();
-}
-
-class _BookingPaymentWebViewState extends State<BookingPaymentWebView> {
-  late final WebViewController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(
-        Uri.parse(
-          'https://megatour.vn/booking/${widget.bookingCode}/checkout',
-        ),
-      );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Payment')),
-      body: WebViewWidget(controller: _controller),
-    );
-  }
-}
-
-/// ---------------------------------------------------------------------------
-/// INVOICE WEBVIEW
-/// ---------------------------------------------------------------------------
-
-class InvoiceWebView extends StatelessWidget {
-  final String url;
-
-  const InvoiceWebView({
-    Key? key,
-    required this.url,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(url));
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Invoice')),
-      body: WebViewWidget(controller: controller),
-    );
-  }
-}
-
-/// ---------------------------------------------------------------------------
-/// DATA MODELS
-/// ---------------------------------------------------------------------------
-
-class BookingDetail {
-  final Booking booking;
-  final Service service;
-  final List<BookingItem> items;
-  final String? invoiceUrl;
-
-  BookingDetail({
-    required this.booking,
-    required this.service,
-    required this.items,
-    this.invoiceUrl,
-  });
-
-  factory BookingDetail.fromJson(Map<String, dynamic> json) {
-    return BookingDetail(
-      booking: Booking.fromJson(json['booking']),
-      service: Service.fromJson(json['service']),
-      items: (json['items'] as List? ?? [])
-          .map((e) => BookingItem.fromJson(e))
-          .toList(),
-      invoiceUrl: json['invoice_url'],
-    );
-  }
-}
-
-class Booking {
-  final String code;
-  final String status;
-  final String startDate;
-  final String endDate;
-  final int adults;
-  final int children;
-  final String totalFormatted;
-
-  Booking({
-    required this.code,
-    required this.status,
-    required this.startDate,
-    required this.endDate,
-    required this.adults,
-    required this.children,
-    required this.totalFormatted,
-  });
-
-  bool get isPayable =>
-      status == 'draft' ||
-      status == 'pending' ||
-      status == 'processing';
-
-  bool get isCancelable =>
-      status == 'draft' ||
-      status == 'pending' ||
-      status == 'processing';
-
-  factory Booking.fromJson(Map<String, dynamic> json) {
-  final adultsRaw = json['adults'];
-  final childrenRaw = json['children'];
-
-  return Booking(
-    code: json['code']?.toString() ?? '',
-    status: json['status']?.toString() ?? '',
-    startDate: json['start_date']?.toString() ?? '',
-    endDate: json['end_date']?.toString() ?? '',
-    adults: adultsRaw is int
-        ? adultsRaw
-        : int.tryParse(adultsRaw?.toString() ?? '0') ?? 0,
-    children: childrenRaw is int
-        ? childrenRaw
-        : int.tryParse(childrenRaw?.toString() ?? '0') ?? 0,
-    totalFormatted:
-        json['total_formatted']?.toString() ??
-        json['total']?.toString() ??
-        '',
-  );
-}
-}
-
-class Service {
-  final String title;
-  final String? image;
-  final String? location;
-
-  Service({
-    required this.title,
-    this.image,
-    this.location,
-  });
-
-  factory Service.fromJson(Map<String, dynamic> json) {
-    return Service(
-      title: json['title'] ?? '',
-      image: json['image'],
-      location: json['location'],
-    );
-  }
-}
-
-class BookingItem {
-  final String name;
-  final int quantity;
-  final String? price;
-
-  BookingItem({
-    required this.name,
-    required this.quantity,
-    this.price,
-  });
-
-  factory BookingItem.fromJson(Map<String, dynamic> json) {
-    return BookingItem(
-      name: json['name'] ?? '',
-      quantity: json['quantity'] ?? 1,
-      price: json['price'],
     );
   }
 }
