@@ -1,3 +1,6 @@
+// lib/screens/home/home_tab.dart
+// UPDATED: Added Event, Boat, Visa to search form with horizontal scroll
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +12,10 @@ import '../services/service_list_screen.dart';
 import '../services/service_detail_screen.dart';
 import '../services/tour_list_screen.dart';
 import '../services/tour_detail_screen.dart';
+import '../services/event_list_screen.dart'; // NEW
+import '../services/space_list_screen.dart'; // NEW
+import '../services/car_list_screen.dart';
+
 
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -73,7 +80,6 @@ class _HomeTabState extends State<HomeTab> {
         break;
 
       default:
-        // space / car later
         break;
     }
   }
@@ -95,6 +101,15 @@ class _HomeTabState extends State<HomeTab> {
           serviceType: 'hotel',
           title: 'Hotels',
         ),
+      ),
+    );
+  }
+
+  void _openEventList() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EventListScreen(),
       ),
     );
   }
@@ -147,92 +162,83 @@ class _HomeTabState extends State<HomeTab> {
   // ------------------------------------------------------------
 
   Widget _buildSliverAppBar(HomeProvider provider, AuthProvider auth) {
-  final banner = provider.homeData?.banner;
+    final banner = provider.homeData?.banner;
 
-  return SliverAppBar(
-    expandedHeight: 280,
-    pinned: true,
-    backgroundColor: const Color(0xFF667eea),
-    flexibleSpace: FlexibleSpaceBar(
-      background: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (banner?.bgImageUrl != null && banner!.bgImageUrl.isNotEmpty)
-            Image.network(
-              banner.bgImageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _buildDefaultGradient(),
-            )
-          else
-            _buildDefaultGradient(),
+    return SliverAppBar(
+      expandedHeight: 280,
+      pinned: true,
+      backgroundColor: const Color(0xFF667eea),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (banner?.bgImageUrl != null && banner!.bgImageUrl.isNotEmpty)
+              Image.network(
+                banner.bgImageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildDefaultGradient(),
+              )
+            else
+              _buildDefaultGradient(),
 
-          // 🔹 DARK OVERLAY
-          Container(color: Colors.black.withOpacity(0.35)),
+            Container(color: Colors.black.withOpacity(0.35)),
 
-          // 🔹 USER + BANNER CONTENT
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 60),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // USER ROW
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.white,
-                      backgroundImage: auth.user?.avatarUrl != null
-                          ? NetworkImage(auth.user!.avatarUrl!)
-                          : null,
-                      child: auth.user?.avatarUrl == null
-                          ? const Icon(Icons.person, color: Colors.grey)
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Hi, ${auth.user?.firstName ?? "Explorer"} 👋',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 60),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Colors.white,
+                        backgroundImage: auth.user?.avatarUrl != null
+                            ? NetworkImage(auth.user!.avatarUrl!)
+                            : null,
+                        child: auth.user?.avatarUrl == null
+                            ? const Icon(Icons.person, color: Colors.grey)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Hi, ${auth.user?.firstName ?? "Explorer"} 👋',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  if (banner?.title != null && banner!.title.isNotEmpty)
+                    Text(
+                      banner.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 14),
-
-                // BANNER TITLE
-                if (banner?.title != null && banner!.title.isNotEmpty)
+                  const SizedBox(height: 6),
                   Text(
-                    banner.title,
+                    banner?.subTitle ?? 'Discover your next adventure',
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                      color: Colors.white70,
+                      fontSize: 14,
                     ),
                   ),
-
-                const SizedBox(height: 6),
-
-                // SUBTITLE
-                Text(
-                  banner?.subTitle ?? 'Discover your next adventure',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // ------------------------------------------------------------
   // SECTIONS
@@ -285,7 +291,7 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   // ------------------------------------------------------------
-  // SEARCH FORM
+  // SEARCH FORM (UPDATED WITH HORIZONTAL SCROLL)
   // ------------------------------------------------------------
 
   Widget _buildSearchForm() {
@@ -322,34 +328,77 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
           const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _serviceShortcut(
-                icon: Icons.hotel,
-                label: "Hotel",
-                color: Colors.blue,
-                onTap: _openHotelList,
-              ),
-              _serviceShortcut(
-                icon: Icons.explore,
-                label: "Tour",
-                color: Colors.green,
-                onTap: _openTourList,
-              ),
-              _serviceShortcut(
-                icon: Icons.holiday_village,
-                label: "Space",
-                color: Colors.purple,
-                onTap: () {},
-              ),
-              _serviceShortcut(
-                icon: Icons.directions_car,
-                label: "Car",
-                color: Colors.orange,
-                onTap: () {},
-              ),
-            ],
+          
+          // SCROLLABLE SERVICE SHORTCUTS
+          SizedBox(
+            height: 75,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _serviceShortcut(
+                  icon: Icons.hotel,
+                  label: "Hotel",
+                  color: Colors.blue,
+                  onTap: _openHotelList,
+                ),
+                const SizedBox(width: 12),
+                _serviceShortcut(
+                  icon: Icons.explore,
+                  label: "Tour",
+                  color: Colors.green,
+                  onTap: _openTourList,
+                ),
+                const SizedBox(width: 12),
+                _serviceShortcut(
+                  icon: Icons.holiday_village,
+                  label: "Space",
+                  color: Colors.purple,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SpaceListScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 12),
+                _serviceShortcut(
+                  icon: Icons.directions_car,
+                  label: "Car",
+                  color: Colors.orange,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CarListScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 12),
+                _serviceShortcut(
+                  icon: Icons.confirmation_number,
+                  label: "Event",
+                  color: Colors.pink,
+                  onTap: _openEventList,
+                ),
+                const SizedBox(width: 12),
+                _serviceShortcut(
+                  icon: Icons.directions_boat,
+                  label: "Boat",
+                  color: Colors.cyan,
+                  onTap: () {},
+                ),
+                const SizedBox(width: 12),
+                _serviceShortcut(
+                  icon: Icons.credit_card,
+                  label: "Visa",
+                  color: Colors.indigo,
+                  onTap: () {},
+                ),
+              ],
+            ),
           ),
         ],
       ),
