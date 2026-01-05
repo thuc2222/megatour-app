@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/home_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/wishlist_provider.dart';
-import 'providers/locale_provider.dart'; // ✅ ADD THIS
+import 'providers/locale_provider.dart';
+import 'providers/app_config_provider.dart';
 
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -15,9 +17,6 @@ import 'screens/services/service_detail_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
 import 'screens/cart/cart_screen.dart';
 import 'screens/news/article_detail_screen.dart';
-
-// ✅ ADD THIS IMPORT
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,15 +33,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()), // ✅ ADD THIS
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AppConfigProvider()..load(),
+        ),
       ],
-      child: Consumer<LocaleProvider>( // ✅ WRAP WITH CONSUMER
-        builder: (context, localeProvider, child) {
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, _) {
           return MaterialApp(
             title: 'Megatour',
             debugShowCheckedModeBanner: false,
 
-            // ✅ ADD LOCALIZATION
             locale: localeProvider.locale,
             supportedLocales: LocaleProvider.supportedLocales,
             localizationsDelegates: const [
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
 
             home: const SplashScreen(),
 
-            onGenerateRoute: (RouteSettings settings) {
+            onGenerateRoute: (settings) {
               if (settings.name == '/article-detail') {
                 final args = settings.arguments as Map<String, dynamic>;
                 return MaterialPageRoute(

@@ -1,11 +1,4 @@
 // lib/screens/home/news_tab.dart
-//
-// FINAL VERSION
-// ✔ Auto-slide featured articles
-// ✔ Editorial / magazine layout
-// ✔ Safe async lifecycle
-// ✔ SQL-correct category filtering (cat_id)
-// ✔ Pass article object to detail (no broken API)
 
 import 'dart:async';
 import 'dart:convert';
@@ -142,6 +135,9 @@ class _NewsTabState extends State<NewsTab> {
                 _buildCategories(),
                 _buildFeatured(),
                 _buildList(),
+                const SliverToBoxAdapter(
+                child: SizedBox(height: 140),
+              ),
               ],
             ),
     );

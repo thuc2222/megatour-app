@@ -1,14 +1,17 @@
-// Add this to lib/screens/home/profile_tab.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../../providers/auth_provider.dart';
-import '../../providers/locale_provider.dart';
 import '../../widgets/language_selector.dart';
 
 class ProfileTab extends StatelessWidget {
-  const ProfileTab({Key? key}) : super(key: key);
+  final VoidCallback onBookingHistoryTap;
+
+  const ProfileTab({
+    Key? key,
+    required this.onBookingHistoryTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +74,7 @@ class ProfileTab extends StatelessWidget {
                       Text(
                         isLoggedIn
                             ? (user?.fullName ?? 'User')
-                            : l10n.profile, // ✅ Show "Profile" when not logged in
+                            : l10n.profile,
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -89,9 +92,9 @@ class ProfileTab extends StatelessWidget {
                           ),
                         )
                       else
-                        Text(
+                        const Text(
                           'Guest User',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: Colors.white70,
                           ),
@@ -111,7 +114,7 @@ class ProfileTab extends StatelessWidget {
               children: [
                 const SizedBox(height: 16),
 
-                /// STATS (only show when logged in)
+                /// STATS
                 if (isLoggedIn)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -128,13 +131,13 @@ class ProfileTab extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                /// ✅ LANGUAGE SECTION - ALWAYS VISIBLE (Before Login)
+                /// SETTINGS
                 _sectionHeader(l10n.settings),
                 const LanguageSelector(),
 
                 const SizedBox(height: 16),
 
-                /// ACCOUNT SECTION (Only if NOT logged in)
+                /// ACCOUNT (NOT LOGGED IN)
                 if (!isLoggedIn) ...[
                   _sectionHeader('Account'),
                   _menuItem(
@@ -151,10 +154,9 @@ class ProfileTab extends StatelessWidget {
                     l10n.startYourJourney,
                     () => Navigator.pushNamed(context, '/register'),
                   ),
-                  const SizedBox(height: 16),
                 ],
 
-                /// LOGGED IN USER OPTIONS
+                /// ACCOUNT (LOGGED IN)
                 if (isLoggedIn) ...[
                   _sectionHeader('Account'),
                   _menuItem(
@@ -162,7 +164,7 @@ class ProfileTab extends StatelessWidget {
                     Icons.history,
                     l10n.bookingHistory,
                     'View your bookings',
-                    () => Navigator.pushNamed(context, '/booking-history'),
+                    onBookingHistoryTap, // ✅ SWITCH TO BOOKINGS TAB
                   ),
                   _menuItem(
                     context,
@@ -178,8 +180,9 @@ class ProfileTab extends StatelessWidget {
                     'Update your password',
                     () => _changePassword(context),
                   ),
-                  const SizedBox(height: 16),
                 ],
+
+                const SizedBox(height: 16),
 
                 /// APP
                 _sectionHeader('App'),
@@ -191,7 +194,7 @@ class ProfileTab extends StatelessWidget {
                   () => _about(context),
                 ),
 
-                /// LOGOUT (Only if logged in)
+                /// LOGOUT
                 if (isLoggedIn)
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -210,7 +213,7 @@ class ProfileTab extends StatelessWidget {
                     ),
                   ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 140),
               ],
             ),
           ),
@@ -245,11 +248,13 @@ class ProfileTab extends StatelessWidget {
           children: [
             Icon(icon, color: Colors.blue),
             const SizedBox(height: 6),
-            Text(label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                )),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),

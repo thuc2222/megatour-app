@@ -25,11 +25,13 @@ class _MainHomeScreenState extends State<MainHomeScreen>
   void initState() {
     super.initState();
 
-    _tabs = const [
-      HomeTab(),
-      NewsTab(),
-      BookingsTab(),
-      ProfileTab(),
+    _tabs = [
+      const HomeTab(),
+      const NewsTab(),
+      const BookingsTab(),
+      ProfileTab(
+        onBookingHistoryTap: () => _onTabTapped(2),
+      ),
     ];
 
     // Animation controller for tab transitions
@@ -227,18 +229,16 @@ class _MainHomeScreenState extends State<MainHomeScreen>
     return Container(
       width: 32,
       height: 32,
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: const BoxDecoration(),
       child: Stack(
         children: [
           // Main travel icon
           Center(
-            child: Icon(
-              Icons.travel_explore,
-              size: isSelected ? 26 : 22,
-              color: isSelected ? Colors.white : Colors.blue,
+            child: Image.asset(
+              'assets/icon/icon.png',
+              width: isSelected ? 26 : 22,
+              height: isSelected ? 26 : 22,
+              fit: BoxFit.contain,
             ),
           ),
 
@@ -283,11 +283,15 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
   int _currentIndex = 0;
   late AnimationController _fabController;
 
-  late final List<Widget> _tabs = const [
-    HomeTab(),
-    NewsTab(),
-    BookingsTab(),
-    ProfileTab(),
+  late final List<Widget> _tabs = [
+  const HomeTab(),
+  const NewsTab(),
+  const BookingsTab(),
+  ProfileTab(
+    onBookingHistoryTap: () {
+      setState(() => _currentIndex = 2);
+    },
+  ),
   ];
 
   @override
@@ -319,53 +323,59 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
   }
 
   Widget _buildFloatingHomeButton() {
-    final isHome = _currentIndex == 0;
+  final isHome = _currentIndex == 0;
 
-    return AnimatedScale(
-      scale: isHome ? 1.1 : 1.0,
-      duration: const Duration(milliseconds: 200),
-      child: FloatingActionButton(
-        onPressed: () {
-          setState(() => _currentIndex = 0);
-          _fabController.forward().then((_) => _fabController.reverse());
-        },
-        elevation: isHome ? 8 : 4,
-        child: AnimatedBuilder(
-          animation: _fabController,
-          builder: (context, child) {
-            return Transform.rotate(
-              angle: _fabController.value * 0.5,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.blue.shade400,
-                      Colors.blue.shade700,
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.4),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                    ),
+  return AnimatedScale(
+    scale: isHome ? 1.1 : 1.0,
+    duration: const Duration(milliseconds: 200),
+    child: FloatingActionButton(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      highlightElevation: 0,
+      onPressed: () {
+        setState(() => _currentIndex = 0);
+        _fabController.forward().then((_) => _fabController.reverse());
+      },
+      child: AnimatedBuilder(
+        animation: _fabController,
+        builder: (context, _) {
+          return Transform.rotate(
+            angle: _fabController.value * 0.5,
+            child: Container(
+              width: 64, // ✅ EXPLICIT SIZE
+              height: 64,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.blue.shade400,
+                    Colors.blue.shade700,
                   ],
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.travel_explore,
-                    color: Colors.white,
-                    size: 32,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.4),
+                    blurRadius: 15,
+                    spreadRadius: 2,
                   ),
+                ],
+              ),
+              child: Center(
+                child: Image.asset(
+                  'assets/icon/icon.png',
+                  width: 34,
+                  height: 34,
+                  fit: BoxFit.contain,
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildBottomAppBar() {
     return BottomAppBar(
@@ -432,11 +442,13 @@ class _MainHomeScreenModernState extends State<MainHomeScreenModern> {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
 
-  late final List<Widget> _tabs = const [
-    HomeTab(),
-    NewsTab(),
-    BookingsTab(),
-    ProfileTab(),
+  late final List<Widget> _tabs = [
+  const HomeTab(),
+  const NewsTab(),
+  const BookingsTab(),
+  ProfileTab(
+    onBookingHistoryTap: () => setState(() => _currentIndex = 2),
+  ),
   ];
 
   @override
