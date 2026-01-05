@@ -105,47 +105,47 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
   // ---------------------------------------------------------------------------
 
   Future<void> _bookNow() async {
-    if (_selectedDate == null) {
-      _snack('Please select tour date', Colors.orange);
-      return;
-    }
+  if (_selectedDate == null) {
+    _snack('Please select tour date', Colors.orange);
+    return;
+  }
 
-    setState(() => _submitting = true);
+  setState(() => _submitting = true);
 
-    try {
-      final start = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-      final end = DateFormat('yyyy-MM-dd')
-          .format(_selectedDate!.add(const Duration(days: 1)));
+  try {
+    final start = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+    final end = DateFormat('yyyy-MM-dd')
+        .format(_selectedDate!.add(const Duration(days: 1)));
+    final res = await _api.createBooking(
+      objectModel: 'tour',
+      objectId: widget.tourId,
+      startDate: start,
+      endDate: end,
+      adults: _personCounts.values.fold(0, (sum, count) => sum + count), // Total count
+      personTypes: _personCounts, // Pass the actual person counts
+      items: {0: 1}, // Required by API
+    );
 
-      final res = await _api.createBooking(
-        objectModel: 'tour',
-        objectId: widget.tourId,
-        startDate: start,
-        endDate: end,
-        items: {0: 1}, // BookingCore requirement
-      );
+    setState(() => _submitting = false);
 
-      setState(() => _submitting = false);
-
-      // ✅ CORRECT SUCCESS CHECK
-      if (res is Map && res['status'] == 1 && res['booking_code'] != null) {
-        final String bookingCode = res['booking_code'];
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CheckoutScreen(
-              bookingCode: bookingCode,
-              serviceType: 'tour',
-            ),
+    if (res is Map && res['status'] == 1 && res['booking_code'] != null) {
+      final String bookingCode = res['booking_code'];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CheckoutScreen(
+            bookingCode: bookingCode,
+            serviceType: 'tour',
           ),
-        );
-      } else {
-        _snack(res['message'] ?? 'Booking failed', Colors.red);
-      }
-    } catch (e) {
-      setState(() => _submitting = false);
-      _snack(e.toString(), Colors.red);
+        ),
+      );
+    } else {
+      _snack(res['message'] ?? 'Booking failed', Colors.red);
     }
+  } catch (e) {
+    setState(() => _submitting = false);
+    _snack(e.toString(), Colors.red);
+  }
   }
 
   // ---------------------------------------------------------------------------

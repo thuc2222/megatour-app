@@ -1,5 +1,5 @@
 // lib/screens/home/home_tab.dart
-// UPDATED: Added Event, Boat, Visa to search form with horizontal scroll
+// UPDATED: Linked Boat, Car, and Space detail/list screens
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,10 +12,12 @@ import '../services/service_list_screen.dart';
 import '../services/service_detail_screen.dart';
 import '../services/tour_list_screen.dart';
 import '../services/tour_detail_screen.dart';
-import '../services/event_list_screen.dart'; // NEW
-import '../services/space_list_screen.dart'; // NEW
+import '../services/event_list_screen.dart';
+import '../services/space_list_screen.dart';
+import '../services/space_detail_screen.dart'; // NEW
 import '../services/car_list_screen.dart';
-
+import '../services/car_detail_screen.dart'; // NEW
+import '../services/boat_list_screen.dart'; // NEW
 
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -79,6 +81,24 @@ class _HomeTabState extends State<HomeTab> {
         );
         break;
 
+      case 'space': // LINKED: Featured Space
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SpaceDetailScreen(spaceId: item.id),
+          ),
+        );
+        break;
+
+      case 'car': // LINKED: Featured Car
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CarDetailScreen(carId: item.id),
+          ),
+        );
+        break;
+
       default:
         break;
     }
@@ -87,9 +107,7 @@ class _HomeTabState extends State<HomeTab> {
   void _openTourList() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const TourListScreen(title: 'Tours'),
-      ),
+      MaterialPageRoute(builder: (_) => const TourListScreen(title: 'Tours')),
     );
   }
 
@@ -108,9 +126,7 @@ class _HomeTabState extends State<HomeTab> {
   void _openEventList() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const EventListScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const EventListScreen()),
     );
   }
 
@@ -291,7 +307,7 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   // ------------------------------------------------------------
-  // SEARCH FORM (UPDATED WITH HORIZONTAL SCROLL)
+  // SEARCH FORM (UPDATED WITH LINKS)
   // ------------------------------------------------------------
 
   Widget _buildSearchForm() {
@@ -329,7 +345,6 @@ class _HomeTabState extends State<HomeTab> {
           ),
           const SizedBox(height: 15),
           
-          // SCROLLABLE SERVICE SHORTCUTS
           SizedBox(
             height: 75,
             child: ListView(
@@ -356,9 +371,7 @@ class _HomeTabState extends State<HomeTab> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const SpaceListScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SpaceListScreen()),
                     );
                   },
                 ),
@@ -370,9 +383,7 @@ class _HomeTabState extends State<HomeTab> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const CarListScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const CarListScreen()),
                     );
                   },
                 ),
@@ -388,7 +399,12 @@ class _HomeTabState extends State<HomeTab> {
                   icon: Icons.directions_boat,
                   label: "Boat",
                   color: Colors.cyan,
-                  onTap: () {},
+                  onTap: () { // LINKED: Boat search item
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BoatListScreen()),
+                    );
+                  },
                 ),
                 const SizedBox(width: 12),
                 _serviceShortcut(
@@ -434,7 +450,7 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   // ------------------------------------------------------------
-  // CARDS
+  // DYNAMIC SECTIONS
   // ------------------------------------------------------------
 
   Widget _buildDynamicSection({
@@ -523,6 +539,7 @@ class _HomeTabState extends State<HomeTab> {
                 height: 130,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(color: Colors.grey[200]),
               ),
             ),
             Padding(

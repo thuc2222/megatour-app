@@ -71,7 +71,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   final auth = context.read<AuthProvider>();
   final token = auth.token;
 
-  // ✅ CHECK LOGIN FIRST
+  // ✅ CHECK LOGIN
   if (token == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Please login to continue')),
@@ -82,40 +82,104 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   setState(() => _submitting = true);
 
   try {
-    final res = await http.post(
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    // ==========================================
+    // STEP 1: ADD TO CART (Get the Booking Code)
+    // ==========================================
+    final cartRes = await http.post(
       Uri.parse('https://megatour.vn/api/booking/addToCart'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-      body: {
-        'service_id': car['id'].toString(),
+      headers: headers,
+      body: json.encode({
+        'service_id': car['id'],
         'service_type': 'car',
         'start_date': DateFormat('yyyy-MM-dd').format(_pickupDate!),
         'end_date': DateFormat('yyyy-MM-dd').format(_returnDate!),
-        'number': '1',
-      },
+        'number': 1,
+      }),
     );
 
-    final data = json.decode(res.body);
+    final cartData = json.decode(cartRes.body);
 
-    if (res.statusCode != 200 || data['status'] != 1) {
-      throw Exception(data['message'] ?? 'Booking failed');
+    if (cartRes.statusCode != 200 || (cartData['status'] != 1 && cartData['status'] != true)) {
+      throw Exception(cartData['message'] ?? 'Failed to add to cart');
     }
 
-    // ✅ SUCCESS
+    // Extract the Code (Booking Core sometimes puts it in 'code' or inside 'data')
+    String? bookingCode = cartData['code'] ?? cartData['booking_code'];
+    if (bookingCode == null && cartData['data'] != null) {
+      bookingCode = cartData['data']['code'];
+    }
+
+    if (bookingCode == null) throw Exception('No booking code returned from API');
+
+    // ==========================================
+    // STEP 2: DO CHECKOUT (Confirm the Booking)
+    // ==========================================
+    final checkoutRes = await http.post(
+  Uri.parse('https://megatour.vn/api/booking/doCheckout'),
+  headers: headers,
+  body: json.encode({
+    'code': bookingCode,
+    'first_name': _firstName.text,
+    'last_name': _lastName.text,
+    'email': _email.text,
+    'phone': _phone.text,
+    'country': 'VN',
+    'city': 'Hanoi',
+    'address': 'Flutter App Booking',
+    'payment_gateway': 'offline',
+    'term_conditions': 1,
+  }),
+);
+
+final body = json.decode(checkoutRes.body);
+
+// ✅ Booking Core API BUG WORKAROUND
+if (
+  checkoutRes.statusCode == 200 ||
+  body.toString().contains('booking.thankyou')
+) {
+  if (!mounted) return;
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => BookingSuccessScreen(
+        bookingCode: bookingCode!,
+      ),
+    ),
+  );
+  return;
+}
+
+
+    final checkoutData = json.decode(checkoutRes.body);
+
+    if (checkoutRes.statusCode != 200 || (checkoutData['status'] != 1 && checkoutData['status'] != true)) {
+      throw Exception(checkoutData['message'] ?? 'Checkout failed');
+    }
+
+    // ✅ SUCCESS: Now we navigate
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => BookingSuccessScreen(
-          bookingCode: data['booking_code'] ?? '',
+          bookingCode: bookingCode ?? '',
         ),
       ),
     );
+
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.toString())),
+      SnackBar(
+        content: Text('Error: ${e.toString()}'),
+        backgroundColor: Colors.red,
+      ),
     );
   } finally {
     setState(() => _submitting = false);

@@ -1,0 +1,133 @@
+{
+  "@@locale": "fr",
+  
+  "appTitle": "Megatour",
+  
+  "home": "Accueil",
+  "news": "Actualités",
+  "bookings": "Réservations",
+  "profile": "Profil",
+  "search": "Rechercher",
+  
+  "login": "Connexion",
+  "register": "S'inscrire",
+  "logout": "Déconnexion",
+  "email": "E-mail",
+  "password": "Mot de passe",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "phone": "Téléphone",
+  "address": "Adresse",
+  
+  "welcomeBack": "Bon retour",
+  "loginToContinue": "Connectez-vous pour continuer votre voyage",
+  "dontHaveAccount": "Vous n'avez pas de compte?",
+  "alreadyHaveAccount": "Vous avez déjà un compte?",
+  "forgotPassword": "Mot de passe oublié?",
+  "rememberMe": "Se souvenir de moi",
+  
+  "createAccount": "Créer un compte",
+  "joinUs": "Rejoignez Megatour",
+  "startYourJourney": "Commencez votre voyage aujourd'hui",
+  "acceptTerms": "J'accepte les Termes et Conditions",
+  
+  "hotels": "Hôtels",
+  "tours": "Tours",
+  "spaces": "Espaces",
+  "cars": "Voitures",
+  "boats": "Bateaux",
+  "events": "Événements",
+  
+  "searchDestinations": "Rechercher des destinations...",
+  "checkIn": "Arrivée",
+  "checkOut": "Départ",
+  "adults": "Adultes",
+  "children": "Enfants",
+  "guests": "Invités",
+  "rooms": "Chambres",
+  
+  "bookNow": "Réserver maintenant",
+  "checkAvailability": "Vérifier la disponibilité",
+  "viewDetails": "Voir les détails",
+  "seeAll": "Voir tout",
+  
+  "featured": "En vedette",
+  "popular": "Populaire",
+  "recommended": "Recommandé",
+  "newOffers": "Nouvelles offres",
+  
+  "price": "Prix",
+  "pricePerNight": "Prix par nuit",
+  "total": "Total",
+  "subtotal": "Sous-total",
+  "discount": "Réduction",
+  
+  "night": "{count, plural, =1{nuit} other{nuits}}",
+  
+  "reviews": "Avis",
+  "rating": "Note",
+  "excellent": "Excellent",
+  "veryGood": "Très bien",
+  "good": "Bien",
+  "fair": "Correct",
+  "poor": "Médiocre",
+  
+  "description": "Description",
+  "amenities": "Équipements",
+  "facilities": "Installations",
+  "features": "Caractéristiques",
+  "location": "Emplacement",
+  "policies": "Politiques",
+  
+  "myBookings": "Mes réservations",
+  "bookingHistory": "Historique des réservations",
+  "bookingCode": "Code de réservation",
+  "bookingConfirmed": "Réservation confirmée!",
+  "bookingSuccessMessage": "Votre réservation a été créée avec succès.",
+  "saveBookingCode": "Veuillez enregistrer ce code pour vos dossiers.",
+  
+  "checkout": "Paiement",
+  "guestInformation": "Informations sur l'invité",
+  "paymentMethod": "Mode de paiement",
+  "specialRequests": "Demandes spéciales",
+  "confirmBooking": "Confirmer la réservation",
+  
+  "wishlist": "Liste de souhaits",
+  "addToWishlist": "Ajouter aux favoris",
+  "removeFromWishlist": "Retirer des favoris",
+  "wishlistEmpty": "Votre liste de souhaits est vide",
+  
+  "settings": "Paramètres",
+  "language": "Langue",
+  "changeLanguage": "Changer de langue",
+  "selectLanguage": "Sélectionner la langue",
+  
+  "cancel": "Annuler",
+  "ok": "OK",
+  "save": "Enregistrer",
+  "delete": "Supprimer",
+  "edit": "Modifier",
+  "back": "Retour",
+  "next": "Suivant",
+  "done": "Terminé",
+  "retry": "Réessayer",
+  
+  "loading": "Chargement...",
+  "noResultsFound": "Aucun résultat trouvé",
+  "error": "Erreur",
+  "success": "Succès",
+  
+  "emailRequired": "L'e-mail est requis",
+  "emailInvalid": "Veuillez entrer un e-mail valide",
+  "passwordRequired": "Le mot de passe est requis",
+  "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères",
+  "fieldRequired": "{field} est requis",
+  
+  "loginFailed": "Échec de la connexion",
+  "registrationFailed": "Échec de l'inscription",
+  "bookingFailed": "Échec de la réservation",
+  "connectionError": "Erreur de connexion",
+  
+  "backToHome": "Retour à l'accueil",
+  "startExploring": "Commencer à explorer"
+}

@@ -1,0 +1,133 @@
+{
+  "@@locale": "ar",
+  
+  "appTitle": "ميجاتور",
+  
+  "home": "الرئيسية",
+  "news": "الأخبار",
+  "bookings": "الحجوزات",
+  "profile": "الملف الشخصي",
+  "search": "بحث",
+  
+  "login": "تسجيل الدخول",
+  "register": "تسجيل",
+  "logout": "تسجيل الخروج",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "firstName": "الاسم الأول",
+  "lastName": "اسم العائلة",
+  "phone": "الهاتف",
+  "address": "العنوان",
+  
+  "welcomeBack": "مرحباً بعودتك",
+  "loginToContinue": "قم بتسجيل الدخول لمتابعة رحلتك",
+  "dontHaveAccount": "ليس لديك حساب؟",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟",
+  "forgotPassword": "هل نسيت كلمة المرور؟",
+  "rememberMe": "تذكرني",
+  
+  "createAccount": "إنشاء حساب",
+  "joinUs": "انضم إلى ميجاتور",
+  "startYourJourney": "ابدأ رحلتك اليوم",
+  "acceptTerms": "أوافق على الشروط والأحكام",
+  
+  "hotels": "الفنادق",
+  "tours": "الجولات",
+  "spaces": "الأماكن",
+  "cars": "السيارات",
+  "boats": "القوارب",
+  "events": "الفعاليات",
+  
+  "searchDestinations": "ابحث عن وجهات...",
+  "checkIn": "تسجيل الوصول",
+  "checkOut": "تسجيل المغادرة",
+  "adults": "البالغون",
+  "children": "الأطفال",
+  "guests": "الضيوف",
+  "rooms": "الغرف",
+  
+  "bookNow": "احجز الآن",
+  "checkAvailability": "تحقق من التوفر",
+  "viewDetails": "عرض التفاصيل",
+  "seeAll": "عرض الكل",
+  
+  "featured": "مميز",
+  "popular": "شائع",
+  "recommended": "موصى به",
+  "newOffers": "عروض جديدة",
+  
+  "price": "السعر",
+  "pricePerNight": "السعر لكل ليلة",
+  "total": "المجموع",
+  "subtotal": "المجموع الفرعي",
+  "discount": "خصم",
+  
+  "night": "{count, plural, =1{ليلة} other{ليالٍ}}",
+  
+  "reviews": "التقييمات",
+  "rating": "التصنيف",
+  "excellent": "ممتاز",
+  "veryGood": "جيد جداً",
+  "good": "جيد",
+  "fair": "مقبول",
+  "poor": "ضعيف",
+  
+  "description": "الوصف",
+  "amenities": "وسائل الراحة",
+  "facilities": "المرافق",
+  "features": "المميزات",
+  "location": "الموقع",
+  "policies": "السياسات",
+  
+  "myBookings": "حجوزاتي",
+  "bookingHistory": "سجل الحجوزات",
+  "bookingCode": "رمز الحجز",
+  "bookingConfirmed": "تم تأكيد الحجز!",
+  "bookingSuccessMessage": "تم إنشاء حجزك بنجاح.",
+  "saveBookingCode": "يرجى حفظ هذا الرمز لسجلاتك.",
+  
+  "checkout": "الدفع",
+  "guestInformation": "معلومات الضيف",
+  "paymentMethod": "طريقة الدفع",
+  "specialRequests": "طلبات خاصة",
+  "confirmBooking": "تأكيد الحجز",
+  
+  "wishlist": "قائمة الأمنيات",
+  "addToWishlist": "إضافة إلى المفضلة",
+  "removeFromWishlist": "إزالة من المفضلة",
+  "wishlistEmpty": "قائمة الأمنيات فارغة",
+  
+  "settings": "الإعدادات",
+  "language": "اللغة",
+  "changeLanguage": "تغيير اللغة",
+  "selectLanguage": "اختر اللغة",
+  
+  "cancel": "إلغاء",
+  "ok": "موافق",
+  "save": "حفظ",
+  "delete": "حذف",
+  "edit": "تعديل",
+  "back": "رجوع",
+  "next": "التالي",
+  "done": "تم",
+  "retry": "إعادة المحاولة",
+  
+  "loading": "جارٍ التحميل...",
+  "noResultsFound": "لم يتم العثور على نتائج",
+  "error": "خطأ",
+  "success": "نجح",
+  
+  "emailRequired": "البريد الإلكتروني مطلوب",
+  "emailInvalid": "الرجاء إدخال بريد إلكتروني صالح",
+  "passwordRequired": "كلمة المرور مطلوبة",
+  "passwordTooShort": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+  "fieldRequired": "{field} مطلوب",
+  
+  "loginFailed": "فشل تسجيل الدخول",
+  "registrationFailed": "فشل التسجيل",
+  "bookingFailed": "فشل الحجز",
+  "connectionError": "خطأ في الاتصال",
+  
+  "backToHome": "العودة إلى الصفحة الرئيسية",
+  "startExploring": "ابدأ الاستكشاف"
+}

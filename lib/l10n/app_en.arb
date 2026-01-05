@@ -1,0 +1,147 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "Megatour",
+  
+  "home": "Home",
+  "news": "News",
+  "bookings": "Bookings",
+  "profile": "Profile",
+  "search": "Search",
+  
+  "login": "Login",
+  "register": "Register",
+  "logout": "Logout",
+  "email": "Email",
+  "password": "Password",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "phone": "Phone",
+  "address": "Address",
+  
+  "welcomeBack": "Welcome Back",
+  "loginToContinue": "Login to continue your journey",
+  "dontHaveAccount": "Don't have an account?",
+  "alreadyHaveAccount": "Already have an account?",
+  "forgotPassword": "Forgot Password?",
+  "rememberMe": "Remember me",
+  
+  "createAccount": "Create Account",
+  "joinUs": "Join Megatour",
+  "startYourJourney": "Start your journey with us today",
+  "acceptTerms": "I agree to the Terms and Conditions",
+  
+  "hotels": "Hotels",
+  "tours": "Tours",
+  "spaces": "Spaces",
+  "cars": "Cars",
+  "boats": "Boats",
+  "events": "Events",
+  
+  "searchDestinations": "Search destinations...",
+  "checkIn": "Check in",
+  "checkOut": "Check out",
+  "adults": "Adults",
+  "children": "Children",
+  "guests": "Guests",
+  "rooms": "Rooms",
+  
+  "bookNow": "Book Now",
+  "checkAvailability": "Check Availability",
+  "viewDetails": "View Details",
+  "seeAll": "See All",
+  
+  "featured": "Featured",
+  "popular": "Popular",
+  "recommended": "Recommended",
+  "newOffers": "New Offers",
+  
+  "price": "Price",
+  "pricePerNight": "Price per night",
+  "total": "Total",
+  "subtotal": "Subtotal",
+  "discount": "Discount",
+  
+  "night": "{count, plural, =1{night} other{nights}}",
+  "@night": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "reviews": "Reviews",
+  "rating": "Rating",
+  "excellent": "Excellent",
+  "veryGood": "Very Good",
+  "good": "Good",
+  "fair": "Fair",
+  "poor": "Poor",
+  
+  "description": "Description",
+  "amenities": "Amenities",
+  "facilities": "Facilities",
+  "features": "Features",
+  "location": "Location",
+  "policies": "Policies",
+  
+  "myBookings": "My Bookings",
+  "bookingHistory": "Booking History",
+  "bookingCode": "Booking Code",
+  "bookingConfirmed": "Booking Confirmed!",
+  "bookingSuccessMessage": "Your booking has been successfully created.",
+  "saveBookingCode": "Please save this code for your records.",
+  
+  "checkout": "Checkout",
+  "guestInformation": "Guest Information",
+  "paymentMethod": "Payment Method",
+  "specialRequests": "Special Requests",
+  "confirmBooking": "Confirm Booking",
+  
+  "wishlist": "Wishlist",
+  "addToWishlist": "Add to Wishlist",
+  "removeFromWishlist": "Remove from Wishlist",
+  "wishlistEmpty": "Your wishlist is empty",
+  
+  "settings": "Settings",
+  "language": "Language",
+  "changeLanguage": "Change Language",
+  "selectLanguage": "Select Language",
+  
+  "cancel": "Cancel",
+  "ok": "OK",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "back": "Back",
+  "next": "Next",
+  "done": "Done",
+  "retry": "Retry",
+  
+  "loading": "Loading...",
+  "noResultsFound": "No results found",
+  "error": "Error",
+  "success": "Success",
+  
+  "emailRequired": "Email is required",
+  "emailInvalid": "Please enter a valid email",
+  "passwordRequired": "Password is required",
+  "passwordTooShort": "Password must be at least 6 characters",
+  "fieldRequired": "{field} is required",
+  "@fieldRequired": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "loginFailed": "Login failed",
+  "registrationFailed": "Registration failed",
+  "bookingFailed": "Booking failed",
+  "connectionError": "Connection error",
+  
+  "backToHome": "Back to Home",
+  "startExploring": "Start Exploring"
+}

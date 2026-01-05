@@ -1,7 +1,8 @@
-// lib/screens/auth/login_screen.dart
+// Example: Update lib/screens/auth/login_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // ✅ ADD THIS
 import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -38,13 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Navigate to home screen
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
-      // Show error message
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Login failed'),
+          content: Text(authProvider.errorMessage ?? l10n.loginFailed),
           backgroundColor: Colors.red,
         ),
       );
@@ -53,6 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // ✅ GET TRANSLATIONS
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -64,7 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 60),
                 
-                // Logo or App Name
                 const Icon(
                   Icons.travel_explore,
                   size: 80,
@@ -73,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 
                 Text(
-                  'Welcome Back',
+                  l10n.welcomeBack, // ✅ TRANSLATED
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -82,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 8),
                 
                 Text(
-                  'Login to continue your journey',
+                  l10n.loginToContinue, // ✅ TRANSLATED
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey,
                       ),
@@ -95,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: l10n.email, // ✅ TRANSLATED
                     hintText: 'Enter your email',
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
@@ -104,10 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return l10n.emailRequired; // ✅ TRANSLATED
                     }
                     if (!value.contains('@')) {
-                      return 'Please enter a valid email';
+                      return l10n.emailInvalid; // ✅ TRANSLATED
                     }
                     return null;
                   },
@@ -119,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: l10n.password, // ✅ TRANSLATED
                     hintText: 'Enter your password',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
@@ -140,10 +141,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return l10n.passwordRequired; // ✅ TRANSLATED
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return l10n.passwordTooShort; // ✅ TRANSLATED
                     }
                     return null;
                   },
@@ -164,14 +165,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             });
                           },
                         ),
-                        const Text('Remember me'),
+                        Text(l10n.rememberMe), // ✅ TRANSLATED
                       ],
                     ),
                     TextButton(
-                      onPressed: () {
-                        // TODO: Navigate to forgot password
-                      },
-                      child: const Text('Forgot Password?'),
+                      onPressed: () {},
+                      child: Text(l10n.forgotPassword), // ✅ TRANSLATED
                     ),
                   ],
                 ),
@@ -196,59 +195,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text(
-                              'Login',
-                              style: TextStyle(fontSize: 16),
+                          : Text(
+                              l10n.login, // ✅ TRANSLATED
+                              style: const TextStyle(fontSize: 16),
                             ),
                     );
                   },
-                ),
-                const SizedBox(height: 24),
-                
-                // Divider
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: Colors.grey[300])),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'OR',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: Colors.grey[300])),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                
-                // Social login buttons
-                OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement Google login
-                  },
-                  icon: const Icon(Icons.g_mobiledata, size: 28),
-                  label: const Text('Continue with Google'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                
-                OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement Facebook login
-                  },
-                  icon: const Icon(Icons.facebook, color: Colors.blue),
-                  label: const Text('Continue with Facebook'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 24),
                 
@@ -256,14 +208,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account? "),
+                    Text(l10n.dontHaveAccount), // ✅ TRANSLATED
+                    const Text(' '),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed('/register');
                       },
-                      child: const Text(
-                        'Register',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Text(
+                        l10n.register, // ✅ TRANSLATED
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

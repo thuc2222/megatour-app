@@ -1,6 +1,11 @@
+// Add this to lib/screens/home/profile_tab.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
+import '../../widgets/language_selector.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({Key? key}) : super(key: key);
@@ -10,6 +15,7 @@ class ProfileTab extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final user = auth.user;
     final isLoggedIn = auth.isAuthenticated;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(
@@ -37,11 +43,11 @@ class ProfileTab extends StatelessWidget {
                     children: [
                       const SizedBox(height: 20),
 
-                      /// Avatar (safe)
+                      /// Avatar
                       CircleAvatar(
                         radius: 48,
                         backgroundColor: Colors.white,
-                        child: user?.avatarUrl != null
+                        child: isLoggedIn && user?.avatarUrl != null
                             ? ClipOval(
                                 child: Image.network(
                                   user!.avatarUrl!,
@@ -52,7 +58,11 @@ class ProfileTab extends StatelessWidget {
                                       _avatarFallback(user),
                                 ),
                               )
-                            : _avatarFallback(user),
+                            : Icon(
+                                Icons.person,
+                                size: 48,
+                                color: Colors.grey[400],
+                              ),
                       ),
 
                       const SizedBox(height: 12),
@@ -61,7 +71,7 @@ class ProfileTab extends StatelessWidget {
                       Text(
                         isLoggedIn
                             ? (user?.fullName ?? 'User')
-                            : 'Guest User',
+                            : l10n.profile, // ✅ Show "Profile" when not logged in
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -69,10 +79,18 @@ class ProfileTab extends StatelessWidget {
                         ),
                       ),
 
-                      /// Email
-                      if (user?.email != null)
+                      /// Email / Status
+                      if (isLoggedIn && user?.email != null)
                         Text(
                           user!.email!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                        )
+                      else
+                        Text(
+                          'Guest User',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.white70,
@@ -93,54 +111,63 @@ class ProfileTab extends StatelessWidget {
               children: [
                 const SizedBox(height: 16),
 
-                /// STATS (future-ready)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      _statCard(Icons.book_online, 'Bookings'),
-                      const SizedBox(width: 12),
-                      _statCard(Icons.favorite, 'Wishlist'),
-                      const SizedBox(width: 12),
-                      _statCard(Icons.star, 'Reviews'),
-                    ],
+                /// STATS (only show when logged in)
+                if (isLoggedIn)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        _statCard(Icons.book_online, l10n.bookings),
+                        const SizedBox(width: 12),
+                        _statCard(Icons.favorite, l10n.wishlist),
+                        const SizedBox(width: 12),
+                        _statCard(Icons.star, l10n.reviews),
+                      ],
+                    ),
                   ),
-                ),
 
                 const SizedBox(height: 24),
 
-                /// ACCOUNT
-                _sectionHeader('Account'),
-                _menuItem(
-                  context,
-                  Icons.history,
-                  'Booking History',
-                  'View your bookings',
-                  () => Navigator.pushNamed(context, '/booking-history'),
-                ),
+                /// ✅ LANGUAGE SECTION - ALWAYS VISIBLE (Before Login)
+                _sectionHeader(l10n.settings),
+                const LanguageSelector(),
 
+                const SizedBox(height: 16),
+
+                /// ACCOUNT SECTION (Only if NOT logged in)
                 if (!isLoggedIn) ...[
+                  _sectionHeader('Account'),
                   _menuItem(
                     context,
                     Icons.login,
-                    'Login',
-                    'Access your account',
+                    l10n.login,
+                    l10n.loginToContinue,
                     () => Navigator.pushNamed(context, '/login'),
                   ),
                   _menuItem(
                     context,
                     Icons.person_add,
-                    'Register',
-                    'Create a new account',
+                    l10n.register,
+                    l10n.startYourJourney,
                     () => Navigator.pushNamed(context, '/register'),
                   ),
+                  const SizedBox(height: 16),
                 ],
 
+                /// LOGGED IN USER OPTIONS
                 if (isLoggedIn) ...[
+                  _sectionHeader('Account'),
+                  _menuItem(
+                    context,
+                    Icons.history,
+                    l10n.bookingHistory,
+                    'View your bookings',
+                    () => Navigator.pushNamed(context, '/booking-history'),
+                  ),
                   _menuItem(
                     context,
                     Icons.favorite_border,
-                    'Wishlist',
+                    l10n.wishlist,
                     'Saved services',
                     () => Navigator.pushNamed(context, '/wishlist'),
                   ),
@@ -151,9 +178,8 @@ class ProfileTab extends StatelessWidget {
                     'Update your password',
                     () => _changePassword(context),
                   ),
+                  const SizedBox(height: 16),
                 ],
-
-                const SizedBox(height: 16),
 
                 /// APP
                 _sectionHeader('App'),
@@ -165,14 +191,14 @@ class ProfileTab extends StatelessWidget {
                   () => _about(context),
                 ),
 
-                /// LOGOUT
+                /// LOGOUT (Only if logged in)
                 if (isLoggedIn)
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: ElevatedButton.icon(
                       onPressed: () => _logout(context),
                       icon: const Icon(Icons.logout),
-                      label: const Text('Logout'),
+                      label: Text(l10n.logout),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,

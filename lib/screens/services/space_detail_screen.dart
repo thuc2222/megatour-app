@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../booking/space_checkout_screen.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 
 class SpaceDetailScreen extends StatefulWidget {
   final int spaceId;
@@ -34,16 +36,22 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
   }
 
   Future<Map<String, dynamic>> _fetchSpaceDetail() async {
+  final auth = context.read<AuthProvider>();
+  final token = auth.token;
+
     final res = await http.get(
       Uri.parse('https://megatour.vn/api/space/detail/${widget.spaceId}'),
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
     );
 
     if (res.statusCode != 200) {
       throw Exception('Failed to load space');
     }
 
-    final jsonData = json.decode(res.body);
-    return jsonData['data'];
+    return json.decode(res.body)['data'];
   }
 
   int _calculateNights() {
