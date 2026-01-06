@@ -18,7 +18,7 @@ class ProfileTab extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final user = auth.user;
     final isLoggedIn = auth.isAuthenticated;
-    final l10n = AppLocalizations.of(context)!;
+    //final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(
