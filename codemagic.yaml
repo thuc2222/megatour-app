@@ -7,17 +7,17 @@ workflows:
       flutter: stable
 
     scripts:
-      - name: Get dependencies
-        script: flutter pub get
+  - name: Get dependencies
+    script: flutter pub get
 
-      - name: Analyze
-        script: flutter analyze
+  - name: Generate localization
+    script: flutter gen-l10n
 
-      - name: Build Android APK
-        script: flutter build apk --release
+  - name: Build Android
+    script: flutter build apk --release
 
-      - name: Build iOS (no codesign)
-        script: flutter build ios --release --no-codesign
+  - name: Build iOS
+    script: flutter build ios --release --no-codesign
 
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
