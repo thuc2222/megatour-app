@@ -1,5 +1,9 @@
 {
   "@@locale": "en",
+
+  "language": "Language",
+  "selectLanguage": "Select language",
+  "cancel": "Cancel"
   
   "appTitle": "Megatour",
   
