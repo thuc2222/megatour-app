@@ -10,8 +10,8 @@ class LanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeProvider = context.watch<LocaleProvider>();
-    final l10n = AppLocalizations.of(context)!;
+    // final localeProvider = context.watch<LocaleProvider>();
+    // final l10n = AppLocalizations.of(context)!;
 
     // The extra return statement has been removed.
     // Now, this ListTile will be built and returned correctly.
