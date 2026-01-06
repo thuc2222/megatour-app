@@ -10,7 +10,7 @@ class LanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final localeProvider = context.watch<LocaleProvider>();
+    final localeProvider = context.watch<LocaleProvider>();
     // final l10n = AppLocalizations.of(context)!;
 
     // The extra return statement has been removed.
@@ -28,7 +28,7 @@ class LanguageSelector extends StatelessWidget {
 
   void _showLanguageDialog(BuildContext context) {
     final localeProvider = context.read<LocaleProvider>();
-    final l10n = AppLocalizations.of(context)!;
+    // final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
