@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// --- Model cho từng Item dịch vụ (Hotel, Tour, Car, Space) ---
 class ServiceModel {
   final int id;
   final String title;
@@ -10,8 +9,8 @@ class ServiceModel {
   final String? image;
   final int isFeatured;
   final String? locationName;
-  final String? address;  // Sửa lỗi: Thiếu address
-  final String? content;  // Sửa lỗi: Thiếu content
+  final String? address;
+  final String? content;
   final String? reviewScore; 
   final int? reviewCount;
 
@@ -42,7 +41,6 @@ class ServiceModel {
           ? json['is_featured'] 
           : (int.tryParse(json['is_featured']?.toString() ?? '0') ?? 0),
       locationName: json['location']?['name'],
-      // Nếu address null thì lấy tạm location name để không bị trống giao diện
       address: json['address'] ?? json['location']?['name'], 
       content: json['content'],
       reviewScore: json['review_score']?['score_total']?.toString(),
@@ -51,12 +49,11 @@ class ServiceModel {
   }
 }
 
-// --- Model cho phản hồi tìm kiếm và phân trang ---
 class SearchResponse {
   final List<ServiceModel> data;
   final int total;
-  final int currentPage; // Sửa lỗi: Thiếu currentPage cho SearchProvider
-  final int lastPage;    // Sửa lỗi: Thiếu lastPage cho SearchProvider
+  final int currentPage;
+  final int lastPage;
 
   SearchResponse({
     required this.data, 
@@ -76,7 +73,6 @@ class SearchResponse {
   }
 }
 
-// --- Model cho địa điểm ---
 class LocationModel {
   final int id;
   final String title;
@@ -93,7 +89,6 @@ class LocationModel {
   }
 }
 
-// Model cho phần Banner và Search Form
 class HomeBannerModel {
   final String title;
   final String subTitle;
@@ -118,18 +113,17 @@ class HomeBannerModel {
   }
 }
 
-// Model for individual offer items
 class OfferItemModel {
   final String title;
   final String desc;
   final String? link;
-  final String? thumbImage; // Changed from 'icon' to 'thumbImage'
+  final String? thumbImage;
 
   OfferItemModel({
     required this.title, 
     required this.desc, 
     this.link, 
-    this.thumbImage, // Matches the field name above
+    this.thumbImage,
   });
 
   factory OfferItemModel.fromJson(Map<String, dynamic> json) {
@@ -137,11 +131,11 @@ class OfferItemModel {
       title: json['title'] ?? '',
       desc: json['desc'] ?? '',
       link: json['link'],
-      thumbImage: json['thumb_image'] ?? json['image'], // Try thumb_image first, then fallback to image
+      thumbImage: json['background_image_url'] ?? json['thumb_image'] ?? json['image'],
     );
   }
 }
-// --- Model bóc tách dữ liệu Trang Chủ từ API ---
+
 class HomePageData {
   final HomeBannerModel? banner;
   final List<OfferItemModel> offers;

@@ -1,19 +1,24 @@
-// lib/screens/services/car_detail_screen.dart
-// Modern car detail with REAL booking (API) – UI unchanged
-
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../providers/auth_provider.dart';
-import '../booking/booking_success_screen.dart';
+// =============================================================================
+// 1. THEME CONSTANTS (Automotive Blue Theme)
+// =============================================================================
+const Color kCarDark = Color(0xFF0F172A);
+const Color kCarBlue = Color(0xFF3B82F6);
+const Color kCarIndigo = Color(0xFF6366F1);
+const Color kCarSurface = Color(0xFFF1F5F9);
 
+// =============================================================================
+// 2. CAR DETAIL SCREEN
+// =============================================================================
 class CarDetailScreen extends StatefulWidget {
   final int carId;
-
   const CarDetailScreen({Key? key, required this.carId}) : super(key: key);
 
   @override
@@ -21,486 +26,414 @@ class CarDetailScreen extends StatefulWidget {
 }
 
 class _CarDetailScreenState extends State<CarDetailScreen> {
-  late Future<Map<String, dynamic>> _future;
-
+  Map<String, dynamic>? _carData;
+  bool _loading = true;
+  bool _submitting = false;
+  
   DateTime? _pickupDate;
   DateTime? _returnDate;
-
-  final _formKey = GlobalKey<FormState>();
-  final _firstName = TextEditingController();
-  final _lastName = TextEditingController();
-  final _email = TextEditingController();
-  final _phone = TextEditingController();
-
-  bool _showBooking = false;
-  bool _submitting = false;
+  
+  final PageController _galleryController = PageController();
+  Timer? _galleryTimer;
+  int _currentGalleryIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _future = _fetchCarDetail();
+    _loadCar();
   }
 
-  Future<Map<String, dynamic>> _fetchCarDetail() async {
-    final res = await http.get(
-      Uri.parse('https://megatour.vn/api/car/detail/${widget.carId}'),
-    );
-
-    if (res.statusCode != 200) throw Exception('Failed to load car');
-    return json.decode(res.body)['data'];
+  @override
+  void dispose() {
+    _galleryTimer?.cancel();
+    _galleryController.dispose();
+    super.dispose();
   }
 
+  // ---------------------------------------------------------------------------
+  // DATA LOADING
+  // ---------------------------------------------------------------------------
+  Future<void> _loadCar() async {
+    try {
+      final res = await http.get(
+        Uri.parse('https://megatour.vn/api/car/detail/${widget.carId}'),
+        headers: {'Accept': 'application/json'},
+      );
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        if (mounted) {
+          setState(() {
+            _carData = json['data'];
+            _loading = false;
+          });
+          _startAutoSlide();
+        }
+      } else {
+        throw Exception('Failed to load car details');
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loading = false);
+      debugPrint("Error loading car: $e");
+    }
+  }
+
+  void _startAutoSlide() {
+    final gallery = _carData?['gallery'];
+    if (gallery is! List || gallery.length < 2) return;
+    
+    _galleryTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted) return;
+      _currentGalleryIndex = (_currentGalleryIndex + 1) % gallery.length;
+      if (_galleryController.hasClients) {
+        _galleryController.animateToPage(
+          _currentGalleryIndex,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // CALCULATIONS
+  // ---------------------------------------------------------------------------
   int get _days {
     if (_pickupDate == null || _returnDate == null) return 0;
-    return _returnDate!.difference(_pickupDate!).inDays;
+    final days = _returnDate!.difference(_pickupDate!).inDays;
+    return days > 0 ? days : 0; // Ensure at least 0
   }
 
-  double _calculateTotal(String? price) {
-    if (_days == 0) return 0;
-    final p = double.tryParse(price ?? '0') ?? 0;
-    return (p * _days) + 100 + 200;
+  double _calculateTotal() {
+    if (_carData == null || _days == 0) return 0.0;
+    
+    // Price Logic (Sale price takes priority)
+    double price = double.tryParse('${_carData!['sale_price']}') ?? 0;
+    if (price == 0) {
+      price = double.tryParse('${_carData!['price']}') ?? 0;
+    }
+
+    // Add extra fees (100 + 200 as per your logic)
+    // Ideally, parse 'booking_fee' from API, but sticking to your rule:
+    return (price * _days) + 100 + 200;
   }
 
-  // --------------------------------------------------
-  // REAL BOOKING FLOW
-  // --------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // BOOKING LOGIC (Add to Cart -> Navigate to Checkout)
+  // ---------------------------------------------------------------------------
+  Future<void> _bookNow() async {
+    if (_pickupDate == null || _returnDate == null) return _snack('Select pickup and return dates', Colors.orange);
+    if (_days < 1) return _snack('Invalid date range', Colors.orange);
 
-  Future<void> _createBooking(Map<String, dynamic> car) async {
-  if (!_formKey.currentState!.validate()) return;
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
+    if (token == null) return _snack('Please login to continue', Colors.red);
 
-  final auth = context.read<AuthProvider>();
-  final token = auth.token;
+    setState(() => _submitting = true);
 
-  // ✅ CHECK LOGIN
-  if (token == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please login to continue')),
-    );
-    return;
-  }
-
-  setState(() => _submitting = true);
-
-  try {
-    final headers = {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    // ==========================================
-    // STEP 1: ADD TO CART (Get the Booking Code)
-    // ==========================================
-    final cartRes = await http.post(
-      Uri.parse('https://megatour.vn/api/booking/addToCart'),
-      headers: headers,
-      body: json.encode({
-        'service_id': car['id'],
+    try {
+      final body = {
+        'service_id': widget.carId.toString(),
         'service_type': 'car',
         'start_date': DateFormat('yyyy-MM-dd').format(_pickupDate!),
         'end_date': DateFormat('yyyy-MM-dd').format(_returnDate!),
-        'number': 1,
-      }),
-    );
+        'number': '1',
+      };
 
-    final cartData = json.decode(cartRes.body);
+      final res = await http.post(
+        Uri.parse('https://megatour.vn/api/booking/addToCart'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json', // Car API often prefers JSON
+        },
+        body: jsonEncode(body),
+      );
 
-    if (cartRes.statusCode != 200 || (cartData['status'] != 1 && cartData['status'] != true)) {
-      throw Exception(cartData['message'] ?? 'Failed to add to cart');
+      final json = jsonDecode(res.body);
+
+      if (res.statusCode == 200 && (json['status'] == 1 || json['status'] == true)) {
+        String? code = json['booking_code'] ?? json['data']?['code'] ?? json['code'];
+        
+        if (code != null) {
+           if (mounted) {
+             Navigator.push(
+               context, 
+               MaterialPageRoute(
+                 builder: (_) => CarCheckoutScreen(
+                   bookingCode: code!,
+                   carTitle: _carData?['title'] ?? 'Car Rental',
+                   pickupDate: _pickupDate!,
+                   returnDate: _returnDate!,
+                   total: _calculateTotal(),
+                 ),
+               ),
+             );
+           }
+        } else {
+           throw Exception('No booking code found');
+        }
+      } else {
+        throw Exception(json['message'] ?? 'Failed to add to cart');
+      }
+    } catch (e) {
+      _snack(e.toString().replaceAll('Exception: ', ''), Colors.red);
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
-
-    // Extract the Code (Booking Core sometimes puts it in 'code' or inside 'data')
-    String? bookingCode = cartData['code'] ?? cartData['booking_code'];
-    if (bookingCode == null && cartData['data'] != null) {
-      bookingCode = cartData['data']['code'];
-    }
-
-    if (bookingCode == null) throw Exception('No booking code returned from API');
-
-    // ==========================================
-    // STEP 2: DO CHECKOUT (Confirm the Booking)
-    // ==========================================
-    final checkoutRes = await http.post(
-  Uri.parse('https://megatour.vn/api/booking/doCheckout'),
-  headers: headers,
-  body: json.encode({
-    'code': bookingCode,
-    'first_name': _firstName.text,
-    'last_name': _lastName.text,
-    'email': _email.text,
-    'phone': _phone.text,
-    'country': 'VN',
-    'city': 'Hanoi',
-    'address': 'Flutter App Booking',
-    'payment_gateway': 'offline',
-    'term_conditions': 1,
-  }),
-);
-
-final body = json.decode(checkoutRes.body);
-
-// ✅ Booking Core API BUG WORKAROUND
-if (
-  checkoutRes.statusCode == 200 ||
-  body.toString().contains('booking.thankyou')
-) {
-  if (!mounted) return;
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (_) => BookingSuccessScreen(
-        bookingCode: bookingCode!,
-      ),
-    ),
-  );
-  return;
-}
-
-
-    final checkoutData = json.decode(checkoutRes.body);
-
-    if (checkoutRes.statusCode != 200 || (checkoutData['status'] != 1 && checkoutData['status'] != true)) {
-      throw Exception(checkoutData['message'] ?? 'Checkout failed');
-    }
-
-    // ✅ SUCCESS: Now we navigate
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BookingSuccessScreen(
-          bookingCode: bookingCode ?? '',
-        ),
-      ),
-    );
-
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: ${e.toString()}'),
-        backgroundColor: Colors.red,
-      ),
-    );
-  } finally {
-    setState(() => _submitting = false);
   }
-}
 
+  void _snack(String msg, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: color, behavior: SnackBarBehavior.floating),
+    );
+  }
 
-  // --------------------------------------------------
-  // UI BELOW — 100% UNCHANGED
-  // --------------------------------------------------
-
+  // ---------------------------------------------------------------------------
+  // MAIN UI
+  // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
+    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_carData == null) return const Scaffold(body: Center(child: Text("Car not found")));
+
     return Scaffold(
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final car = snapshot.data!;
-
-          return Stack(
-            children: [
-              CustomScrollView(
-                slivers: [
-                  _buildAppBar(car),
-                  SliverToBoxAdapter(
-                    child: Column(
-                      children: [
-                        _buildHeader(car),
-                        _buildDateSelector(car),
-                        _buildSpecs(car),
-                        _buildFeatures(car),
-                        _buildDescription(car),
-                        if (_showBooking) _buildBookingForm(car),
-                        const SizedBox(height: 100),
-                      ],
-                    ),
-                  ),
-                ],
+      backgroundColor: kCarSurface,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              _buildAppBar(),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    _buildHeaderInfo(),
+                    _buildBookingCard(),
+                    _buildSpecsGrid(),
+                    _buildFeatures(),
+                    _buildDescription(),
+                    _buildFAQs(),
+                    _buildReviews(),
+                    _buildRelatedCars(),
+                    const SizedBox(height: 120),
+                  ],
+                ),
               ),
-              _buildBackButton(),
             ],
-          );
-        },
-      ),
-      bottomSheet: FutureBuilder<Map<String, dynamic>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const SizedBox.shrink();
-          return _buildBottomBar(snapshot.data!);
-        },
+          ),
+          _buildBottomBar(),
+        ],
       ),
     );
   }
 
-  SliverAppBar _buildAppBar(Map<String, dynamic> car) {
+  // --- WIDGETS ---
+
+  SliverAppBar _buildAppBar() {
+    final gallery = _carData!['gallery'] as List? ?? [];
     return SliverAppBar(
-      expandedHeight: 300,
-      automaticallyImplyLeading: false,
+      expandedHeight: 320,
       pinned: true,
-      backgroundColor: Colors.white,
+      backgroundColor: kCarDark,
+      leading: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(12)),
+        child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
+      ),
+      actions: [
+        Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(12)),
+          child: IconButton(
+            icon: Icon(_carData!['is_wishlist'] == 1 ? Icons.favorite : Icons.favorite_border, color: kCarBlue),
+            onPressed: () {}, 
+          ),
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              car['banner_image'] ?? car['image'] ?? '',
-              fit: BoxFit.cover,
-            ),
+            gallery.isNotEmpty 
+              ? PageView.builder(
+                  controller: _galleryController,
+                  itemCount: gallery.length,
+                  itemBuilder: (_, i) => Image.network(gallery[i], fit: BoxFit.cover),
+                )
+              : Image.network(_carData!['image'] ?? '', fit: BoxFit.cover),
+            
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.transparent,
-                  ],
+                  colors: [Colors.black12, Colors.transparent, kCarDark.withOpacity(0.9)],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBackButton() {
-    return Positioned(
-      top: 50,
-      left: 20,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8),
-          ],
-        ),
-        child: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(Map<String, dynamic> car) {
-    final review = car['review_score'];
-    
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            car['title'] ?? '',
-            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              if (review != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.star, size: 14, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${review['score_total']} (${review['total_review']} reviews)',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateSelector(Map<String, dynamic> car) {
-    final price = car['sale_price'] ?? car['price'];
-    final total = _calculateTotal(price?.toString());
-    
-    return Container(
-      margin: const EdgeInsets.all(24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF667eea).withOpacity(0.1),
-            const Color(0xFF764ba2).withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF667eea).withOpacity(0.3)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                ).createShader(bounds),
-                child: Text(
-                  '\$$price',
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const Text(' / day', style: TextStyle(color: Colors.grey)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _dateButton('PICKUP', _pickupDate, () => _selectDate(true)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _dateButton('RETURN', _returnDate, () => _selectDate(false)),
-              ),
-            ],
-          ),
-          if (_days > 0) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
+            
+            Positioned(
+              bottom: 20, left: 20, right: 20,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('\$$price x $_days days'),
-                      Text('\$${((double.tryParse(price.toString()) ?? 0) * _days).toStringAsFixed(2)}'),
-                    ],
-                  ),
-                  const Divider(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Total', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                        ).createShader(bounds),
-                        child: Text(
-                          '\$${total.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                  if (_carData!['location'] != null)
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on, color: kCarBlue, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          _carData!['location']['name'],
+                          style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _carData!['title'] ?? '',
+                    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, height: 1.1),
                   ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderInfo() {
+    final review = _carData!['review_score'];
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: kCarBlue.withOpacity(0.1), shape: BoxShape.circle),
+                child: const Icon(Icons.directions_car, color: kCarBlue),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Price per day", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                  Text(
+                    "\$${_carData!['sale_price'] ?? _carData!['price'] ?? 0}", 
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: kCarDark),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          if (review != null)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber, size: 18),
+                    const SizedBox(width: 4),
+                    Text(review['score_total'].toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                Text('${review['total_review']} reviews', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
         ],
       ),
     );
   }
 
-  Widget _dateButton(String label, DateTime? date, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
+  // --- BOOKING CARD (Rental Style) ---
+  Widget _buildBookingCard() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Container(
-        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          gradient: const LinearGradient(colors: [kCarDark, kCarIndigo]),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [BoxShadow(color: kCarIndigo.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Expanded(child: _dateButton("PICKUP", _pickupDate, true)),
+                  Container(
+                    height: 40, width: 1, color: Colors.white24,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  Expanded(child: _dateButton("RETURN", _returnDate, false)),
+                ],
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              date != null ? DateFormat('MMM dd').format(date) : 'Select',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: date != null ? Colors.black : Colors.grey,
+            
+            if (_days > 0)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  border: const Border(top: BorderSide(color: Colors.white12)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("$_days Days Rental", style: const TextStyle(color: Colors.white70)),
+                    Text("Total: \$${_calculateTotal().toStringAsFixed(0)}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _selectDate(bool isPickup) async {
-    final date = await showDatePicker(
-      context: context,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    
-    if (date != null) {
-      setState(() {
-        if (isPickup) {
-          _pickupDate = date;
-          if (_returnDate != null && _returnDate!.isBefore(date)) {
-            _returnDate = date.add(const Duration(days: 1));
-          }
-        } else {
-          _returnDate = date;
+  Widget _dateButton(String label, DateTime? date, bool isPickup) {
+    return InkWell(
+      onTap: () async {
+        final now = DateTime.now();
+        final d = await showDatePicker(
+          context: context, 
+          firstDate: now, 
+          lastDate: now.add(const Duration(days: 365)),
+          initialDate: date ?? now,
+        );
+        if (d != null) {
+          setState(() {
+            if (isPickup) {
+              _pickupDate = d;
+              if (_returnDate != null && _returnDate!.isBefore(d)) _returnDate = d.add(const Duration(days: 1));
+            } else {
+              _returnDate = d;
+            }
+          });
         }
-      });
-    }
-  }
-
-  Widget _buildSpecs(Map<String, dynamic> car) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Specifications', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
+          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10, letterSpacing: 1)),
+          const SizedBox(height: 4),
+          Row(
             children: [
-              if (car['passenger'] != null)
-                _specCard(Icons.person, '${car['passenger']} Passengers'),
-              if (car['baggage'] != null)
-                _specCard(Icons.luggage, '${car['baggage']} Bags'),
-              if (car['transmission_type'] != null)
-                _specCard(Icons.settings, car['transmission_type']),
-              if (car['gear'] != null)
-                _specCard(Icons.speed, car['gear']),
+              Text(
+                date == null ? "Select Date" : DateFormat('MMM dd, yyyy').format(date),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.keyboard_arrow_down, color: Colors.white54, size: 16),
             ],
           ),
         ],
@@ -508,122 +441,274 @@ if (
     );
   }
 
-  Widget _specCard(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
+  Widget _buildSpecsGrid() {
+    final passenger = _carData!['passenger'] ?? 0;
+    final gear = _carData!['gear'] ?? 'N/A';
+    final baggage = _carData!['baggage'] ?? 0;
+    final door = _carData!['door'] ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, size: 18),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          _specItem(Icons.person, '$passenger', 'Seats'),
+          _specItem(Icons.settings, '$gear', 'Gear'),
+          _specItem(Icons.luggage, '$baggage', 'Bags'),
+          _specItem(Icons.door_front_door, '$door', 'Doors'),
         ],
       ),
     );
   }
 
-  Widget _buildFeatures(Map<String, dynamic> car) {
-    final features = car['features'] as List? ?? [];
-    if (features.isEmpty) return const SizedBox.shrink();
-    
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Features', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          ...features.map((f) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle, size: 18, color: Color(0xFF667eea)),
-                    const SizedBox(width: 8),
-                    Text(f['name'] ?? ''),
-                  ],
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDescription(Map<String, dynamic> car) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('About', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          HtmlWidget(car['content'] ?? ''),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBookingForm(Map<String, dynamic> car) {
+  Widget _specItem(IconData icon, String val, String label) {
     return Container(
-      margin: const EdgeInsets.all(24),
-      padding: const EdgeInsets.all(20),
+      width: 75,
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: kCarBlue, size: 22),
+          const SizedBox(height: 6),
+          Text(val, style: const TextStyle(fontWeight: FontWeight.bold, color: kCarDark)),
+          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  Widget _buildFeatures() {
+    // Parsing 'terms' -> '10' -> 'child' for features
+    final terms = _carData!['terms'];
+    List<dynamic> features = [];
+    if (terms != null && terms is Map) {
+      if (terms['10'] != null && terms['10']['child'] != null) {
+        features = terms['10']['child'];
+      }
+    }
+    
+    if (features.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle("Features"),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8, runSpacing: 8,
+            children: features.map((f) => Chip(
+              label: Text(f['title'] ?? ''),
+              backgroundColor: Colors.white,
+              avatar: const Icon(Icons.check_circle, size: 16, color: kCarBlue),
+              side: BorderSide(color: Colors.grey.shade300),
+            )).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescription() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle("Description"),
+          const SizedBox(height: 8),
+          HtmlWidget(
+            _carData!['content'] ?? '',
+            textStyle: TextStyle(color: Colors.grey[800], height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFAQs() {
+    final faqs = _carData!['faqs'];
+    if (faqs is! List || faqs.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          _buildSectionTitle("FAQs"),
+          const SizedBox(height: 10),
+          ...faqs.map((f) => Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+            child: ExpansionTile(
+              title: Text(f['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              childrenPadding: const EdgeInsets.all(16),
+              children: [HtmlWidget(f['content'] ?? '')],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviews() {
+    final reviews = _carData!['review_lists']?['data'];
+    if (reviews is! List || reviews.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          child: _buildSectionTitle("Reviews (${reviews.length})"),
+        ),
+        SizedBox(
+          height: 170,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: reviews.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (_, i) {
+              final r = reviews[i];
+              return Container(
+                width: 280,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: kCarBlue.withOpacity(0.1),
+                          child: const Icon(Icons.person, size: 18, color: kCarBlue),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(r['author']?['name'] ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold))),
+                        Row(children: [const Icon(Icons.star, size: 14, color: Colors.amber), Text('${r['rate_number']}', style: const TextStyle(fontWeight: FontWeight.bold))]),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Expanded(child: Text(r['content'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey[600], fontSize: 12))),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRelatedCars() {
+    final related = _carData!['related'];
+    if (related is! List || related.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          child: _buildSectionTitle("Related Cars"),
+        ),
+        SizedBox(
+          height: 240,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: related.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (_, i) {
+              final item = related[i];
+              return GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CarDetailScreen(carId: item['id']))),
+                child: Container(
+                  width: 180,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          child: Image.network(item['image'] ?? '', width: double.infinity, fit: BoxFit.cover),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text("\$${item['price']}", style: const TextStyle(color: kCarBlue, fontWeight: FontWeight.bold, fontSize: 16)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomBar() {
+    return Positioned(
+      bottom: 0, left: 0, right: 0,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, -5))],
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Row(
           children: [
-            const Text('Your Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _textField(_firstName, 'First name', Icons.person)),
-                const SizedBox(width: 12),
-                Expanded(child: _textField(_lastName, 'Last name', Icons.person)),
+                const Text("Total Estimate", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text("\$${_calculateTotal().toStringAsFixed(2)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kCarDark)),
               ],
             ),
-            _textField(_email, 'Email', Icons.email, TextInputType.emailAddress),
-            _textField(_phone, 'Phone', Icons.phone, TextInputType.phone),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: _submitting ? null : () => _createBooking(car),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Center(
-                      child: _submitting
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'Confirm Rental',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _submitting ? null : _bookNow,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kCarBlue,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
               ),
+              child: _submitting
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : const Text("Book Now", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ],
         ),
@@ -631,70 +716,199 @@ if (
     );
   }
 
-  Widget _textField(TextEditingController c, String label, IconData icon, [TextInputType type = TextInputType.text]) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: c,
-        keyboardType: type,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+  Widget _buildSectionTitle(String title) => Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kCarDark));
+}
+
+// =============================================================================
+// 3. CAR CHECKOUT SCREEN
+// =============================================================================
+class CarCheckoutScreen extends StatefulWidget {
+  final String bookingCode;
+  final String carTitle;
+  final DateTime pickupDate;
+  final DateTime returnDate;
+  final double total;
+
+  const CarCheckoutScreen({
+    Key? key,
+    required this.bookingCode,
+    required this.carTitle,
+    required this.pickupDate,
+    required this.returnDate,
+    required this.total,
+  }) : super(key: key);
+
+  @override
+  State<CarCheckoutScreen> createState() => _CarCheckoutScreenState();
+}
+
+class _CarCheckoutScreenState extends State<CarCheckoutScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _firstName = TextEditingController();
+  final _lastName = TextEditingController();
+  final _email = TextEditingController();
+  final _phone = TextEditingController();
+  final _address = TextEditingController();
+  final _notes = TextEditingController();
+  final _country = TextEditingController(text: 'VN');
+  
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _firstName.dispose(); _lastName.dispose(); _email.dispose();
+    _phone.dispose(); _address.dispose(); _notes.dispose(); _country.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleCheckout() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSubmitting = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+      if (token == null) throw Exception('Authentication required');
+
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+
+      // 1. Checkout Preview
+      try {
+        await http.get(Uri.parse('https://megatour.vn/api/booking/${widget.bookingCode}/checkout'), headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'});
+      } catch (e) {
+        debugPrint('Preview skipped: $e');
+      }
+
+      // 2. Do Checkout
+      final body = {
+        'code': widget.bookingCode,
+        'first_name': _firstName.text.trim(),
+        'last_name': _lastName.text.trim(),
+        'email': _email.text.trim(),
+        'phone': _phone.text.trim(),
+        'address_line_1': _address.text.trim(),
+        'country': _country.text.trim(),
+        'customer_notes': _notes.text.trim(),
+        'payment_gateway': 'offline',
+        'term_conditions': 'on',
+      };
+
+      final checkoutRes = await http.post(
+        Uri.parse('https://megatour.vn/api/booking/doCheckout'),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      // Handle Route Error Bypass
+      if (checkoutRes.statusCode == 500 && checkoutRes.body.contains('Route [booking.thankyou] not defined')) {
+        if (mounted) _showSuccessDialog(widget.bookingCode);
+        return;
+      }
+
+      final checkoutData = jsonDecode(checkoutRes.body);
+
+      if (checkoutRes.statusCode != 200) {
+        if (checkoutData['errors'] != null) {
+           final Map errors = checkoutData['errors'];
+           if (errors.isNotEmpty) throw Exception(errors.values.first[0]);
+        }
+        throw Exception(checkoutData['message'] ?? 'Checkout failed');
+      }
+
+      final isSuccess = checkoutData['status'] == 1 || checkoutData['status'] == true || checkoutData['booking_code'] != null;
+      if (!isSuccess) throw Exception(checkoutData['message'] ?? 'Checkout failed');
+
+      if (mounted) _showSuccessDialog(checkoutData['booking_code'] ?? widget.bookingCode);
+
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', '')), backgroundColor: Colors.red));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  void _showSuccessDialog(String code) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Column(children: [Icon(Icons.check_circle, color: kCarBlue, size: 64), SizedBox(height: 16), Text('Booking Confirmed!')]),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Your car rental is confirmed.', textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            SelectableText(code, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kCarBlue)),
+          ],
         ),
-        validator: (v) {
-          if (v == null || v.isEmpty) return '$label required';
-          if (label == 'Email' && !v.contains('@')) return 'Invalid email';
-          return null;
-        },
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: const Text('Back to Home')),
+        ],
       ),
     );
   }
 
-  Widget _buildBottomBar(Map<String, dynamic> car) {
-    final canBook = _pickupDate != null && _returnDate != null && _days > 0;
-    
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -5)),
-        ],
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: 54,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: canBook
-                  ? const LinearGradient(colors: [Color(0xFF667eea), Color(0xFF764ba2)])
-                  : null,
-              color: canBook ? null : Colors.grey,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: canBook
-                    ? () => setState(() => _showBooking = true)
-                    : null,
-                borderRadius: BorderRadius.circular(12),
-                child: Center(
-                  child: Text(
-                    canBook ? 'Book Now' : 'Select dates to continue',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kCarSurface,
+      appBar: AppBar(title: const Text('Checkout', style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
+                child: Column(
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("Total Amount", style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: kCarBlue, fontSize: 18))]),
+                    const Divider(height: 24),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("${DateFormat('MMM dd').format(widget.pickupDate)} - ${DateFormat('MMM dd').format(widget.returnDate)}"), const Text('Car Rental', style: TextStyle(fontWeight: FontWeight.bold))]),
+                  ],
                 ),
               ),
-            ),
+              const SizedBox(height: 24),
+              const Text('Guest Info', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              _input(_firstName, 'First Name', Icons.person),
+              _input(_lastName, 'Last Name', Icons.person),
+              _input(_email, 'Email', Icons.email, type: TextInputType.emailAddress),
+              _input(_phone, 'Phone', Icons.phone, type: TextInputType.phone),
+              _input(_address, 'Address', Icons.home),
+              _input(_country, 'Country', Icons.flag),
+              _input(_notes, 'Notes (Optional)', Icons.note, req: false),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity, height: 54,
+                child: ElevatedButton(
+                  onPressed: _isSubmitting ? null : _handleCheckout,
+                  style: ElevatedButton.styleFrom(backgroundColor: kCarBlue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white) : const Text('Confirm & Pay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _input(TextEditingController c, String label, IconData icon, {TextInputType type = TextInputType.text, bool req = true}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: c, keyboardType: type,
+        decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon, color: Colors.grey), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), filled: true, fillColor: Colors.white),
+        validator: (v) => req && (v == null || v.isEmpty) ? 'Required' : null,
       ),
     );
   }

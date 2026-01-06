@@ -404,7 +404,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.7,
+          childAspectRatio: 0.45,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),

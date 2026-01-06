@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../../config/api_config.dart';
+import '../../configs/api_config.dart';
 import 'checkout_screen.dart';
 
 class CartScreen extends StatefulWidget {
