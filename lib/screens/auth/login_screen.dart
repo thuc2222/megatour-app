@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success) {
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
-      final l10n = AppLocalizations.of(context)!;
+      //final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage ?? l10n.loginFailed),
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // ✅ GET TRANSLATIONS
+    //final l10n = AppLocalizations.of(context)!; // ✅ GET TRANSLATIONS
 
     return Scaffold(
       body: SafeArea(
