@@ -9,7 +9,7 @@ import '../../config/api_config.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class NewsTab extends StatefulWidget {
-  const NewsTab({Key? key}) : super(key: key);
+  NewsTab({Key? key}) : super(key: key);
 
   @override
   State<NewsTab> createState() => _NewsTabState();
@@ -101,7 +101,7 @@ class _NewsTabState extends State<NewsTab> {
     if (_featuredArticles.length <= 1) return;
 
     _autoSlideTimer = Timer.periodic(
-      const Duration(seconds: 5),
+      Duration(seconds: 5),
       (_) {
         if (!mounted) return;
 
@@ -110,7 +110,7 @@ class _NewsTabState extends State<NewsTab> {
 
         _pageController.animateToPage(
           _currentPage,
-          duration: const Duration(milliseconds: 600),
+          duration: Duration(milliseconds: 600),
           curve: Curves.easeInOut,
         );
       },
@@ -127,16 +127,16 @@ class _NewsTabState extends State<NewsTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
+      backgroundColor: Color(0xFFF6F7F9),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : CustomScrollView(
               slivers: [
                 _buildHeader(),
                 _buildCategories(),
                 _buildFeatured(),
                 _buildList(),
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                 child: SizedBox(height: 140),
               ),
               ],
@@ -149,13 +149,13 @@ class _NewsTabState extends State<NewsTab> {
   // ---------------------------------------------------------------------------
 
   SliverAppBar _buildHeader() {
-    return const SliverAppBar(
+    return SliverAppBar(
       pinned: true,
       floating: true,
       backgroundColor: Colors.white,
       elevation: 0,
       title: Text(
-        'Travel Stories',
+        context.l10n.travelStories,
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
     );
@@ -167,7 +167,7 @@ class _NewsTabState extends State<NewsTab> {
 
   SliverToBoxAdapter _buildCategories() {
     if (_categories.isEmpty) {
-      return const SliverToBoxAdapter(child: SizedBox.shrink());
+      return SliverToBoxAdapter(child: SizedBox.shrink());
     }
 
     return SliverToBoxAdapter(
@@ -175,7 +175,7 @@ class _NewsTabState extends State<NewsTab> {
         height: 54,
         child: ListView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           children: [
             _categoryChip(
               label: 'All',
@@ -207,7 +207,7 @@ class _NewsTabState extends State<NewsTab> {
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
         selected: selected,
@@ -228,7 +228,7 @@ class _NewsTabState extends State<NewsTab> {
 
   SliverToBoxAdapter _buildFeatured() {
     if (_featuredArticles.isEmpty) {
-      return const SliverToBoxAdapter(child: SizedBox.shrink());
+      return SliverToBoxAdapter(child: SizedBox.shrink());
     }
 
     return SliverToBoxAdapter(
@@ -244,7 +244,7 @@ class _NewsTabState extends State<NewsTab> {
               onTap: () => _openArticle(a),
               child: Container(
                 margin:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(26),
                   image: a['image_url'] != null
@@ -266,13 +266,13 @@ class _NewsTabState extends State<NewsTab> {
                       ],
                     ),
                   ),
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(20),
                   alignment: Alignment.bottomLeft,
                   child: Text(
                     a['title'] ?? '',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -299,7 +299,7 @@ class _NewsTabState extends State<NewsTab> {
           return GestureDetector(
             onTap: () => _openArticle(a),
             child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
@@ -307,7 +307,7 @@ class _NewsTabState extends State<NewsTab> {
                   BoxShadow(
                     color: Colors.black.withOpacity(0.04),
                     blurRadius: 14,
-                    offset: const Offset(0, 6),
+                    offset: Offset(0, 6),
                   ),
                 ],
               ),
@@ -315,7 +315,7 @@ class _NewsTabState extends State<NewsTab> {
                 children: [
                   if (a['image_url'] != null)
                     ClipRRect(
-                      borderRadius: const BorderRadius.horizontal(
+                      borderRadius: BorderRadius.horizontal(
                         left: Radius.circular(18),
                       ),
                       child: Image.network(
@@ -327,34 +327,34 @@ class _NewsTabState extends State<NewsTab> {
                     ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(14),
+                      padding: EdgeInsets.all(14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (a['category'] != null)
                             Text(
                               a['category']['name'] ?? '',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.blue,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                          const SizedBox(height: 6),
+                          SizedBox(height: 6),
                           Text(
                             a['title'] ?? '',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          SizedBox(height: 6),
                           if (a['created_at'] != null)
                             Text(
                               a['created_at'],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),

@@ -8,7 +8,7 @@ import 'space_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class SpaceListScreen extends StatefulWidget {
-  const SpaceListScreen({Key? key}) : super(key: key);
+  SpaceListScreen({Key? key}) : super(key: key);
 
   @override
   State<SpaceListScreen> createState() => _SpaceListScreenState();
@@ -21,7 +21,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
   
   String? searchQuery;
   String? locationFilter;
-  RangeValues priceRange = const RangeValues(50, 1000);
+  RangeValues priceRange = RangeValues(50, 1000);
   int guests = 1;
 
   @override
@@ -123,14 +123,14 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFFFF6B9D).withOpacity(0.1),
-                const Color(0xFFC06FFE).withOpacity(0.1),
+                Color(0xFFFF6B9D).withOpacity(0.1),
+                Color(0xFFC06FFE).withOpacity(0.1),
               ],
             ),
           ),
         ),
-        title: const Text(
-          'Unique Spaces',
+        title: Text(
+          context.l10n.uniqueSpaces,
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -139,7 +139,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.tune, color: Colors.black),
+          icon: Icon(Icons.tune, color: Colors.black),
           onPressed: _showFilters,
         ),
       ],
@@ -152,7 +152,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         children: [
           // Search Field
@@ -164,16 +164,16 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
                   blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search spaces...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: context.l10n.searchSpaces,
+                prefixIcon: Icon(Icons.search),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
+                contentPadding: EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 16,
                 ),
@@ -183,7 +183,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
             ),
           ),
           
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           
           // Quick Filters
           SizedBox(
@@ -207,7 +207,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
   Widget _filterChip(String label, String? value) {
     final selected = locationFilter == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
         selected: selected,
@@ -231,7 +231,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
 
   Widget _buildSpaceList() {
     if (isLoading) {
-      return const SliverFillRemaining(
+      return SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       );
     }
@@ -242,13 +242,13 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
+              Icon(Icons.error_outline, size: 64, color: Colors.red),
+              SizedBox(height: 16),
               Text(errorMessage!),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _fetchSpaces,
-                child: const Text('Retry'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
@@ -263,9 +263,9 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.home_work_outlined, size: 80, color: Colors.grey[400]),
-              const SizedBox(height: 16),
-              const Text(
-                'No spaces found',
+              SizedBox(height: 16),
+              Text(
+                context.l10n.noSpacesFound,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
@@ -275,7 +275,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => _spaceCard(spaces[index]),
@@ -310,7 +310,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 24),
+        margin: EdgeInsets.only(bottom: 24),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -318,7 +318,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
               blurRadius: 20,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -329,7 +329,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(20),
                   ),
                   child: imageUrl != null
@@ -346,7 +346,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                 // Ambient Gradient Overlay
                 Positioned.fill(
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
+                    borderRadius: BorderRadius.vertical(
                       top: Radius.circular(20),
                     ),
                     child: Container(
@@ -370,12 +370,12 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                     top: 12,
                     right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [Color(0xFFFF6B9D), Color(0xFFC06FFE)],
                         ),
                         borderRadius: BorderRadius.circular(20),
@@ -386,8 +386,8 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                           ),
                         ],
                       ),
-                      child: const Text(
-                        'SPECIAL OFFER',
+                      child: Text(
+                        context.l10n.specialOffer,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -402,7 +402,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                   top: 12,
                   left: 12,
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
@@ -413,7 +413,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.favorite_border,
                       size: 20,
                       color: Colors.black,
@@ -425,7 +425,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
 
             // CONTENT
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -436,12 +436,12 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                         Expanded(
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.location_on,
                                 size: 16,
                                 color: Colors.grey,
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Expanded(
                                 child: Text(
                                   locationName,
@@ -458,7 +458,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                         ),
                       if (reviewScore != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -468,15 +468,15 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.star,
                                 size: 12,
                                 color: Colors.white,
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Text(
                                 reviewScore['score_total']?.toString() ?? '0',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -488,21 +488,21 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
 
                   // Title
                   Text(
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       height: 1.3,
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
 
                   // Amenities
                   Row(
@@ -510,13 +510,13 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                       if (bedrooms != null && bedrooms > 0)
                         _amenityChip(Icons.bed, '$bedrooms bed${bedrooms > 1 ? 's' : ''}'),
                       if (bedrooms != null && bathrooms != null)
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                       if (bathrooms != null && bathrooms > 0)
                         _amenityChip(Icons.bathtub, '$bathrooms bath${bathrooms > 1 ? 's' : ''}'),
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Price
                   Row(
@@ -538,23 +538,23 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               ShaderMask(
-                                shaderCallback: (bounds) => const LinearGradient(
+                                shaderCallback: (bounds) => LinearGradient(
                                   colors: [Color(0xFFFF6B9D), Color(0xFFC06FFE)],
                                 ).createShader(bounds),
                                 child: Text(
                                   '\$${salePrice != null && salePrice != '0' ? salePrice : price}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 4),
-                              const Padding(
+                              SizedBox(width: 4),
+                              Padding(
                                 padding: EdgeInsets.only(bottom: 4),
                                 child: Text(
-                                  '/ night',
+                                  context.l10n.night,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -567,7 +567,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             colors: [Color(0xFFFF6B9D), Color(0xFFC06FFE)],
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -585,12 +585,12 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 12,
                               ),
-                              child: const Text(
-                                'View',
+                              child: Text(
+                                context.l10n.view,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -620,13 +620,13 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
           colors: [Colors.grey[300]!, Colors.grey[200]!],
         ),
       ),
-      child: const Icon(Icons.home_work, size: 64, color: Colors.grey),
+      child: Icon(Icons.home_work, size: 64, color: Colors.grey),
     );
   }
 
   Widget _amenityChip(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(8),
@@ -635,7 +635,7 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: Colors.grey[700]),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             text,
             style: TextStyle(
@@ -657,22 +657,22 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Filters',
+            Text(
+              context.l10n.filters,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
-            const Text('Price range'),
+            Text(context.l10n.priceRange),
             RangeSlider(
               min: 50,
               max: 1000,
@@ -681,24 +681,24 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
             ),
             Text('\$${priceRange.start.round()} - \$${priceRange.end.round()}'),
             
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
-            const Text('Guests'),
+            Text(context.l10n.guests1),
             Row(
               children: [
                 IconButton(
                   onPressed: guests > 1 ? () => setState(() => guests--) : null,
-                  icon: const Icon(Icons.remove_circle_outline),
+                  icon: Icon(Icons.remove_circle_outline),
                 ),
                 Text('$guests'),
                 IconButton(
                   onPressed: () => setState(() => guests++),
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: Icon(Icons.add_circle_outline),
                 ),
               ],
             ),
             
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             SizedBox(
               width: double.infinity,
@@ -709,9 +709,9 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Apply Filters'),
+                child: Text(context.l10n.applyFilters),
               ),
             ),
           ],

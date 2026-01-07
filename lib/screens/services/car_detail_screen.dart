@@ -10,17 +10,17 @@ import 'package:megatour_app/utils/context_extension.dart';
 // =============================================================================
 // 1. THEME CONSTANTS (Automotive Blue Theme)
 // =============================================================================
-const Color kCarDark = Color(0xFF0F172A);
-const Color kCarBlue = Color(0xFF3B82F6);
-const Color kCarIndigo = Color(0xFF6366F1);
-const Color kCarSurface = Color(0xFFF1F5F9);
+Color kCarDark = Color(0xFF0F172A);
+Color kCarBlue = Color(0xFF3B82F6);
+Color kCarIndigo = Color(0xFF6366F1);
+Color kCarSurface = Color(0xFFF1F5F9);
 
 // =============================================================================
 // 2. CAR DETAIL SCREEN
 // =============================================================================
 class CarDetailScreen extends StatefulWidget {
   final int carId;
-  const CarDetailScreen({Key? key, required this.carId}) : super(key: key);
+  CarDetailScreen({Key? key, required this.carId}) : super(key: key);
 
   @override
   State<CarDetailScreen> createState() => _CarDetailScreenState();
@@ -83,13 +83,13 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     final gallery = _carData?['gallery'];
     if (gallery is! List || gallery.length < 2) return;
     
-    _galleryTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _galleryTimer = Timer.periodic(Duration(seconds: 5), (_) {
       if (!mounted) return;
       _currentGalleryIndex = (_currentGalleryIndex + 1) % gallery.length;
       if (_galleryController.hasClients) {
         _galleryController.animateToPage(
           _currentGalleryIndex,
-          duration: const Duration(milliseconds: 800),
+          duration: Duration(milliseconds: 800),
           curve: Curves.easeInOut,
         );
       }
@@ -195,8 +195,8 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_carData == null) return const Scaffold(body: Center(child: Text("Car not found")));
+    if (_loading) return Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_carData == null) return Scaffold(body: Center(child: Text(context.l10n.carNotFound)));
 
     return Scaffold(
       backgroundColor: kCarSurface,
@@ -216,7 +216,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                     _buildFAQs(),
                     _buildReviews(),
                     _buildRelatedCars(),
-                    const SizedBox(height: 120),
+                    SizedBox(height: 120),
                   ],
                 ),
               ),
@@ -237,13 +237,13 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
       pinned: true,
       backgroundColor: kCarDark,
       leading: Container(
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(8),
         decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(12)),
-        child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
+        child: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
       ),
       actions: [
         Container(
-          margin: const EdgeInsets.all(8),
+          margin: EdgeInsets.all(8),
           decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(12)),
           child: IconButton(
             icon: Icon(_carData!['is_wishlist'] == 1 ? Icons.favorite : Icons.favorite_border, color: kCarBlue),
@@ -281,18 +281,18 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                   if (_carData!['location'] != null)
                     Row(
                       children: [
-                        const Icon(Icons.location_on, color: kCarBlue, size: 16),
-                        const SizedBox(width: 4),
+                        Icon(Icons.location_on, color: kCarBlue, size: 16),
+                        SizedBox(width: 4),
                         Text(
                           _carData!['location']['name'],
-                          style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     _carData!['title'] ?? '',
-                    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, height: 1.1),
+                    style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, height: 1.1),
                   ),
                 ],
               ),
@@ -306,8 +306,8 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   Widget _buildHeaderInfo() {
     final review = _carData!['review_score'];
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: const BoxDecoration(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
@@ -317,18 +317,18 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(color: kCarBlue.withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.directions_car, color: kCarBlue),
+                child: Icon(Icons.directions_car, color: kCarBlue),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Price per day", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                  Text(context.l10n.pricePerDay, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                   Text(
                     "\$${_carData!['sale_price'] ?? _carData!['price'] ?? 0}", 
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: kCarDark),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: kCarDark),
                   ),
                 ],
               ),
@@ -340,12 +340,12 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 18),
-                    const SizedBox(width: 4),
-                    Text(review['score_total'].toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Icon(Icons.star, color: Colors.amber, size: 18),
+                    SizedBox(width: 4),
+                    Text(review['score_total'].toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ],
                 ),
-                Text('${review['total_review']} reviews', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text('${review['total_review']} reviews', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
         ],
@@ -356,23 +356,23 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   // --- BOOKING CARD (Rental Style) ---
   Widget _buildBookingCard() {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [kCarDark, kCarIndigo]),
+          gradient: LinearGradient(colors: [kCarDark, kCarIndigo]),
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: kCarIndigo.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))],
+          boxShadow: [BoxShadow(color: kCarIndigo.withOpacity(0.3), blurRadius: 15, offset: Offset(0, 8))],
         ),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               child: Row(
                 children: [
                   Expanded(child: _dateButton("PICKUP", _pickupDate, true)),
                   Container(
                     height: 40, width: 1, color: Colors.white24,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    margin: EdgeInsets.symmetric(horizontal: 16),
                   ),
                   Expanded(child: _dateButton("RETURN", _returnDate, false)),
                 ],
@@ -382,16 +382,16 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
             if (_days > 0)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.1),
-                  border: const Border(top: BorderSide(color: Colors.white12)),
+                  border: Border(top: BorderSide(color: Colors.white12)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("$_days Days Rental", style: const TextStyle(color: Colors.white70)),
-                    Text("Total: \$${_calculateTotal().toStringAsFixed(0)}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text("$_days Days Rental", style: TextStyle(color: Colors.white70)),
+                    Text("Total: \$${_calculateTotal().toStringAsFixed(0)}", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -408,14 +408,14 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
         final d = await showDatePicker(
           context: context, 
           firstDate: now, 
-          lastDate: now.add(const Duration(days: 365)),
+          lastDate: now.add(Duration(days: 365)),
           initialDate: date ?? now,
         );
         if (d != null) {
           setState(() {
             if (isPickup) {
               _pickupDate = d;
-              if (_returnDate != null && _returnDate!.isBefore(d)) _returnDate = d.add(const Duration(days: 1));
+              if (_returnDate != null && _returnDate!.isBefore(d)) _returnDate = d.add(Duration(days: 1));
             } else {
               _returnDate = d;
             }
@@ -425,16 +425,16 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10, letterSpacing: 1)),
-          const SizedBox(height: 4),
+          Text(label, style: TextStyle(color: Colors.white54, fontSize: 10, letterSpacing: 1)),
+          SizedBox(height: 4),
           Row(
             children: [
               Text(
                 date == null ? "Select Date" : DateFormat('MMM dd, yyyy').format(date),
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.keyboard_arrow_down, color: Colors.white54, size: 16),
+              SizedBox(width: 4),
+              Icon(Icons.keyboard_arrow_down, color: Colors.white54, size: 16),
             ],
           ),
         ],
@@ -449,7 +449,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     final door = _carData!['door'] ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -465,7 +465,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   Widget _specItem(IconData icon, String val, String label) {
     return Container(
       width: 75,
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -474,9 +474,9 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
       child: Column(
         children: [
           Icon(icon, color: kCarBlue, size: 22),
-          const SizedBox(height: 6),
-          Text(val, style: const TextStyle(fontWeight: FontWeight.bold, color: kCarDark)),
-          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          SizedBox(height: 6),
+          Text(val, style: TextStyle(fontWeight: FontWeight.bold, color: kCarDark)),
+          Text(label, style: TextStyle(fontSize: 11, color: Colors.grey)),
         ],
       ),
     );
@@ -492,21 +492,21 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
       }
     }
     
-    if (features.isEmpty) return const SizedBox.shrink();
+    if (features.isEmpty) return SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionTitle("Features"),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Wrap(
             spacing: 8, runSpacing: 8,
             children: features.map((f) => Chip(
               label: Text(f['title'] ?? ''),
               backgroundColor: Colors.white,
-              avatar: const Icon(Icons.check_circle, size: 16, color: kCarBlue),
+              avatar: Icon(Icons.check_circle, size: 16, color: kCarBlue),
               side: BorderSide(color: Colors.grey.shade300),
             )).toList(),
           ),
@@ -517,12 +517,12 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
   Widget _buildDescription() {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionTitle("Description"),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           HtmlWidget(
             _carData!['content'] ?? '',
             textStyle: TextStyle(color: Colors.grey[800], height: 1.5),
@@ -534,22 +534,22 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
   Widget _buildFAQs() {
     final faqs = _carData!['faqs'];
-    if (faqs is! List || faqs.isEmpty) return const SizedBox.shrink();
+    if (faqs is! List || faqs.isEmpty) return SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildSectionTitle("FAQs"),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           ...faqs.map((f) => Container(
-            margin: const EdgeInsets.only(bottom: 10),
+            margin: EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
             child: ExpansionTile(
-              title: Text(f['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-              childrenPadding: const EdgeInsets.all(16),
+              title: Text(f['title'] ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              childrenPadding: EdgeInsets.all(16),
               children: [HtmlWidget(f['content'] ?? '')],
             ),
           )),
@@ -560,27 +560,27 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
   Widget _buildReviews() {
     final reviews = _carData!['review_lists']?['data'];
-    if (reviews is! List || reviews.isEmpty) return const SizedBox.shrink();
+    if (reviews is! List || reviews.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
           child: _buildSectionTitle("Reviews (${reviews.length})"),
         ),
         SizedBox(
           height: 170,
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: reviews.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final r = reviews[i];
               return Container(
                 width: 280,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -594,16 +594,16 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                         CircleAvatar(
                           radius: 16,
                           backgroundColor: kCarBlue.withOpacity(0.1),
-                          child: const Icon(Icons.person, size: 18, color: kCarBlue),
+                          child: Icon(Icons.person, size: 18, color: kCarBlue),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(r['author']?['name'] ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold))),
-                        Row(children: [const Icon(Icons.star, size: 14, color: Colors.amber), Text('${r['rate_number']}', style: const TextStyle(fontWeight: FontWeight.bold))]),
+                        SizedBox(width: 8),
+                        Expanded(child: Text(r['author']?['name'] ?? 'User', style: TextStyle(fontWeight: FontWeight.bold))),
+                        Row(children: [Icon(Icons.star, size: 14, color: Colors.amber), Text('${r['rate_number']}', style: TextStyle(fontWeight: FontWeight.bold))]),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 8),
+                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4),
                     Expanded(child: Text(r['content'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey[600], fontSize: 12))),
                   ],
                 ),
@@ -617,22 +617,22 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
   Widget _buildRelatedCars() {
     final related = _carData!['related'];
-    if (related is! List || related.isEmpty) return const SizedBox.shrink();
+    if (related is! List || related.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
           child: _buildSectionTitle("Related Cars"),
         ),
         SizedBox(
           height: 240,
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: related.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final item = related[i];
               return GestureDetector(
@@ -650,20 +650,20 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                       Expanded(
                         flex: 3,
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                           child: Image.network(item['image'] ?? '', width: double.infinity, fit: BoxFit.cover),
                         ),
                       ),
                       Expanded(
                         flex: 2,
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              Text("\$${item['price']}", style: const TextStyle(color: kCarBlue, fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text("\$${item['price']}", style: TextStyle(color: kCarBlue, fontWeight: FontWeight.bold, fontSize: 16)),
                             ],
                           ),
                         ),
@@ -683,33 +683,33 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     return Positioned(
       bottom: 0, left: 0, right: 0,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, 30),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, -5))],
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: Offset(0, -5))],
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Row(
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Total Estimate", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                Text("\$${_calculateTotal().toStringAsFixed(2)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kCarDark)),
+                Text(context.l10n.totalEstimate, style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text("\$${_calculateTotal().toStringAsFixed(2)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kCarDark)),
               ],
             ),
-            const Spacer(),
+            Spacer(),
             ElevatedButton(
               onPressed: _submitting ? null : _bookNow,
               style: ElevatedButton.styleFrom(
                 backgroundColor: kCarBlue,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 4,
               ),
               child: _submitting
-                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text("Book Now", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : Text(context.l10n.bookNow1, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ],
         ),
@@ -717,7 +717,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) => Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kCarDark));
+  Widget _buildSectionTitle(String title) => Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kCarDark));
 }
 
 // =============================================================================
@@ -730,7 +730,7 @@ class CarCheckoutScreen extends StatefulWidget {
   final DateTime returnDate;
   final double total;
 
-  const CarCheckoutScreen({
+  CarCheckoutScreen({
     Key? key,
     required this.bookingCode,
     required this.carTitle,
@@ -838,17 +838,17 @@ class _CarCheckoutScreenState extends State<CarCheckoutScreen> {
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Column(children: [Icon(Icons.check_circle, color: kCarBlue, size: 64), SizedBox(height: 16), Text('Booking Confirmed!')]),
+        title: Column(children: [Icon(Icons.check_circle, color: kCarBlue, size: 64), SizedBox(height: 16), Text(context.l10n.bookingConfirmed1)]),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Your car rental is confirmed.', textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            SelectableText(code, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kCarBlue)),
+            Text(context.l10n.yourCarRentalIsConfirmed, textAlign: TextAlign.center),
+            SizedBox(height: 16),
+            SelectableText(code, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kCarBlue)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: const Text('Back to Home')),
+          TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: Text(context.l10n.backToHome1)),
         ],
       ),
     );
@@ -858,28 +858,28 @@ class _CarCheckoutScreenState extends State<CarCheckoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kCarSurface,
-      appBar: AppBar(title: const Text('Checkout', style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+      appBar: AppBar(title: Text(context.l10n.checkout1, style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: IconThemeData(color: Colors.black)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
                 child: Column(
                   children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("Total Amount", style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: kCarBlue, fontSize: 18))]),
-                    const Divider(height: 24),
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("${DateFormat('MMM dd').format(widget.pickupDate)} - ${DateFormat('MMM dd').format(widget.returnDate)}"), const Text('Car Rental', style: TextStyle(fontWeight: FontWeight.bold))]),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(context.l10n.totalAmount, style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold, color: kCarBlue, fontSize: 18))]),
+                    Divider(height: 24),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("${DateFormat('MMM dd').format(widget.pickupDate)} - ${DateFormat('MMM dd').format(widget.returnDate)}"), Text(context.l10n.carRental, style: TextStyle(fontWeight: FontWeight.bold))]),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text('Guest Info', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              SizedBox(height: 24),
+              Text(context.l10n.guestInfo, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
               _input(_firstName, 'First Name', Icons.person),
               _input(_lastName, 'Last Name', Icons.person),
               _input(_email, 'Email', Icons.email, type: TextInputType.emailAddress),
@@ -887,13 +887,13 @@ class _CarCheckoutScreenState extends State<CarCheckoutScreen> {
               _input(_address, 'Address', Icons.home),
               _input(_country, 'Country', Icons.flag),
               _input(_notes, 'Notes (Optional)', Icons.note, req: false),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               SizedBox(
                 width: double.infinity, height: 54,
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _handleCheckout,
                   style: ElevatedButton.styleFrom(backgroundColor: kCarBlue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                  child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white) : const Text('Confirm & Pay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  child: _isSubmitting ? CircularProgressIndicator(color: Colors.white) : Text(context.l10n.confirmPay, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
             ],
@@ -905,7 +905,7 @@ class _CarCheckoutScreenState extends State<CarCheckoutScreen> {
 
   Widget _input(TextEditingController c, String label, IconData icon, {TextInputType type = TextInputType.text, bool req = true}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: c, keyboardType: type,
         decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon, color: Colors.grey), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), filled: true, fillColor: Colors.white),

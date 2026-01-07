@@ -4,29 +4,29 @@ import 'package:megatour_app/utils/context_extension.dart';
 class BookingSuccessScreen extends StatelessWidget {
   final String bookingCode;
 
-  const BookingSuccessScreen({Key? key, required this.bookingCode})
+  BookingSuccessScreen({Key? key, required this.bookingCode})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Booking Confirmed")),
+      appBar: AppBar(title: Text(context.l10n.bookingConfirmed)),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle, size: 80, color: Colors.green),
-            const SizedBox(height: 16),
-            const Text("Your booking is confirmed"),
-            const SizedBox(height: 8),
+            Icon(Icons.check_circle, size: 80, color: Colors.green),
+            SizedBox(height: 16),
+            Text(context.l10n.yourBookingIsConfirmed),
+            SizedBox(height: 8),
             Text(
               bookingCode,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Done"),
+              child: Text(context.l10n.done),
             ),
           ],
         ),

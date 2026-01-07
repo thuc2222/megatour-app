@@ -8,7 +8,7 @@ import 'car_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class CarListScreen extends StatefulWidget {
-  const CarListScreen({Key? key}) : super(key: key);
+  CarListScreen({Key? key}) : super(key: key);
 
   @override
   State<CarListScreen> createState() => _CarListScreenState();
@@ -21,7 +21,7 @@ class _CarListScreenState extends State<CarListScreen> {
   
   String? searchQuery;
   String? selectedType;
-  RangeValues priceRange = const RangeValues(50, 1000);
+  RangeValues priceRange = RangeValues(50, 1000);
 
   @override
   void initState() {
@@ -118,14 +118,14 @@ class _CarListScreenState extends State<CarListScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFF667eea).withOpacity(0.15),
-                const Color(0xFF764ba2).withOpacity(0.15),
+                Color(0xFF667eea).withOpacity(0.15),
+                Color(0xFF764ba2).withOpacity(0.15),
               ],
             ),
           ),
         ),
-        title: const Text(
-          'Car Rentals',
+        title: Text(
+          context.l10n.carRentals,
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class _CarListScreenState extends State<CarListScreen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.tune, color: Colors.black),
+          icon: Icon(Icons.tune, color: Colors.black),
           onPressed: _showFilters,
         ),
       ],
@@ -147,7 +147,7 @@ class _CarListScreenState extends State<CarListScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         children: [
           // Search Field
@@ -159,16 +159,16 @@ class _CarListScreenState extends State<CarListScreen> {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
                   blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search cars...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: context.l10n.searchCars,
+                prefixIcon: Icon(Icons.search),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
+                contentPadding: EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 16,
                 ),
@@ -178,7 +178,7 @@ class _CarListScreenState extends State<CarListScreen> {
             ),
           ),
           
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           
           // Quick Filters
           SizedBox(
@@ -202,7 +202,7 @@ class _CarListScreenState extends State<CarListScreen> {
   Widget _filterChip(String label, String? value) {
     final selected = selectedType == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
         selected: selected,
@@ -210,7 +210,7 @@ class _CarListScreenState extends State<CarListScreen> {
           setState(() => selectedType = value);
           _fetchCars();
         },
-        selectedColor: const Color(0xFF667eea),
+        selectedColor: Color(0xFF667eea),
         backgroundColor: Colors.grey[200],
         labelStyle: TextStyle(
           color: selected ? Colors.white : Colors.black,
@@ -226,7 +226,7 @@ class _CarListScreenState extends State<CarListScreen> {
 
   Widget _buildCarList() {
     if (isLoading) {
-      return const SliverFillRemaining(
+      return SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       );
     }
@@ -237,13 +237,13 @@ class _CarListScreenState extends State<CarListScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
+              Icon(Icons.error_outline, size: 64, color: Colors.red),
+              SizedBox(height: 16),
               Text(errorMessage!),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _fetchCars,
-                child: const Text('Retry'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
@@ -258,9 +258,9 @@ class _CarListScreenState extends State<CarListScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.directions_car_outlined, size: 80, color: Colors.grey[400]),
-              const SizedBox(height: 16),
-              const Text(
-                'No cars found',
+              SizedBox(height: 16),
+              Text(
+                context.l10n.noCarsFound,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
@@ -270,7 +270,7 @@ class _CarListScreenState extends State<CarListScreen> {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => _carCard(cars[index]),
@@ -308,7 +308,7 @@ class _CarListScreenState extends State<CarListScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -316,7 +316,7 @@ class _CarListScreenState extends State<CarListScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
               blurRadius: 20,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -327,7 +327,7 @@ class _CarListScreenState extends State<CarListScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(20),
                   ),
                   child: imageUrl != null
@@ -345,7 +345,7 @@ class _CarListScreenState extends State<CarListScreen> {
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(
+                      borderRadius: BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
                       gradient: LinearGradient(
@@ -366,24 +366,24 @@ class _CarListScreenState extends State<CarListScreen> {
                     top: 12,
                     right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF667eea).withOpacity(0.3),
+                            color: Color(0xFF667eea).withOpacity(0.3),
                             blurRadius: 8,
                           ),
                         ],
                       ),
-                      child: const Text(
-                        'DEAL',
+                      child: Text(
+                        context.l10n.deal,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -397,7 +397,7 @@ class _CarListScreenState extends State<CarListScreen> {
 
             // CONTENT
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -406,25 +406,25 @@ class _CarListScreenState extends State<CarListScreen> {
                     children: [
                       if (locationName != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF667eea).withOpacity(0.1),
+                            color: Color(0xFF667eea).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.location_on,
                                 size: 12,
                                 color: Color(0xFF667eea),
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Text(
                                 locationName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xFF667eea),
@@ -433,10 +433,10 @@ class _CarListScreenState extends State<CarListScreen> {
                             ],
                           ),
                         ),
-                      const Spacer(),
+                      Spacer(),
                       if (reviewScore != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -446,15 +446,15 @@ class _CarListScreenState extends State<CarListScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.star,
                                 size: 12,
                                 color: Colors.amber,
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Text(
                                 reviewScore['score_total']?.toString() ?? '0',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -465,20 +465,20 @@ class _CarListScreenState extends State<CarListScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
 
                   // Title
                   Text(
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
 
                   // Car Specs
                   Row(
@@ -486,17 +486,17 @@ class _CarListScreenState extends State<CarListScreen> {
                       if (transmission != null)
                         _specChip(Icons.settings, transmission),
                       if (transmission != null && seats != null)
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                       if (seats != null)
                         _specChip(Icons.person, '$seats seats'),
                       if (seats != null && baggage != null)
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                       if (baggage != null)
                         _specChip(Icons.luggage, '$baggage bags'),
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Price & Button
                   Row(
@@ -519,22 +519,22 @@ class _CarListScreenState extends State<CarListScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               ShaderMask(
-                                shaderCallback: (bounds) => const LinearGradient(
+                                shaderCallback: (bounds) => LinearGradient(
                                   colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                                 ).createShader(bounds),
                                 child: Text(
                                   '\$${salePrice != null && salePrice != '0' ? salePrice : price}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
                                 ),
                               ),
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.only(bottom: 4, left: 4),
                                 child: Text(
-                                  '/ day',
+                                  context.l10n.day,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -547,7 +547,7 @@ class _CarListScreenState extends State<CarListScreen> {
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -565,12 +565,12 @@ class _CarListScreenState extends State<CarListScreen> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 24,
                                 vertical: 12,
                               ),
-                              child: const Text(
-                                'Rent',
+                              child: Text(
+                                context.l10n.rent,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -601,13 +601,13 @@ class _CarListScreenState extends State<CarListScreen> {
           colors: [Colors.grey[300]!, Colors.grey[200]!],
         ),
       ),
-      child: const Icon(Icons.directions_car, size: 64, color: Colors.grey),
+      child: Icon(Icons.directions_car, size: 64, color: Colors.grey),
     );
   }
 
   Widget _specChip(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(8),
@@ -616,7 +616,7 @@ class _CarListScreenState extends State<CarListScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: Colors.grey[700]),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             text,
             style: TextStyle(
@@ -638,22 +638,22 @@ class _CarListScreenState extends State<CarListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Filters',
+            Text(
+              context.l10n.filters,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
-            const Text('Price per day'),
+            Text(context.l10n.pricePerDay),
             RangeSlider(
               min: 50,
               max: 1000,
@@ -662,7 +662,7 @@ class _CarListScreenState extends State<CarListScreen> {
             ),
             Text('\$${priceRange.start.round()} - \$${priceRange.end.round()}'),
             
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             SizedBox(
               width: double.infinity,
@@ -672,10 +672,10 @@ class _CarListScreenState extends State<CarListScreen> {
                   _fetchCars();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF667eea),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Color(0xFF667eea),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Apply Filters'),
+                child: Text(context.l10n.applyFilters),
               ),
             ),
           ],

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 
 class LocaleProvider extends ChangeNotifier {
-  Locale _locale = const Locale('en');
+  Locale _locale = Locale('en');
 
   Locale get locale => _locale;
 
@@ -14,7 +14,7 @@ class LocaleProvider extends ChangeNotifier {
   }
 
   // Supported locales
-  static const List<Locale> supportedLocales = [
+  static List<Locale> supportedLocales = [
     Locale('en'), // English (default)
     Locale('vi'), // Vietnamese
     Locale('fr'), // French
@@ -23,7 +23,7 @@ class LocaleProvider extends ChangeNotifier {
   ];
 
   // Language names
-  static const Map<String, String> languageNames = {
+  static Map<String, String> languageNames = {
     'en': 'English',
     'vi': 'Tiếng Việt',
     'fr': 'Français',
@@ -32,7 +32,7 @@ class LocaleProvider extends ChangeNotifier {
   };
 
   // Language flags/icons
-  static const Map<String, String> languageFlags = {
+  static Map<String, String> languageFlags = {
     'en': '🇬🇧',
     'vi': '🇻🇳',
     'fr': '🇫🇷',
@@ -68,7 +68,7 @@ class LocaleProvider extends ChangeNotifier {
 
   // Clear locale (reset to default)
   Future<void> clearLocale() async {
-    _locale = const Locale('en');
+    _locale = Locale('en');
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();

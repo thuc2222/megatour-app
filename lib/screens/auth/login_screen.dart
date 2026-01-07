@@ -5,7 +5,7 @@ import '../../providers/auth_provider.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -65,20 +65,20 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(24.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 60),
+                SizedBox(height: 60),
                 
-                const Icon(
+                Icon(
                   Icons.travel_explore,
                   size: 80,
                   color: Colors.blue,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 Text(
                   l10n.welcomeBack,
@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 Text(
                   l10n.loginToContinue,
@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 48),
+                SizedBox(height: 48),
                 
                 // Email field
                 TextFormField(
@@ -104,8 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: l10n.email,
-                    hintText: 'Enter your email',
-                    prefixIcon: const Icon(Icons.email_outlined),
+                    hintText: context.l10n.enterYourEmail,
+                    prefixIcon: Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 // Password field
                 TextFormField(
@@ -128,8 +128,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     labelText: l10n.password,
-                    hintText: 'Enter your password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    hintText: context.l10n.enterYourPassword,
+                    prefixIcon: Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -156,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 
                 // Remember me & Forgot password
                 Row(
@@ -181,19 +181,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 // Login button
                 ElevatedButton(
                   onPressed: authProvider.isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: authProvider.isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
@@ -202,24 +202,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         )
                       : Text(
                           l10n.login,
-                          style: const TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16),
                         ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 // Register link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(l10n.dontHaveAccount),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed('/register');
                       },
                       child: Text(
                         l10n.register,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

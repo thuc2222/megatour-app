@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GuestBookingStorage {
-  static const _key = 'guest_bookings';
+  static const String _key = 'guest_bookings';
 
   static Future<void> saveBooking({
     required String bookingCode,

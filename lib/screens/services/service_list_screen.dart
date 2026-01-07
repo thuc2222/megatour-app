@@ -10,7 +10,7 @@ class ServiceListScreen extends StatefulWidget {
   final String serviceType;
   final String title;
 
-  const ServiceListScreen({
+  ServiceListScreen({
     Key? key,
     required this.serviceType,
     required this.title,
@@ -60,13 +60,13 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     final provider = context.watch<SearchProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: Color(0xFFF7F8FA),
       appBar: AppBar(
         title: Text(widget.title),
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune),
+            icon: Icon(Icons.tune),
             onPressed: () => _showFilterSheet(context),
           ),
         ],
@@ -87,14 +87,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: TextField(
         decoration: InputDecoration(
           hintText: 'Search ${widget.title.toLowerCase()}',
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: Icon(Icons.search),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          contentPadding: EdgeInsets.symmetric(vertical: 14),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
@@ -111,7 +111,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
       height: 46,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         children: [
           _sortChip('Low → High', 'price_low_high'),
           _sortChip('High → Low', 'price_high_low'),
@@ -124,7 +124,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   Widget _sortChip(String label, String value) {
     final selected = _selectedSort == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
         selected: selected,
@@ -148,7 +148,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
   Widget _buildList(SearchProvider provider) {
     if (provider.isLoading && provider.services.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator());
     }
 
     if (provider.errorMessage != null) {
@@ -156,19 +156,19 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     }
 
     if (provider.services.isEmpty) {
-      return const Center(child: Text('No results found'));
+      return Center(child: Text(context.l10n.noResultsFound));
     }
 
     return RefreshIndicator(
       onRefresh: () async => _loadServices(),
       child: ListView.builder(
         controller: _scrollController,
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         itemCount:
             provider.services.length + (provider.isLoading ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= provider.services.length) {
-            return const Padding(
+            return Padding(
               padding: EdgeInsets.all(24),
               child: Center(child: CircularProgressIndicator()),
             );
@@ -193,7 +193,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -201,7 +201,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
               blurRadius: 16,
-              offset: const Offset(0, 6),
+              offset: Offset(0, 6),
             ),
           ],
         ),
@@ -210,7 +210,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           children: [
             _imageHeader(s),
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -218,22 +218,22 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                     s.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   if (s.address != null)
                     Row(
                       children: [
-                        const Icon(Icons.location_on,
+                        Icon(Icons.location_on,
                             size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             s.address!,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: Colors.grey, fontSize: 13),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -241,7 +241,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                         ),
                       ],
                     ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -261,7 +261,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
   Widget _imageHeader(ServiceModel s) {
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       child: Stack(
         children: [
           Image.network(
@@ -298,14 +298,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
   Widget _badge(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.orange,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
             color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
       ),
     );
@@ -313,24 +313,24 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
 
   Widget _ratingPill(String score, int? count) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.green,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          const Icon(Icons.star, size: 12, color: Colors.white),
-          const SizedBox(width: 4),
+          Icon(Icons.star, size: 12, color: Colors.white),
+          SizedBox(width: 4),
           Text(
             score,
-            style: const TextStyle(
+            style: TextStyle(
                 color: Colors.white, fontWeight: FontWeight.bold),
           ),
           if (count != null)
             Text(
               ' ($count)',
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: TextStyle(color: Colors.white70, fontSize: 12),
             ),
         ],
       ),
@@ -344,7 +344,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         if (s.salePrice != null)
           Text(
             '\$${s.price}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: Colors.grey,
               decoration: TextDecoration.lineThrough,
@@ -352,7 +352,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           ),
         Text(
           '\$${s.salePrice ?? s.price}',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.blue,
@@ -370,12 +370,12 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => const Padding(
+      builder: (_) => Padding(
         padding: EdgeInsets.all(24),
-        child: Center(child: Text('Filters coming soon')),
+        child: Center(child: Text(context.l10n.filtersComingSoon)),
       ),
     );
   }

@@ -11,7 +11,7 @@ class AppCurrency {
   final bool noDecimal;
   final double rate;
 
-  const AppCurrency({
+  AppCurrency({
     required this.code,
     required this.symbol,
     required this.format,

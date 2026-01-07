@@ -11,7 +11,7 @@ class EventCheckoutScreen extends StatefulWidget {
   final Map<String, int> ticketCounts;
   final List<Map<String, dynamic>> allTicketTypes;
 
-  const EventCheckoutScreen({
+  EventCheckoutScreen({
     Key? key,
     required this.eventId,
     required this.selectedDate,
@@ -194,9 +194,9 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Event Checkout')),
+      appBar: AppBar(title: Text(context.l10n.eventCheckout)),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
@@ -207,7 +207,7 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
                   type: TextInputType.emailAddress),
               _field(_phone, 'Phone',
                   type: TextInputType.phone),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -215,10 +215,10 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
                   onPressed:
                       _submitting ? null : _confirmBooking,
                   child: _submitting
-                      ? const CircularProgressIndicator(
+                      ? CircularProgressIndicator(
                           color: Colors.white,
                         )
-                      : const Text('Confirm Booking'),
+                      : Text(context.l10n.confirmBooking1),
                 ),
               ),
             ],
@@ -234,7 +234,7 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
     TextInputType type = TextInputType.text,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
         keyboardType: type,
@@ -263,18 +263,18 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
 class BookingSuccessScreen extends StatelessWidget {
   final String bookingCode;
 
-  const BookingSuccessScreen({Key? key, required this.bookingCode})
+  BookingSuccessScreen({Key? key, required this.bookingCode})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Success')),
+      appBar: AppBar(title: Text(context.l10n.success)),
       body: Center(
         child: Text(
           'Booking Code:\n$bookingCode',
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),

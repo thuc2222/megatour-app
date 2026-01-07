@@ -7,7 +7,7 @@ import 'package:megatour_app/utils/context_extension.dart';
 class ArticleDetailScreen extends StatelessWidget {
   final Map<String, dynamic> article;
 
-  const ArticleDetailScreen({
+  ArticleDetailScreen({
     Key? key,
     required this.article,
   }) : super(key: key);
@@ -23,7 +23,7 @@ class ArticleDetailScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,13 +38,13 @@ class ArticleDetailScreen extends StatelessWidget {
                 ),
               ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             Row(
               children: [
                 if (article['category'] != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                         horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.blue.withOpacity(0.1),
@@ -52,34 +52,34 @@ class ArticleDetailScreen extends StatelessWidget {
                     ),
                     child: Text(
                       article['category']['name'] ?? '',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: Colors.blue,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                const Spacer(),
+                Spacer(),
                 if (article['created_at'] != null)
                   Text(
                     article['created_at'],
                     style:
-                        const TextStyle(fontSize: 12, color: Colors.grey),
+                        TextStyle(fontSize: 12, color: Colors.grey),
                   ),
               ],
             ),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
             Text(
               article['title'] ?? '',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             HtmlWidget(article['content'] ?? ''),
           ],

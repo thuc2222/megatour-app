@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BookingStorage {
-  static const _key = 'bookings';
+  static const String _key = 'bookings';
 
   static Future<void> save(Map<String, dynamic> booking) async {
     final prefs = await SharedPreferences.getInstance();

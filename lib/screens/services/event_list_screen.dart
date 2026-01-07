@@ -9,7 +9,7 @@ import 'event_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class EventListScreen extends StatefulWidget {
-  const EventListScreen({Key? key}) : super(key: key);
+  EventListScreen({Key? key}) : super(key: key);
 
   @override
   State<EventListScreen> createState() => _EventListScreenState();
@@ -20,7 +20,7 @@ class _EventListScreenState extends State<EventListScreen> {
   String? location;
   DateTime? fromDate;
   DateTime? toDate;
-  RangeValues priceRange = const RangeValues(193, 2000);
+  RangeValues priceRange = RangeValues(193, 2000);
   double reviewScore = 0;
 
   bool isLoading = false;
@@ -127,14 +127,14 @@ class _EventListScreenState extends State<EventListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Color(0xFFF5F6FA),
       appBar: AppBar(
-        title: const Text("Events & Tickets"),
+        title: Text(context.l10n.eventsTickets),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune),
+            icon: Icon(Icons.tune),
             onPressed: _showFilters,
           ),
         ],
@@ -155,13 +155,13 @@ class _EventListScreenState extends State<EventListScreen> {
   Widget _buildSearchBar() {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Column(
         children: [
           TextField(
             decoration: InputDecoration(
-              hintText: "Search events, location...",
-              prefixIcon: const Icon(Icons.search),
+              hintText: context.l10n.searchEventsLocation,
+              prefixIcon: Icon(Icons.search),
               filled: true,
               fillColor: Colors.grey[100],
               border: OutlineInputBorder(
@@ -172,46 +172,46 @@ class _EventListScreenState extends State<EventListScreen> {
             onChanged: (v) => location = v,
             onSubmitted: (_) => fetchEvents(),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _pickDate(true),
-                  icon: const Icon(Icons.calendar_today, size: 16),
+                  icon: Icon(Icons.calendar_today, size: 16),
                   label: Text(fromDate == null ? "From" : formatDate(fromDate!)),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _pickDate(false),
-                  icon: const Icon(Icons.calendar_today, size: 16),
+                  icon: Icon(Icons.calendar_today, size: 16),
                   label: Text(toDate == null ? "To" : formatDate(toDate!)),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               ElevatedButton(
                 onPressed: fetchEvents,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(14),
+                  padding: EdgeInsets.all(14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Icon(Icons.search),
+                child: Icon(Icons.search),
               ),
             ],
           ),
@@ -226,7 +226,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
   Widget _buildEventList() {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator());
     }
 
     if (errorMessage != null) {
@@ -234,25 +234,25 @@ class _EventListScreenState extends State<EventListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 64, color: Colors.red),
+            SizedBox(height: 16),
             Text(
-              'Error loading events',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              context.l10n.errorLoadingEvents,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
+              padding: EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 errorMessage!,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600]),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: fetchEvents,
-              child: const Text('Retry'),
+              child: Text(context.l10n.retry),
             ),
           ],
         ),
@@ -266,7 +266,7 @@ class _EventListScreenState extends State<EventListScreen> {
     return RefreshIndicator(
       onRefresh: fetchEvents,
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         itemCount: events.length,
         itemBuilder: (_, i) => _eventTicketCard(events[i]),
       ),
@@ -294,7 +294,7 @@ class _EventListScreenState extends State<EventListScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -302,7 +302,7 @@ class _EventListScreenState extends State<EventListScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.06),
               blurRadius: 16,
-              offset: const Offset(0, 4),
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -340,7 +340,7 @@ class _EventListScreenState extends State<EventListScreen> {
                       top: 12,
                       right: 12,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 4,
                         ),
@@ -350,7 +350,7 @@ class _EventListScreenState extends State<EventListScreen> {
                         ),
                         child: Text(
                           discountPercent ?? 'SALE',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -363,7 +363,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
               // CONTENT
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -372,12 +372,12 @@ class _EventListScreenState extends State<EventListScreen> {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
 
                     // INFO ROW
                     Row(
@@ -389,7 +389,7 @@ class _EventListScreenState extends State<EventListScreen> {
                             color: Colors.purple,
                           ),
                         if (duration != null && locationName != null)
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                         if (locationName != null)
                           Expanded(
                             child: _infoChip(
@@ -401,7 +401,7 @@ class _EventListScreenState extends State<EventListScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
 
                     // RATING & PRICE ROW
                     Row(
@@ -410,18 +410,18 @@ class _EventListScreenState extends State<EventListScreen> {
                         if (reviewScore != null)
                           Row(
                             children: [
-                              const Icon(Icons.star,
+                              Icon(Icons.star,
                                   color: Colors.amber, size: 16),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Text(
                                 reviewScore['score_total']?.toString() ?? '0',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
                                 ' (${reviewScore['total_review'] ?? 0})',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
                                 ),
@@ -434,7 +434,7 @@ class _EventListScreenState extends State<EventListScreen> {
                             if (salePrice != null && salePrice != '0')
                               Text(
                                 '\$$price',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
                                   decoration: TextDecoration.lineThrough,
@@ -442,7 +442,7 @@ class _EventListScreenState extends State<EventListScreen> {
                               ),
                             Text(
                               '\$${salePrice != null && salePrice != '0' ? salePrice : price}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFFFF6B6B),
@@ -476,7 +476,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
               // ACTION BUTTON
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                padding: EdgeInsets.fromLTRB(16, 12, 16, 16),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -489,14 +489,14 @@ class _EventListScreenState extends State<EventListScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6C5CE7),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Color(0xFF6C5CE7),
+                      padding: EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Get Tickets',
+                    child: Text(
+                      context.l10n.getTickets,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -517,7 +517,7 @@ class _EventListScreenState extends State<EventListScreen> {
       height: 180,
       width: double.infinity,
       color: Colors.grey[300],
-      child: const Icon(Icons.event, size: 64, color: Colors.grey),
+      child: Icon(Icons.event, size: 64, color: Colors.grey),
     );
   }
 
@@ -527,7 +527,7 @@ class _EventListScreenState extends State<EventListScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -536,7 +536,7 @@ class _EventListScreenState extends State<EventListScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Flexible(
             child: Text(
               text,
@@ -563,28 +563,28 @@ class _EventListScreenState extends State<EventListScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.event_busy, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          const Text(
-            'No events found',
+          SizedBox(height: 16),
+          Text(
+            context.l10n.noEventsFound,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
-            'Try adjusting your search filters',
+            context.l10n.tryAdjustingYourSearchFilters,
             style: TextStyle(color: Colors.grey[600]),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
               setState(() {
                 location = null;
                 fromDate = null;
                 toDate = null;
-                priceRange = const RangeValues(193, 2000);
+                priceRange = RangeValues(193, 2000);
               });
               fetchEvents();
             },
-            child: const Text('Clear Filters'),
+            child: Text(context.l10n.clearFilters),
           ),
         ],
       ),
@@ -595,20 +595,20 @@ class _EventListScreenState extends State<EventListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Filters',
+            Text(
+              context.l10n.filters,
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
                 "Price: \$${priceRange.start.round()} - \$${priceRange.end.round()}"),
             RangeSlider(
@@ -617,7 +617,7 @@ class _EventListScreenState extends State<EventListScreen> {
               values: priceRange,
               onChanged: (v) => setState(() => priceRange = v),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text("Review Score: ${reviewScore.round()} stars"),
             Slider(
               min: 0,
@@ -626,7 +626,7 @@ class _EventListScreenState extends State<EventListScreen> {
               value: reviewScore,
               onChanged: (v) => setState(() => reviewScore = v),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -634,7 +634,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   Navigator.pop(context);
                   fetchEvents();
                 },
-                child: const Text('Apply Filters'),
+                child: Text(context.l10n.applyFilters),
               ),
             ),
           ],

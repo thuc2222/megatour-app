@@ -7,7 +7,7 @@ import 'boat_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class BoatListScreen extends StatefulWidget {
-  const BoatListScreen({Key? key}) : super(key: key);
+  BoatListScreen({Key? key}) : super(key: key);
 
   @override
   State<BoatListScreen> createState() => _BoatListScreenState();
@@ -143,8 +143,8 @@ class _BoatListScreenState extends State<BoatListScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF1A237E).withOpacity(0.05),
-              const Color(0xFF0D47A1).withOpacity(0.02),
+              Color(0xFF1A237E).withOpacity(0.05),
+              Color(0xFF0D47A1).withOpacity(0.02),
             ],
           ),
         ),
@@ -156,7 +156,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
             _buildSortChips(),
             _buildBoatGrid(),
             if (_loadingMore)
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.all(24),
                   child: Center(child: CircularProgressIndicator()),
@@ -185,9 +185,9 @@ class _BoatListScreenState extends State<BoatListScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFF1565C0),
-                const Color(0xFF0D47A1),
-                const Color(0xFF01579B),
+                Color(0xFF1565C0),
+                Color(0xFF0D47A1),
+                Color(0xFF01579B),
               ],
             ),
           ),
@@ -201,7 +201,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
               ),
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -209,24 +209,24 @@ class _BoatListScreenState extends State<BoatListScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.directions_boat,
                               color: Colors.white,
                               size: 32,
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          const Expanded(
+                          SizedBox(width: 16),
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Cruise & Boats',
+                                  context.l10n.cruiseBoats,
                                   style: TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
@@ -235,7 +235,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Sail into your dream vacation',
+                                  context.l10n.sailIntoYourDreamVacation,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.white70,
@@ -264,22 +264,22 @@ class _BoatListScreenState extends State<BoatListScreen> {
   SliverToBoxAdapter _buildSearchBar() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1565C0).withOpacity(0.1),
+                color: Color(0xFF1565C0).withOpacity(0.1),
                 blurRadius: 20,
-                offset: const Offset(0, 8),
+                offset: Offset(0, 8),
               ),
             ],
           ),
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'Search boats, cruises...',
+              hintText: context.l10n.searchBoatsCruises,
               prefixIcon: Icon(
                 Icons.search,
                 color: Colors.blue.shade700,
@@ -292,7 +292,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                 onPressed: () => _showFilters(),
               ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
+              contentPadding: EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 16,
               ),
@@ -315,7 +315,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
         height: 56,
         child: ListView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           children: [
             _sortChip('Price Low → High', 'price_low_high', Icons.arrow_upward),
             _sortChip('Price High → Low', 'price_high_low', Icons.arrow_downward),
@@ -330,7 +330,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
   Widget _sortChip(String label, String value, IconData icon) {
     final selected = _selectedSort == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: FilterChip(
         selected: selected,
         label: Row(
@@ -341,7 +341,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
               size: 16,
               color: selected ? Colors.white : Colors.blue.shade700,
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(label),
           ],
         ),
@@ -367,7 +367,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
 
   SliverPadding _buildBoatGrid() {
     if (_loading) {
-      return const SliverPadding(
+      return SliverPadding(
         padding: EdgeInsets.zero,
         sliver: SliverFillRemaining(
           child: Center(child: CircularProgressIndicator()),
@@ -377,7 +377,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
 
     if (_boats.isEmpty) {
       return SliverPadding(
-        padding: const EdgeInsets.all(40),
+        padding: EdgeInsets.all(40),
         sliver: SliverToBoxAdapter(
           child: Column(
             children: [
@@ -386,9 +386,9 @@ class _BoatListScreenState extends State<BoatListScreen> {
                 size: 80,
                 color: Colors.grey.shade300,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
-                'No boats found',
+                context.l10n.noBoatsFound,
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.grey.shade600,
@@ -401,9 +401,9 @@ class _BoatListScreenState extends State<BoatListScreen> {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 0.45,
           crossAxisSpacing: 16,
@@ -441,7 +441,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
             BoxShadow(
               color: Colors.blue.shade100.withOpacity(0.5),
               blurRadius: 20,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -452,7 +452,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
                   child: Container(
@@ -471,7 +471,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                             boat['image'],
                             fit: BoxFit.cover,
                           )
-                        : const Icon(
+                        : Icon(
                             Icons.directions_boat,
                             size: 48,
                             color: Colors.white,
@@ -483,7 +483,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                 Container(
                   height: 160,
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(
+                    borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
                     gradient: LinearGradient(
@@ -503,7 +503,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                     top: 12,
                     right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 6,
                       ),
@@ -516,7 +516,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
@@ -526,7 +526,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            'FEATURED',
+                            context.l10n.featured,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -543,7 +543,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
             // CONTENT
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -551,14 +551,14 @@ class _BoatListScreenState extends State<BoatListScreen> {
                       boat['title'] ?? '',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         height: 1.3,
                       ),
                     ),
                     
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
 
                     if (boat['location'] != null)
                       Row(
@@ -568,7 +568,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                             size: 14,
                             color: Colors.blue.shade700,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               boat['location']['name'] ?? '',
@@ -583,14 +583,14 @@ class _BoatListScreenState extends State<BoatListScreen> {
                         ],
                       ),
 
-                    const Spacer(),
+                    Spacer(),
 
                     // Rating
                     if (boat['review_score'] != null)
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: 6,
                               vertical: 3,
                             ),
@@ -606,7 +606,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                                   size: 12,
                                   color: Colors.green.shade700,
                                 ),
-                                const SizedBox(width: 3),
+                                SizedBox(width: 3),
                                 Text(
                                   boat['review_score']['score_total']
                                       ?.toString() ??
@@ -623,7 +623,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                         ],
                       ),
 
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
 
                     // Price
                     Row(
@@ -637,7 +637,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
                               color: Colors.grey.shade500,
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                         ],
                         Text(
                           '\$${boat['sale_price'] ?? boat['price']}',
@@ -647,8 +647,8 @@ class _BoatListScreenState extends State<BoatListScreen> {
                             color: Colors.blue.shade700,
                           ),
                         ),
-                        const Text(
-                          '/day',
+                        Text(
+                          context.l10n.day1,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -677,7 +677,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.7,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(32),
@@ -686,7 +686,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
         child: Column(
           children: [
             Container(
-              margin: const EdgeInsets.only(top: 12),
+              margin: EdgeInsets.only(top: 12),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
@@ -695,17 +695,17 @@ class _BoatListScreenState extends State<BoatListScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24),
               child: Row(
                 children: [
-                  const Text(
-                    'Filters',
+                  Text(
+                    context.l10n.filters,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Spacer(),
+                  Spacer(),
                   TextButton(
                     onPressed: () {
                       setState(() {
@@ -714,23 +714,23 @@ class _BoatListScreenState extends State<BoatListScreen> {
                       Navigator.pop(context);
                       _loadBoats();
                     },
-                    child: const Text('Reset'),
+                    child: Text(context.l10n.reset),
                   ),
                 ],
               ),
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: 24),
                 children: [
-                  const Text(
-                    'Location',
+                  Text(
+                    context.l10n.location,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -756,7 +756,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -765,9 +765,9 @@ class _BoatListScreenState extends State<BoatListScreen> {
                     _loadBoats();
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Apply Filters'),
+                  child: Text(context.l10n.applyFilters),
                 ),
               ),
             ),

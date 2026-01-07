@@ -2,48 +2,48 @@
 
 class ApiConfig {
   // Base URL
-  static const String baseUrl = 'https://megatour.vn/api/';
+  static String baseUrl = 'https://megatour.vn/api/';
   static String currentLanguage = 'en';
   // API Endpoints
-  static const String configs = 'configs';
-  static const String countries = 'configs/countries';
+  static String configs = 'configs';
+  static String countries = 'configs/countries';
   
   // Auth
-  static const String login = 'auth/login';
-  static const String register = 'auth/register';
-  static const String logout = 'auth/logout';
-  static const String me = 'auth/me';
-  static const String updateProfile = 'auth/me';
-  static const String changePassword = 'auth/change-password';
-  static const String refreshToken = 'auth/refresh';
+  static String login = 'auth/login';
+  static String register = 'auth/register';
+  static String logout = 'auth/logout';
+  static String me = 'auth/me';
+  static String updateProfile = 'auth/me';
+  static String changePassword = 'auth/change-password';
+  static String refreshToken = 'auth/refresh';
   
   // Search
-  static const String hotelSearch = 'hotel/search';
-  static const String tourSearch = 'tour/search';
-  static const String spaceSearch = 'space/search';
-  static const String carSearch = 'car/search';
-  static const String eventSearch = 'event/search';
-  static const String boatSearch = 'boat/search';
-  static const String flightSearch = 'flight/search';
-  static const String servicesSearch = 'services';
+  static String hotelSearch = 'hotel/search';
+  static String tourSearch = 'tour/search';
+  static String spaceSearch = 'space/search';
+  static String carSearch = 'car/search';
+  static String eventSearch = 'event/search';
+  static String boatSearch = 'boat/search';
+  static String flightSearch = 'flight/search';
+  static String servicesSearch = 'services';
   
   // Filters
-  static const String hotelFilters = 'hotel/filters';
-  static const String tourFilters = 'tour/filters';
-  static const String spaceFilters = 'space/filters';
-  static const String carFilters = 'car/filters';
-  static const String eventFilters = 'event/filters';
-  static const String boatFilters = 'boat/filters';
-  static const String flightFilters = 'flight/filters';
+  static String hotelFilters = 'hotel/filters';
+  static String tourFilters = 'tour/filters';
+  static String spaceFilters = 'space/filters';
+  static String carFilters = 'car/filters';
+  static String eventFilters = 'event/filters';
+  static String boatFilters = 'boat/filters';
+  static String flightFilters = 'flight/filters';
   
   // Form Search
-  static const String hotelFormSearch = 'hotel/form-search';
-  static const String tourFormSearch = 'tour/form-search';
-  static const String spaceFormSearch = 'space/form-search';
-  static const String carFormSearch = 'car/form-search';
-  static const String eventFormSearch = 'event/form-search';
-  static const String boatFormSearch = 'boat/form-search';
-  static const String flightFormSearch = 'flight/form-search';
+  static String hotelFormSearch = 'hotel/form-search';
+  static String tourFormSearch = 'tour/form-search';
+  static String spaceFormSearch = 'space/form-search';
+  static String carFormSearch = 'car/form-search';
+  static String eventFormSearch = 'event/form-search';
+  static String boatFormSearch = 'boat/form-search';
+  static String flightFormSearch = 'flight/form-search';
   
   // Detail
   static String hotelDetail(int id) => 'hotel/detail/$id';
@@ -67,47 +67,47 @@ class ApiConfig {
       '$serviceType/write-review/$id';
   
   // Location
-  static const String locations = 'locations';
+  static String locations = 'locations';
   static String locationDetail(int id) => 'location/$id';
   
   // User
-  static const String bookingHistory = 'user/booking-history';
-  static const String wishlist = 'user/wishlist';
+  static String bookingHistory = 'user/booking-history';
+  static String wishlist = 'user/wishlist';
   static String wishlistAdd(String type, int id) => 'user/wishlist/$type/$id';
   static String wishlistRemove(String type, int id) => 'user/wishlist/$type/$id';
-  static const String wishlistRemoveAll = 'user/wishlist';
-  static const String myTickets = 'user/ticket';
+  static String wishlistRemoveAll = 'user/wishlist';
+  static String myTickets = 'user/ticket';
   
   // Booking
-  static const String addToCart = 'booking/addToCart';
+  static String addToCart = 'booking/addToCart';
   static String bookingCheckout(String code) => 'booking/$code/checkout';
   static String bookingSuccess(String code) => 'booking/$code';
-  static const String doCheckout = 'booking/doCheckout';
-  static const String gateways = 'gateways';
+  static String doCheckout = 'booking/doCheckout';
+  static String gateways = 'gateways';
   
   // Tickets
   static String scanTicket(int bookingId, int ticketId, String hashedCode) => 
       'user/booking/ticket/scan/$bookingId/$ticketId?code=$hashedCode';
-  static const String scanHistory = 'user/booking/ticket';
+  static String scanHistory = 'user/booking/ticket';
   
   // Media
-  static const String uploadImage = 'media/store';
+  static String uploadImage = 'media/store';
   
   // News
-  static const String news = 'news';
+  static String news = 'news';
   static String newsDetail(int id) => 'news/$id';
-  static const String newsCategory = 'news/category';
+  static String newsCategory = 'news/category';
   
   // Home
-  static const String homePage = 'home-page';
+  static String homePage = 'home-page';
   
   // Social Login
   static String socialLogin(String provider) => 
       'social-login/$provider?for_api=1';
   
   // Request timeout
-  static const int connectTimeout = 30000;
-  static const int receiveTimeout = 30000;
+  static int connectTimeout = 30000;
+  static int receiveTimeout = 30000;
   
   // Headers
   static Map<String, String> getHeaders({String? token}) {

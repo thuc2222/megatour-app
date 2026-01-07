@@ -5,24 +5,24 @@ import 'booking_detail_screen.dart'; // Import your detail screen
 import 'package:megatour_app/utils/context_extension.dart';
 
 class BookingsScreen extends StatelessWidget {
-  const BookingsScreen({Key? key}) : super(key: key);
+  BookingsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA), // Light grey background
+      backgroundColor: Color(0xFFF5F7FA), // Light grey background
       appBar: AppBar(
-        title: const Text("My Bookings", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: Text(context.l10n.myBookings, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: Colors.black87),
       ),
       body: FutureBuilder(
         future: BookingStorage.all(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           final bookings = snapshot.data as List<Map<String, dynamic>>;
@@ -31,9 +31,9 @@ class BookingsScreen extends StatelessWidget {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             itemCount: bookings.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, __) => SizedBox(height: 12),
             itemBuilder: (_, i) {
               final b = bookings[i];
               return _buildBookingCard(context, b);
@@ -50,8 +50,8 @@ class BookingsScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.airplane_ticket_outlined, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text("No bookings yet", style: TextStyle(color: Colors.grey[500], fontSize: 16)),
+          SizedBox(height: 16),
+          Text(context.l10n.noBookingsYet, style: TextStyle(color: Colors.grey[500], fontSize: 16)),
         ],
       ),
     );
@@ -68,16 +68,16 @@ class BookingsScreen extends StatelessWidget {
 
     if (type.contains('hotel')) {
       icon = Icons.hotel_rounded;
-      accentColor = const Color(0xFFFA824C); // Orange for Hotels
+      accentColor = Color(0xFFFA824C); // Orange for Hotels
       typeLabel = "Hotel Stay";
     } else if (type.contains('flight')) {
       icon = Icons.flight_takeoff;
-      accentColor = const Color(0xFF0077B6); // Blue for Flights
+      accentColor = Color(0xFF0077B6); // Blue for Flights
       typeLabel = "Flight Ticket";
     } else {
       // Default to Tour
       icon = Icons.map_outlined;
-      accentColor = const Color(0xFF00A896); // Teal for Tours
+      accentColor = Color(0xFF00A896); // Teal for Tours
       typeLabel = "Tour Package";
     }
 
@@ -98,7 +98,7 @@ class BookingsScreen extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           child: Row(
             children: [
               // --- Left Icon Box ---
@@ -111,7 +111,7 @@ class BookingsScreen extends StatelessWidget {
                 ),
                 child: Icon(icon, color: accentColor, size: 28),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               
               // --- Middle Content ---
               Expanded(
@@ -127,16 +127,16 @@ class BookingsScreen extends StatelessWidget {
                         letterSpacing: 0.5
                       )
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       b['booking_code'] ?? 'Unknown Code',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16, 
                         fontWeight: FontWeight.w700,
                         color: Colors.black87
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       b['payment'] ?? 'Pending',
                       style: TextStyle(
@@ -149,7 +149,7 @@ class BookingsScreen extends StatelessWidget {
               ),
 
               // --- Right Arrow ---
-              const Icon(Icons.chevron_right, color: Colors.grey),
+              Icon(Icons.chevron_right, color: Colors.grey),
             ],
           ),
         ),

@@ -6,7 +6,7 @@ import '../../providers/auth_provider.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  RegisterScreen({Key? key}) : super(key: key);
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -38,8 +38,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the terms and conditions'),
+        SnackBar(
+          content: Text(context.l10n.pleaseAcceptTheTermsAndConditions),
           backgroundColor: Colors.red,
         ),
       );
@@ -61,8 +61,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (success) {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registration successful! Please login.'),
+        SnackBar(
+          content: Text(context.l10n.registrationSuccessfulPleaseLogin),
           backgroundColor: Colors.green,
         ),
       );
@@ -84,44 +84,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Account'),
+        title: Text(context.l10n.createAccount),
         centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(24.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 
                 Text(
-                  'Join Megatour',
+                  context.l10n.joinMegatour,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 Text(
-                  'Start your journey with us today',
+                  context.l10n.startYourJourneyWithUsToday,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey,
                       ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 
                 // First Name
                 TextFormField(
                   controller: _firstNameController,
                   decoration: InputDecoration(
-                    labelText: 'First Name',
-                    hintText: 'Enter your first name',
-                    prefixIcon: const Icon(Icons.person_outline),
+                    labelText: context.l10n.firstName,
+                    hintText: context.l10n.enterYourFirstName,
+                    prefixIcon: Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -133,15 +133,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 // Last Name
                 TextFormField(
                   controller: _lastNameController,
                   decoration: InputDecoration(
-                    labelText: 'Last Name',
-                    hintText: 'Enter your last name',
-                    prefixIcon: const Icon(Icons.person_outline),
+                    labelText: context.l10n.lastName,
+                    hintText: context.l10n.enterYourLastName,
+                    prefixIcon: Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -153,16 +153,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 // Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'Enter your email',
-                    prefixIcon: const Icon(Icons.email_outlined),
+                    labelText: context.l10n.email,
+                    hintText: context.l10n.enterYourEmail,
+                    prefixIcon: Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -177,16 +177,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 // Password
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    labelText: context.l10n.password,
+                    hintText: context.l10n.enterYourPassword,
+                    prefixIcon: Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -213,16 +213,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 // Confirm Password
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    hintText: 'Re-enter your password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    labelText: context.l10n.confirmPassword,
+                    hintText: context.l10n.reenterYourPassword,
+                    prefixIcon: Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
@@ -249,7 +249,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
                 // Terms and conditions
                 Row(
@@ -271,9 +271,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                         child: RichText(
                           text: TextSpan(
-                            style: const TextStyle(color: Colors.black87),
+                            style: TextStyle(color: Colors.black87),
                             children: [
-                              const TextSpan(text: 'I agree to the '),
+                              TextSpan(text: 'I agree to the '),
                               TextSpan(
                                 text: 'Terms and Conditions',
                                 style: TextStyle(
@@ -288,7 +288,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 // Register button
                 Consumer<AuthProvider>(
@@ -296,39 +296,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return ElevatedButton(
                       onPressed: authProvider.isLoading ? null : _handleRegister,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       child: authProvider.isLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text(
-                              'Register',
+                          : Text(
+                              context.l10n.register,
                               style: TextStyle(fontSize: 16),
                             ),
                     );
                   },
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 // Login link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Already have an account? '),
+                    Text('Already have an account? '),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text(
-                        'Login',
+                      child: Text(
+                        context.l10n.login,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

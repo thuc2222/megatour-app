@@ -5,7 +5,7 @@ import '../../config/api_config.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({Key? key}) : super(key: key);
+  CheckoutScreen({Key? key}) : super(key: key);
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -106,25 +106,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Column(
+        title: Column(
           children: [
             Icon(Icons.check_circle, color: Colors.green, size: 80),
             SizedBox(height: 10),
-            Text("Booking Received!"),
+            Text(context.l10n.bookingReceived),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Your booking is pending confirmation.", textAlign: TextAlign.center),
-            const SizedBox(height: 15),
+            Text(context.l10n.yourBookingIsPendingConfirmation, textAlign: TextAlign.center),
+            SizedBox(height: 15),
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-              child: Text("Code: $code", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue)),
+              child: Text("Code: $code", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue)),
             ),
-            const SizedBox(height: 10),
-            const Text("Please check your email for payment instructions.", style: TextStyle(fontSize: 12, color: Colors.grey), textAlign: TextAlign.center),
+            SizedBox(height: 10),
+            Text(context.l10n.pleaseCheckYourEmailForPaymentInstructions, style: TextStyle(fontSize: 12, color: Colors.grey), textAlign: TextAlign.center),
           ],
         ),
         actions: [
@@ -132,7 +132,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-              child: const Text("BACK TO HOME"),
+              child: Text(context.l10n.backToHome),
             ),
           )
         ],
@@ -143,27 +143,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Checkout"), elevation: 0),
+      appBar: AppBar(title: Text(context.l10n.checkout1), elevation: 0),
       body: _isLoading 
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Customer Details", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 20),
+                    Text(context.l10n.customerDetails, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 20),
                     _buildField(_firstName, "First Name", Icons.person_outline),
                     _buildField(_lastName, "Last Name", Icons.person_outline),
                     _buildField(_email, "Email Address", Icons.email_outlined, type: TextInputType.emailAddress),
                     _buildField(_phone, "Phone Number", Icons.phone_android, type: TextInputType.phone),
                     _buildField(_address, "Full Address", Icons.map_outlined),
                     
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Text("Offline Payment Method", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      child: Text(context.l10n.offlinePaymentMethod, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     ),
                     
                     Container(
@@ -183,7 +183,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     SizedBox(
                       width: double.infinity,
                       height: 55,
@@ -194,11 +194,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: _isSubmitting 
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text("COMPLETE BOOKING", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text(context.l10n.completeBooking, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -208,7 +208,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildField(TextEditingController ctrl, String label, IconData icon, {TextInputType type = TextInputType.text}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
+      padding: EdgeInsets.only(bottom: 15),
       child: TextFormField(
         controller: ctrl,
         keyboardType: type,

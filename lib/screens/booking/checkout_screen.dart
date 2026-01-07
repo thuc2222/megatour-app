@@ -9,7 +9,7 @@ class CheckoutScreen extends StatefulWidget {
   final String bookingCode;
   final String serviceType;
 
-  const CheckoutScreen({
+  CheckoutScreen({
     Key? key,
     required this.bookingCode,
     required this.serviceType,
@@ -84,9 +84,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Guest Checkout")),
+      appBar: AppBar(title: Text(context.l10n.guestCheckout)),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -96,23 +96,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               _field(_email, "Email", TextInputType.emailAddress),
               _field(_phone, "Phone", TextInputType.phone),
 
-              const SizedBox(height: 16),
-              const Text("Payment Method",
+              SizedBox(height: 16),
+              Text(context.l10n.paymentMethod,
                   style: TextStyle(fontWeight: FontWeight.bold)),
 
               RadioListTile(
                 value: 'offline',
                 groupValue: _paymentMethod,
-                title: const Text("Pay later (Offline)"),
+                title: Text(context.l10n.payLaterOffline),
                 onChanged: (v) => setState(() => _paymentMethod = v.toString()),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _submitting ? null : _submit,
                 child: _submitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("CONFIRM BOOKING"),
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(context.l10n.confirmBooking),
               ),
             ],
           ),
@@ -124,7 +124,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _field(TextEditingController c, String label,
       [TextInputType type = TextInputType.text]) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12),
       child: TextFormField(
         controller: c,
         keyboardType: type,

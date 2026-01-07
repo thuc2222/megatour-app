@@ -10,11 +10,11 @@ import 'package:megatour_app/utils/context_extension.dart';
 // =============================================================================
 // 1. THEME CONSTANTS (Vibrant Airbnb Ambient)
 // =============================================================================
-const Color kSpacePrimary = Color(0xFFFF385C);
-const Color kSpaceGradient1 = Color(0xFFE61E4D);
-const Color kSpaceGradient2 = Color(0xFFD80566);
-const Color kSpaceSurface = Color(0xFFFFF0F5); // Light Pinkish Surface
-const Color kSpaceText = Color(0xFF222222);
+Color kSpacePrimary = Color(0xFFFF385C);
+Color kSpaceGradient1 = Color(0xFFE61E4D);
+Color kSpaceGradient2 = Color(0xFFD80566);
+Color kSpaceSurface = Color(0xFFFFF0F5); // Light Pinkish Surface
+Color kSpaceText = Color(0xFF222222);
 
 // =============================================================================
 // 2. SPACE DETAIL SCREEN
@@ -22,7 +22,7 @@ const Color kSpaceText = Color(0xFF222222);
 class SpaceDetailScreen extends StatefulWidget {
   final int spaceId;
 
-  const SpaceDetailScreen({
+  SpaceDetailScreen({
     Key? key,
     required this.spaceId,
   }) : super(key: key);
@@ -91,13 +91,13 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     final gallery = _data?['gallery'];
     if (gallery is! List || gallery.length < 2) return;
 
-    _galleryTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _galleryTimer = Timer.periodic(Duration(seconds: 5), (_) {
       if (!mounted) return;
       _currentPage = (_currentPage + 1) % gallery.length;
       if (_pageController.hasClients) {
         _pageController.animateToPage(
           _currentPage,
-          duration: const Duration(milliseconds: 800),
+          duration: Duration(milliseconds: 800),
           curve: Curves.easeInOut,
         );
       }
@@ -202,8 +202,8 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
   // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_data == null) return const Scaffold(body: Center(child: Text('Space not found')));
+    if (_loading) return Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_data == null) return Scaffold(body: Center(child: Text(context.l10n.spaceNotFound)));
 
     return Scaffold(
       backgroundColor: kSpaceSurface,
@@ -226,24 +226,24 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
               _buildSliverAppBar(),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildBookingCard(),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       _buildAmenities(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildDescription(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildFAQs(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildReviews(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildRelatedSpaces(),
-                      const SizedBox(height: 120),
+                      SizedBox(height: 120),
                     ],
                   ),
                 ),
@@ -265,13 +265,13 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
       pinned: true,
       backgroundColor: Colors.white,
       leading: Container(
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(8),
         decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-        child: IconButton(icon: const Icon(Icons.arrow_back, color: kSpacePrimary), onPressed: () => Navigator.pop(context)),
+        child: IconButton(icon: Icon(Icons.arrow_back, color: kSpacePrimary), onPressed: () => Navigator.pop(context)),
       ),
       actions: [
         Container(
-          margin: const EdgeInsets.all(8),
+          margin: EdgeInsets.all(8),
           decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
           child: IconButton(
             icon: Icon(_data!['is_wishlist'] == 1 ? Icons.favorite : Icons.favorite_border, color: kSpacePrimary),
@@ -311,28 +311,28 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Text(
           _data!['title'] ?? '',
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: kSpaceText, height: 1.1),
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: kSpaceText, height: 1.1),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Row(
           children: [
             if (review != null) ...[
-              const Icon(Icons.star, color: kSpacePrimary, size: 18),
-              const SizedBox(width: 4),
-              Text('${review['score_total']} (${review['total_review']})', style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              const Text("·", style: TextStyle(color: Colors.grey)),
-              const SizedBox(width: 8),
+              Icon(Icons.star, color: kSpacePrimary, size: 18),
+              SizedBox(width: 4),
+              Text('${review['score_total']} (${review['total_review']})', style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(width: 8),
+              Text("·", style: TextStyle(color: Colors.grey)),
+              SizedBox(width: 8),
             ],
-            const Icon(Icons.location_on, size: 16, color: Colors.grey),
-            const SizedBox(width: 4),
+            Icon(Icons.location_on, size: 16, color: Colors.grey),
+            SizedBox(width: 4),
             Expanded(
               child: Text(
                 _data!['location']?['name'] ?? '',
-                style: const TextStyle(color: Colors.grey, decoration: TextDecoration.underline),
+                style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -347,35 +347,35 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     final price = _data!['sale_price'] ?? _data!['price'];
     
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [kSpaceGradient1, kSpaceGradient2], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [kSpaceGradient1, kSpaceGradient2], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: kSpaceGradient1.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: kSpaceGradient1.withOpacity(0.4), blurRadius: 15, offset: Offset(0, 8))],
       ),
       child: Column(
         children: [
           Row(
             children: [
-              Text('\$$price', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
-              const Text(' / night', style: TextStyle(fontSize: 16, color: Colors.white70)),
+              Text('\$$price', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+              Text(' / night', style: TextStyle(fontSize: 16, color: Colors.white70)),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           
           // Date Selector
           Row(
             children: [
               Expanded(child: _dateBox("CHECK-IN", _checkIn, true)),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(child: _dateBox("CHECKOUT", _checkOut, false)),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           
           // Guests
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
@@ -384,11 +384,11 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("GUESTS", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12)),
+                Text(context.l10n.guests, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12)),
                 Row(
                   children: [
                     _qtyBtn(Icons.remove, _guests > 1 ? () => setState(() => _guests--) : null),
-                    Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text('$_guests', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16))),
+                    Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('$_guests', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16))),
                     _qtyBtn(Icons.add, () => setState(() => _guests++)),
                   ],
                 ),
@@ -407,14 +407,14 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
         final d = await showDatePicker(
           context: context, 
           firstDate: now, 
-          lastDate: now.add(const Duration(days: 365)),
+          lastDate: now.add(Duration(days: 365)),
           initialDate: date ?? now,
         );
         if (d != null) {
           setState(() {
             if (isCheckIn) {
               _checkIn = d;
-              if (_checkOut != null && _checkOut!.isBefore(d)) _checkOut = d.add(const Duration(days: 1));
+              if (_checkOut != null && _checkOut!.isBefore(d)) _checkOut = d.add(Duration(days: 1));
             } else {
               _checkOut = d;
             }
@@ -422,7 +422,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.2),
           borderRadius: BorderRadius.circular(12),
@@ -431,9 +431,9 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white70)),
-            const SizedBox(height: 4),
-            Text(date != null ? DateFormat('MMM dd').format(date) : 'Add date', style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white70)),
+            SizedBox(height: 4),
+            Text(date != null ? DateFormat('MMM dd').format(date) : 'Add date', style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -444,7 +444,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: EdgeInsets.all(4.0),
         child: Icon(icon, color: onTap != null ? Colors.white : Colors.white38, size: 20),
       ),
     );
@@ -457,18 +457,18 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
       amenities = terms['4']['child'];
     }
 
-    if (amenities.isEmpty) return const SizedBox.shrink();
+    if (amenities.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("What this place offers"),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Wrap(
           spacing: 12, runSpacing: 12,
           children: amenities.map((item) {
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -477,9 +477,9 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle, size: 18, color: kSpacePrimary),
-                  const SizedBox(width: 8),
-                  Text(item['title'] ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  Icon(Icons.check_circle, size: 18, color: kSpacePrimary),
+                  SizedBox(width: 8),
+                  Text(item['title'] ?? '', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 ],
               ),
             );
@@ -494,7 +494,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("About this space"),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         HtmlWidget(
           _data!['content'] ?? '',
           textStyle: TextStyle(fontSize: 15, height: 1.6, color: Colors.grey[800]),
@@ -505,20 +505,20 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
 
   Widget _buildFAQs() {
     final faqs = _data!['faqs'];
-    if (faqs is! List || faqs.isEmpty) return const SizedBox.shrink();
+    if (faqs is! List || faqs.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("FAQs"),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...faqs.map((f) => Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 5)]),
           child: ExpansionTile(
-            title: Text(f['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-            childrenPadding: const EdgeInsets.all(16),
-            children: [HtmlWidget(f['content'] ?? '', textStyle: const TextStyle(color: Colors.grey))],
+            title: Text(f['title'] ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            childrenPadding: EdgeInsets.all(16),
+            children: [HtmlWidget(f['content'] ?? '', textStyle: TextStyle(color: Colors.grey))],
           ),
         )),
       ],
@@ -527,24 +527,24 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
 
   Widget _buildReviews() {
     final reviews = _data!['review_lists']?['data'];
-    if (reviews is! List || reviews.isEmpty) return const SizedBox.shrink();
+    if (reviews is! List || reviews.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("Reviews (${reviews.length})"),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         SizedBox(
           height: 180,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: reviews.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final r = reviews[i];
               return Container(
                 width: 280,
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -555,17 +555,17 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(backgroundColor: kSpacePrimary.withOpacity(0.1), child: const Icon(Icons.person, color: kSpacePrimary)),
-                        const SizedBox(width: 12),
+                        CircleAvatar(backgroundColor: kSpacePrimary.withOpacity(0.1), child: Icon(Icons.person, color: kSpacePrimary)),
+                        SizedBox(width: 12),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(r['author']?['name'] ?? 'Guest', style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(r['created_at'] != null ? DateFormat('MMM yyyy').format(DateTime.parse(r['created_at'])) : '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                          Text(r['author']?['name'] ?? 'Guest', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(r['created_at'] != null ? DateFormat('MMM yyyy').format(DateTime.parse(r['created_at'])) : '', style: TextStyle(fontSize: 12, color: Colors.grey)),
                         ])),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 12),
+                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4),
                     Expanded(child: Text(r['content'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey[600], height: 1.4))),
                   ],
                 ),
@@ -579,19 +579,19 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
 
   Widget _buildRelatedSpaces() {
     final related = _data!['related'];
-    if (related is! List || related.isEmpty) return const SizedBox.shrink();
+    if (related is! List || related.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("Similar Spaces"),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         SizedBox(
           height: 280, // Prevent overflow
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: related.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final item = related[i];
               return GestureDetector(
@@ -610,20 +610,20 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                       Expanded(
                         flex: 3,
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                           child: Image.network(item['image'] ?? '', width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: Colors.grey[200])),
                         ),
                       ),
                       Expanded(
                         flex: 2,
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                              Text("\$${item['price']}", style: const TextStyle(fontWeight: FontWeight.bold, color: kSpacePrimary, fontSize: 16)),
+                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              Text("\$${item['price']}", style: TextStyle(fontWeight: FontWeight.bold, color: kSpacePrimary, fontSize: 16)),
                             ],
                           ),
                         ),
@@ -643,10 +643,10 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     final canBook = _checkIn != null && _checkOut != null && _calculateNights() > 0;
     
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0,-5))],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0,-5))],
       ),
       child: SafeArea(
         child: Row(
@@ -655,21 +655,21 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("\$${_calculateTotal().toStringAsFixed(0)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: kSpaceText)),
-                if (canBook) Text("for ${_calculateNights()} nights", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text("\$${_calculateTotal().toStringAsFixed(0)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: kSpaceText)),
+                if (canBook) Text("for ${_calculateNights()} nights", style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
-            const Spacer(),
+            Spacer(),
             ElevatedButton(
               onPressed: _submitting ? null : (canBook ? _bookNow : null),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kSpacePrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: _submitting 
-                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text("Reserve", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : Text(context.l10n.reserve, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ],
         ),
@@ -677,7 +677,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     );
   }
 
-  Widget _sectionTitle(String title) => Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kSpaceText));
+  Widget _sectionTitle(String title) => Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kSpaceText));
 }
 
 // =============================================================================
@@ -692,7 +692,7 @@ class SpaceCheckoutScreen extends StatefulWidget {
   final int guests;
   final double total;
 
-  const SpaceCheckoutScreen({
+  SpaceCheckoutScreen({
     Key? key,
     required this.bookingCode,
     required this.spaceTitle,
@@ -789,9 +789,9 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Column(children: [Icon(Icons.check_circle, color: kSpacePrimary, size: 64), SizedBox(height: 16), Text('Confirmed!')]),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [const Text('Your space is reserved.'), const SizedBox(height: 16), SelectableText(code, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kSpaceText))]),
-        actions: [TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: const Text('Back to Home'))],
+        title: Column(children: [Icon(Icons.check_circle, color: kSpacePrimary, size: 64), SizedBox(height: 16), Text(context.l10n.confirmed)]),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [Text(context.l10n.yourSpaceIsReserved), SizedBox(height: 16), SelectableText(code, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kSpaceText))]),
+        actions: [TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: Text(context.l10n.backToHome1))],
       ),
     );
   }
@@ -800,26 +800,26 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Confirm Booking', style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+      appBar: AppBar(title: Text(context.l10n.confirmBooking1, style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: IconThemeData(color: Colors.black)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
                 child: Column(children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("Total", style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: kSpacePrimary, fontSize: 18))]),
-                  const Divider(height: 24),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("${DateFormat('MMM dd').format(widget.checkIn)} - ${DateFormat('MMM dd').format(widget.checkOut)}"), Text('${widget.guests} Guests', style: const TextStyle(fontWeight: FontWeight.bold))]),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(context.l10n.total, style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(0)}', style: TextStyle(fontWeight: FontWeight.bold, color: kSpacePrimary, fontSize: 18))]),
+                  Divider(height: 24),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("${DateFormat('MMM dd').format(widget.checkIn)} - ${DateFormat('MMM dd').format(widget.checkOut)}"), Text('${widget.guests} Guests', style: TextStyle(fontWeight: FontWeight.bold))]),
                 ]),
               ),
-              const SizedBox(height: 32),
-              const Text('Guest Details', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              SizedBox(height: 32),
+              Text(context.l10n.guestDetails, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
               _input(_firstName, 'First Name', Icons.person_outline),
               _input(_lastName, 'Last Name', Icons.person_outline),
               _input(_email, 'Email', Icons.email_outlined, type: TextInputType.emailAddress),
@@ -827,8 +827,8 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
               _input(_address, 'Address', Icons.home_outlined),
               _input(_country, 'Country', Icons.flag_outlined),
               _input(_notes, 'Message (Optional)', Icons.chat_bubble_outline, req: false),
-              const SizedBox(height: 40),
-              SizedBox(width: double.infinity, height: 54, child: ElevatedButton(onPressed: _isSubmitting ? null : _handleCheckout, style: ElevatedButton.styleFrom(backgroundColor: kSpacePrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white) : const Text('Confirm Booking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)))),
+              SizedBox(height: 40),
+              SizedBox(width: double.infinity, height: 54, child: ElevatedButton(onPressed: _isSubmitting ? null : _handleCheckout, style: ElevatedButton.styleFrom(backgroundColor: kSpacePrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: _isSubmitting ? CircularProgressIndicator(color: Colors.white) : Text(context.l10n.confirmBooking1, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)))),
             ],
           ),
         ),
@@ -837,6 +837,6 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
   }
 
   Widget _input(TextEditingController c, String label, IconData icon, {TextInputType type = TextInputType.text, bool req = true}) {
-    return Padding(padding: const EdgeInsets.only(bottom: 16), child: TextFormField(controller: c, keyboardType: type, decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon, color: Colors.grey), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: Colors.white), validator: (v) => req && (v == null || v.isEmpty) ? 'Required' : null));
+    return Padding(padding: EdgeInsets.only(bottom: 16), child: TextFormField(controller: c, keyboardType: type, decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon, color: Colors.grey), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: Colors.white), validator: (v) => req && (v == null || v.isEmpty) ? 'Required' : null));
   }
 }

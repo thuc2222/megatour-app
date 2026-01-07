@@ -7,7 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../booking/booking_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
-const String API_BASE_URL = 'https://megatour.vn/api/';
+String API_BASE_URL = 'https://megatour.vn/api/';
 
 // --- Configuration Models ---
 
@@ -16,7 +16,7 @@ class ServiceConfig {
   final IconData icon;
   final IconData fallbackIcon;
 
-  const ServiceConfig({
+  ServiceConfig({
     required this.label,
     required this.icon,
     required this.fallbackIcon,
@@ -71,21 +71,21 @@ class AppCurrency {
   }
 }
 
-const Map<String, ServiceConfig> kServiceConfig = {
-  'hotel': ServiceConfig(label: 'Hotel', icon: Icons.hotel, fallbackIcon: Icons.apartment),
-  'tour': ServiceConfig(label: 'Tour', icon: Icons.map, fallbackIcon: Icons.travel_explore),
-  'car': ServiceConfig(label: 'Car', icon: Icons.directions_car, fallbackIcon: Icons.directions_car),
-  'visa': ServiceConfig(label: 'Visa', icon: Icons.badge, fallbackIcon: Icons.assignment_ind),
-  'flight': ServiceConfig(label: 'Flight', icon: Icons.flight, fallbackIcon: Icons.flight_takeoff),
-  'space': ServiceConfig(label: 'Space', icon: Icons.meeting_room, fallbackIcon: Icons.domain),
-  'event': ServiceConfig(label: 'Event', icon: Icons.event, fallbackIcon: Icons.event_available),
-  'boat': ServiceConfig(label: 'Boat', icon: Icons.directions_boat, fallbackIcon: Icons.directions_boat),
+Map<String, ServiceConfig> kServiceConfig = {
+  'hotel': ServiceConfig(label: "hotel", icon: Icons.hotel, fallbackIcon: Icons.apartment),
+  'tour': ServiceConfig(label: "tour", icon: Icons.map, fallbackIcon: Icons.travel_explore),
+  'car': ServiceConfig(label: "car", icon: Icons.directions_car, fallbackIcon: Icons.directions_car),
+  'visa': ServiceConfig(label: "visa", icon: Icons.badge, fallbackIcon: Icons.assignment_ind),
+  'flight': ServiceConfig(label: "flight", icon: Icons.flight, fallbackIcon: Icons.flight_takeoff),
+  'space': ServiceConfig(label: "space", icon: Icons.meeting_room, fallbackIcon: Icons.domain),
+  'event': ServiceConfig(label: "event", icon: Icons.event, fallbackIcon: Icons.event_available),
+  'boat': ServiceConfig(label: "boat", icon: Icons.directions_boat, fallbackIcon: Icons.directions_boat),
 };
 
 // --- Main Widget ---
 
 class BookingsTab extends StatefulWidget {
-  const BookingsTab({Key? key}) : super(key: key);
+  BookingsTab({Key? key}) : super(key: key);
 
   @override
   State<BookingsTab> createState() => _BookingsTabState();
@@ -172,26 +172,26 @@ class _BookingsTabState extends State<BookingsTab> {
     final auth = context.watch<AuthProvider>();
 
     if (!auth.isAuthenticated) {
-      return const Center(child: Text('Login to view your bookings'));
+      return Center(child: Text(context.l10n.loginToViewYourBookings));
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
+      backgroundColor: Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: Text(context.l10n.myBookings),
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black87,
         actions: [
-          IconButton(onPressed: _refreshData, icon: const Icon(Icons.refresh)),
+          IconButton(onPressed: _refreshData, icon: Icon(Icons.refresh)),
         ],
       ),
       body: FutureBuilder<List<BookingItem>>(
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           final items = snapshot.data ?? [];
@@ -200,12 +200,12 @@ class _BookingsTabState extends State<BookingsTab> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.history, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text('No bookings yet'),
+                  Icon(Icons.history, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(context.l10n.noBookingsYet),
                   TextButton(
                     onPressed: _refreshData, 
-                    child: const Text('Refresh')
+                    child: Text(context.l10n.refresh)
                   ),
                 ],
               ),
@@ -221,19 +221,19 @@ class _BookingsTabState extends State<BookingsTab> {
               await _refreshData();
             },
             child: ListView(
-              padding: const EdgeInsets.only(bottom: 140),
-              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.only(bottom: 140),
+              physics: AlwaysScrollableScrollPhysics(),
               children: [
                 if (upcoming.isNotEmpty)
                   _SectionGroup(
-                    title: 'Upcoming',
+                    title: context.l10n.upcoming,
                     grouped: _groupByService(upcoming),
                     currency: _appCurrency,
                     onRefresh: _refreshData,
                   ),
                 if (past.isNotEmpty)
                   _SectionGroup(
-                    title: 'Past',
+                    title: context.l10n.past,
                     grouped: _groupByService(past),
                     currency: _appCurrency,
                     onRefresh: _refreshData,
@@ -253,7 +253,7 @@ class _SectionGroup extends StatelessWidget {
   final AppCurrency? currency;
   final VoidCallback onRefresh;
 
-  const _SectionGroup({
+  _SectionGroup({
     required this.title,
     required this.grouped,
     required this.currency,
@@ -266,8 +266,8 @@ class _SectionGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-          child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+          child: Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ),
         ...grouped.entries.map((e) {
           return _ServiceRow(
@@ -288,7 +288,7 @@ class _ServiceRow extends StatelessWidget {
   final AppCurrency? currency;
   final VoidCallback onRefresh;
 
-  const _ServiceRow({
+  _ServiceRow({
     required this.serviceType,
     required this.items,
     this.currency,
@@ -302,15 +302,15 @@ class _ServiceRow extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Row(
             children: [
               Icon(config?.icon ?? Icons.travel_explore, color: Colors.blue),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   config?.label ?? serviceType.toUpperCase(),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -319,11 +319,11 @@ class _ServiceRow extends StatelessWidget {
         SizedBox(
           height: 280,
           child: ListView.separated(
-            physics: const BouncingScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            separatorBuilder: (_, __) => SizedBox(width: 12),
             itemBuilder: (_, i) {
               return _BookingCardLight(
                 item: items[i], 
@@ -343,7 +343,7 @@ class _BookingCardLight extends StatelessWidget {
   final AppCurrency? currency;
   final VoidCallback? onRefresh;
 
-  const _BookingCardLight({required this.item, this.currency, this.onRefresh});
+  _BookingCardLight({required this.item, this.currency, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +369,7 @@ class _BookingCardLight extends StatelessWidget {
         width: 220,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [Color(0xFFFFFFFF), Color(0xFFF1F4FF)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -378,7 +378,7 @@ class _BookingCardLight extends StatelessWidget {
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
               blurRadius: 16,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -387,12 +387,12 @@ class _BookingCardLight extends StatelessWidget {
             Column(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   child: _buildImage(item.imageUrl, config),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,27 +401,27 @@ class _BookingCardLight extends StatelessWidget {
                           item.serviceName,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               item.dateRange,
-                              style: const TextStyle(fontSize: 12, color: Colors.black54),
+                              style: TextStyle(fontSize: 12, color: Colors.black54),
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6),
                             Row(
                               children: [
                                 Text(
                                   priceDisplay,
-                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.blue),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.blue),
                                 ),
                                 if (currency == null) ...[
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     item.currency,
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
                                   ),
                                 ]
                               ],
@@ -462,11 +462,12 @@ class _BookingCardLight extends StatelessWidget {
 
 class _StatusBadge extends StatelessWidget {
   final String status;
-  const _StatusBadge({required this.status});
+  _StatusBadge({required this.status});
 
   @override
   Widget build(BuildContext context) {
-    final map = {
+
+    final Map<String, Color> statusColorMap = {
       'paid': Colors.green,
       'completed': Colors.green,
       'confirmed': Colors.green,
@@ -476,14 +477,37 @@ class _StatusBadge extends StatelessWidget {
       'cancelled': Colors.red,
       'unpaid': Colors.redAccent,
     };
-    final color = map[status.toLowerCase()] ?? Colors.blue;
+
+    final rawStatus = status.toLowerCase();
+    final color = statusColorMap[rawStatus] ?? Colors.blue;
+
+    String getDisplayStatus() {
+      switch (rawStatus) {
+        case 'paid': return context.l10n.paid;
+        case 'completed': return context.l10n.completed;
+        case 'confirmed': return context.l10n.confirmed;
+        case 'processing': return context.l10n.processing;
+        case 'pending': return context.l10n.pending;
+        case 'draft': return context.l10n.draft;
+        case 'cancelled': return context.l10n.cancelled;
+        case 'unpaid': return context.l10n.unpaid;
+        default: return status.toUpperCase();
+      }
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.9), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.9), 
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Text(
-        status.toUpperCase(),
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+        getDisplayStatus(),
+        style: const TextStyle(
+          fontSize: 10, 
+          fontWeight: FontWeight.bold, 
+          color: Colors.white,
+        ),
       ),
     );
   }

@@ -9,7 +9,7 @@ import 'package:megatour_app/utils/context_extension.dart';
 class TourListScreen extends StatefulWidget {
   final String title;
 
-  const TourListScreen({
+  TourListScreen({
     Key? key,
     this.title = 'Tours',
   }) : super(key: key);
@@ -63,7 +63,7 @@ class _TourListScreenState extends State<TourListScreen> {
         title: Text(widget.title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: Icon(Icons.filter_list),
             onPressed: () => _showSortSheet(context),
           ),
         ],
@@ -74,11 +74,11 @@ class _TourListScreenState extends State<TourListScreen> {
           // SEARCH
           // --------------------------------------------------
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search tours...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: context.l10n.searchTours,
+                prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -96,7 +96,7 @@ class _TourListScreenState extends State<TourListScreen> {
           SizedBox(
             height: 46,
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               children: [
                 _sortChip('Price ↑', 'price_low_high'),
@@ -106,14 +106,14 @@ class _TourListScreenState extends State<TourListScreen> {
             ),
           ),
 
-          const Divider(height: 1),
+          Divider(height: 1),
 
           // --------------------------------------------------
           // LIST
           // --------------------------------------------------
           Expanded(
             child: provider.isLoading && provider.services.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator())
                 : provider.errorMessage != null
                     ? _error(provider.errorMessage!)
                     : provider.services.isEmpty
@@ -122,12 +122,12 @@ class _TourListScreenState extends State<TourListScreen> {
                             onRefresh: () async => _loadTours(),
                             child: ListView.builder(
                               controller: _scrollController,
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(16),
                               itemCount: provider.services.length +
                                   (provider.isLoading ? 1 : 0),
                               itemBuilder: (context, index) {
                                 if (index >= provider.services.length) {
-                                  return const Padding(
+                                  return Padding(
                                     padding: EdgeInsets.all(16),
                                     child: Center(
                                       child: CircularProgressIndicator(),
@@ -151,7 +151,7 @@ class _TourListScreenState extends State<TourListScreen> {
   Widget _sortChip(String label, String value) {
     final selected = _selectedSort == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
         selected: selected,
@@ -165,7 +165,7 @@ class _TourListScreenState extends State<TourListScreen> {
 
   Widget _tourCard(ServiceModel tour) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -192,7 +192,7 @@ class _TourListScreenState extends State<TourListScreen> {
                     tour.image ?? '',
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) =>
-                        const Center(child: Icon(Icons.image, size: 48)),
+                        Center(child: Icon(Icons.image, size: 48)),
                   ),
                 ),
               ],
@@ -202,7 +202,7 @@ class _TourListScreenState extends State<TourListScreen> {
             // CONTENT
             // --------------------------------------------------
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -210,19 +210,19 @@ class _TourListScreenState extends State<TourListScreen> {
                     tour.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
 
                   if (tour.address != null)
                     Row(
                       children: [
-                        const Icon(Icons.location_on,
+                        Icon(Icons.location_on,
                             size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             tour.address!,
@@ -237,7 +237,7 @@ class _TourListScreenState extends State<TourListScreen> {
                       ],
                     ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -246,13 +246,13 @@ class _TourListScreenState extends State<TourListScreen> {
                       if (tour.reviewScore != null)
                         Row(
                           children: [
-                            const Icon(Icons.star,
+                            Icon(Icons.star,
                                 size: 14, color: Colors.amber),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4),
                             Text(
                               tour.reviewScore!,
                               style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                                  TextStyle(fontWeight: FontWeight.bold),
                             ),
                             if (tour.reviewCount != null)
                               Text(
@@ -271,7 +271,7 @@ class _TourListScreenState extends State<TourListScreen> {
                           if (tour.salePrice != null)
                             Text(
                               '\$${tour.price}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 decoration: TextDecoration.lineThrough,
                                 color: Colors.grey,
@@ -279,7 +279,7 @@ class _TourListScreenState extends State<TourListScreen> {
                             ),
                           Text(
                             '\$${tour.salePrice ?? tour.price}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF0EA5E9),
@@ -300,12 +300,12 @@ class _TourListScreenState extends State<TourListScreen> {
 
   Widget _badge(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration:
           BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
           fontSize: 11,
           fontWeight: FontWeight.bold,
@@ -319,11 +319,11 @@ class _TourListScreenState extends State<TourListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.red),
-          const SizedBox(height: 12),
+          Icon(Icons.error_outline, size: 48, color: Colors.red),
+          SizedBox(height: 12),
           Text(msg),
-          const SizedBox(height: 12),
-          ElevatedButton(onPressed: _loadTours, child: const Text('Retry')),
+          SizedBox(height: 12),
+          ElevatedButton(onPressed: _loadTours, child: Text(context.l10n.retry)),
         ],
       ),
     );
@@ -335,9 +335,9 @@ class _TourListScreenState extends State<TourListScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.tour, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
-            'No tours found',
+            context.l10n.noToursFound,
             style: TextStyle(color: Colors.grey[600]),
           ),
         ],
@@ -348,11 +348,11 @@ class _TourListScreenState extends State<TourListScreen> {
   void _showSortSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

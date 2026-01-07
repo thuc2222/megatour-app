@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/locale_provider.dart';
 
 class LanguageSelector extends StatelessWidget {
-  const LanguageSelector({Key? key}) : super(key: key);
+  LanguageSelector({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,12 +13,12 @@ class LanguageSelector extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return ListTile(
-      leading: const Icon(Icons.language, color: Colors.blue),
+      leading: Icon(Icons.language, color: Colors.blue),
       title: Text(l10n.language),
       subtitle: Text(
         LocaleProvider.languageNames[localeProvider.locale.languageCode] ?? 'English',
       ),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: Icon(Icons.chevron_right),
       onTap: () => _showLanguageDialog(context),
     );
   }
@@ -42,11 +42,11 @@ class LanguageSelector extends StatelessWidget {
               return ListTile(
                 leading: Text(
                   flag,
-                  style: const TextStyle(fontSize: 24),
+                  style: TextStyle(fontSize: 24),
                 ),
                 title: Text(name),
                 trailing: isSelected
-                    ? const Icon(Icons.check_circle, color: Colors.blue)
+                    ? Icon(Icons.check_circle, color: Colors.blue)
                     : null,
                 onTap: () {
                   localeProvider.setLocale(locale);
@@ -69,15 +69,15 @@ class LanguageSelector extends StatelessWidget {
 
 // Alternative: Bottom Sheet Style
 class LanguageSelectorBottomSheet extends StatelessWidget {
-  const LanguageSelectorBottomSheet({Key? key}) : super(key: key);
+  LanguageSelectorBottomSheet({Key? key}) : super(key: key);
 
   static void show(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => const LanguageSelectorBottomSheet(),
+      builder: (_) => LanguageSelectorBottomSheet(),
     );
   }
 
@@ -88,18 +88,18 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: EdgeInsets.symmetric(vertical: 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             l10n.selectLanguage,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           ...LocaleProvider.supportedLocales.map((locale) {
             final isSelected = localeProvider.locale == locale;
             final flag = LocaleProvider.languageFlags[locale.languageCode] ?? '';
@@ -108,7 +108,7 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
             return ListTile(
               leading: Text(
                 flag,
-                style: const TextStyle(fontSize: 28),
+                style: TextStyle(fontSize: 28),
               ),
               title: Text(
                 name,
@@ -117,7 +117,7 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
                 ),
               ),
               trailing: isSelected
-                  ? const Icon(Icons.check_circle, color: Colors.blue)
+                  ? Icon(Icons.check_circle, color: Colors.blue)
                   : null,
               onTap: () {
                 localeProvider.setLocale(locale);

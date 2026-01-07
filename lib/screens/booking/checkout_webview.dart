@@ -5,7 +5,7 @@ import 'package:megatour_app/utils/context_extension.dart';
 class CheckoutWebView extends StatefulWidget {
   final String bookingCode;
 
-  const CheckoutWebView({
+  CheckoutWebView({
     Key? key,
     required this.bookingCode,
   }) : super(key: key);
@@ -33,9 +33,9 @@ class _CheckoutWebViewState extends State<CheckoutWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Checkout"),
+        title: Text(context.l10n.checkout1),
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
       ),

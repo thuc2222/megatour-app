@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class TestApiScreen extends StatefulWidget {
-  const TestApiScreen({Key? key}) : super(key: key);
+  TestApiScreen({Key? key}) : super(key: key);
 
   @override
   State<TestApiScreen> createState() => _TestApiScreenState();
@@ -50,7 +50,7 @@ class _TestApiScreenState extends State<TestApiScreen> {
           'Accept': 'application/json',
         },
         body: encodedBody,
-      ).timeout(const Duration(seconds: 30));
+      ).timeout(Duration(seconds: 30));
 
       print('Status: ${response.statusCode}');
       print('Response: ${response.body}');
@@ -94,7 +94,7 @@ class _TestApiScreenState extends State<TestApiScreen> {
         headers: {
           'Accept': 'application/json',
         },
-      ).timeout(const Duration(seconds: 30));
+      ).timeout(Duration(seconds: 30));
 
       print('Status: ${response.statusCode}');
       print('Response: ${response.body}');
@@ -119,29 +119,29 @@ class _TestApiScreenState extends State<TestApiScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Test API'),
+        title: Text(context.l10n.testApi),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ElevatedButton(
               onPressed: _loading ? null : _testConfigs,
-              child: const Text('Test Configs API (No Auth)'),
+              child: Text(context.l10n.testConfigsApiNoAuth),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             ElevatedButton(
               onPressed: _loading ? null : _testLogin,
-              child: const Text('Test Login API'),
+              child: Text(context.l10n.testLoginApi),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             if (_loading)
-              const Center(child: CircularProgressIndicator())
+              Center(child: CircularProgressIndicator())
             else
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
@@ -149,7 +149,7 @@ class _TestApiScreenState extends State<TestApiScreen> {
                   child: SingleChildScrollView(
                     child: Text(
                       _result,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 12,
                       ),

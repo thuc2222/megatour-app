@@ -76,7 +76,7 @@ class ApiService {
             Uri.parse(url),
             headers: ApiConfig.getHeaders(token: token),
           )
-          .timeout(const Duration(milliseconds: ApiConfig.connectTimeout));
+          .timeout(Duration(milliseconds: ApiConfig.connectTimeout));
 
       return _handleResponse(response);
     } catch (e) {
@@ -121,7 +121,7 @@ class ApiService {
 
         response = await http
             .post(Uri.parse(url), headers: headers, body: encodedBody)
-            .timeout(const Duration(milliseconds: ApiConfig.connectTimeout));
+            .timeout(Duration(milliseconds: ApiConfig.connectTimeout));
       } else {
         headers['Content-Type'] = 'application/json';
 
@@ -131,7 +131,7 @@ class ApiService {
               headers: headers,
               body: body != null ? jsonEncode(body) : null,
             )
-            .timeout(const Duration(milliseconds: ApiConfig.connectTimeout));
+            .timeout(Duration(milliseconds: ApiConfig.connectTimeout));
       }
 
       return _handleResponse(response);
@@ -159,7 +159,7 @@ class ApiService {
             headers: ApiConfig.getHeaders(token: token),
             body: body != null ? jsonEncode(body) : null,
           )
-          .timeout(const Duration(milliseconds: ApiConfig.connectTimeout));
+          .timeout(Duration(milliseconds: ApiConfig.connectTimeout));
 
       return _handleResponse(response);
     } catch (e) {
@@ -183,7 +183,7 @@ class ApiService {
             Uri.parse(_buildUrl(endpoint)),
             headers: ApiConfig.getHeaders(token: token),
           )
-          .timeout(const Duration(milliseconds: ApiConfig.connectTimeout));
+          .timeout(Duration(milliseconds: ApiConfig.connectTimeout));
 
       return _handleResponse(response);
     } catch (e) {

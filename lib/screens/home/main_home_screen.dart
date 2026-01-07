@@ -8,7 +8,7 @@ import 'profile_tab.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class MainHomeScreen extends StatefulWidget {
-  const MainHomeScreen({Key? key}) : super(key: key);
+  MainHomeScreen({Key? key}) : super(key: key);
 
   @override
   State<MainHomeScreen> createState() => _MainHomeScreenState();
@@ -27,9 +27,9 @@ class _MainHomeScreenState extends State<MainHomeScreen>
     super.initState();
 
     _tabs = [
-      const HomeTab(),
-      const NewsTab(),
-      const BookingsTab(),
+      HomeTab(),
+      NewsTab(),
+      BookingsTab(),
       ProfileTab(
         onBookingHistoryTap: () => _onTabTapped(2),
       ),
@@ -37,7 +37,7 @@ class _MainHomeScreenState extends State<MainHomeScreen>
 
     // Animation controller for tab transitions
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -107,7 +107,7 @@ class _MainHomeScreenState extends State<MainHomeScreen>
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 30,
-            offset: const Offset(0, 10),
+            offset: Offset(0, 10),
           ),
         ],
       ),
@@ -119,23 +119,23 @@ class _MainHomeScreenState extends State<MainHomeScreen>
             _buildNavItem(
               index: 0,
               icon: Icons.home_rounded,
-              label: 'Home',
+              label: "Home",
               useAppIcon: true, // ✅ Use custom app icon
             ),
             _buildNavItem(
               index: 1,
               icon: Icons.article_rounded,
-              label: 'News',
+              label: "News",
             ),
             _buildNavItem(
               index: 2,
               icon: Icons.bookmarks_rounded,
-              label: 'Trips',
+              label: "Trips",
             ),
             _buildNavItem(
               index: 3,
               icon: Icons.person_rounded,
-              label: 'Profile',
+              label: context.l10n.profile,
             ),
           ],
         ),
@@ -156,7 +156,7 @@ class _MainHomeScreenState extends State<MainHomeScreen>
         onTap: () => _onTabTapped(index),
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
             gradient: isSelected
@@ -194,11 +194,11 @@ class _MainHomeScreenState extends State<MainHomeScreen>
                       ),
               ),
 
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
 
               // Animated label
               AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
+                duration: Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: isSelected ? 12 : 11,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -210,10 +210,10 @@ class _MainHomeScreenState extends State<MainHomeScreen>
               // Active indicator dot
               if (isSelected)
                 Container(
-                  margin: const EdgeInsets.only(top: 4),
+                  margin: EdgeInsets.only(top: 4),
                   height: 4,
                   width: 4,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
@@ -230,7 +230,7 @@ class _MainHomeScreenState extends State<MainHomeScreen>
     return Container(
       width: 32,
       height: 32,
-      decoration: const BoxDecoration(),
+      decoration: BoxDecoration(),
       child: Stack(
         children: [
           // Main travel icon
@@ -273,7 +273,7 @@ class _MainHomeScreenState extends State<MainHomeScreen>
 // ============================================================================
 
 class MainHomeScreenWithFAB extends StatefulWidget {
-  const MainHomeScreenWithFAB({Key? key}) : super(key: key);
+  MainHomeScreenWithFAB({Key? key}) : super(key: key);
 
   @override
   State<MainHomeScreenWithFAB> createState() => _MainHomeScreenWithFABState();
@@ -285,9 +285,9 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
   late AnimationController _fabController;
 
   late final List<Widget> _tabs = [
-  const HomeTab(),
-  const NewsTab(),
-  const BookingsTab(),
+  HomeTab(),
+  NewsTab(),
+  BookingsTab(),
   ProfileTab(
     onBookingHistoryTap: () {
       setState(() => _currentIndex = 2);
@@ -299,7 +299,7 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
   void initState() {
     super.initState();
     _fabController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: Duration(milliseconds: 200),
       vsync: this,
     );
   }
@@ -328,7 +328,7 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
 
   return AnimatedScale(
     scale: isHome ? 1.1 : 1.0,
-    duration: const Duration(milliseconds: 200),
+    duration: Duration(milliseconds: 200),
     child: FloatingActionButton(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -380,7 +380,7 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
 
   Widget _buildBottomAppBar() {
     return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
+      shape: CircularNotchedRectangle(),
       notchMargin: 8,
       elevation: 8,
       child: SizedBox(
@@ -389,7 +389,7 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildNavButton(1, Icons.article_rounded, 'News'),
-            const SizedBox(width: 80), // Space for FAB
+            SizedBox(width: 80), // Space for FAB
             _buildNavButton(2, Icons.bookmarks_rounded, 'Trips'),
             _buildNavButton(3, Icons.person_rounded, 'Profile'),
           ],
@@ -412,7 +412,7 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
               color: isSelected ? Colors.blue : Colors.grey,
               size: isSelected ? 26 : 22,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
@@ -433,7 +433,7 @@ class _MainHomeScreenWithFABState extends State<MainHomeScreenWithFAB>
 // ============================================================================
 
 class MainHomeScreenModern extends StatefulWidget {
-  const MainHomeScreenModern({Key? key}) : super(key: key);
+  MainHomeScreenModern({Key? key}) : super(key: key);
 
   @override
   State<MainHomeScreenModern> createState() => _MainHomeScreenModernState();
@@ -444,9 +444,9 @@ class _MainHomeScreenModernState extends State<MainHomeScreenModern> {
   final PageController _pageController = PageController();
 
   late final List<Widget> _tabs = [
-  const HomeTab(),
-  const NewsTab(),
-  const BookingsTab(),
+  HomeTab(),
+  NewsTab(),
+  BookingsTab(),
   ProfileTab(
     onBookingHistoryTap: () => setState(() => _currentIndex = 2),
   ),
@@ -481,8 +481,8 @@ class _MainHomeScreenModernState extends State<MainHomeScreenModern> {
 
   Widget _buildModernBottomBar() {
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      margin: EdgeInsets.all(20),
+      padding: EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: Colors.grey[900],
         borderRadius: BorderRadius.circular(25),
@@ -490,7 +490,7 @@ class _MainHomeScreenModernState extends State<MainHomeScreenModern> {
           BoxShadow(
             color: Colors.black.withOpacity(0.3),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: Offset(0, 10),
           ),
         ],
       ),
@@ -524,13 +524,13 @@ class _MainHomeScreenModernState extends State<MainHomeScreenModern> {
         setState(() => _currentIndex = index);
         _pageController.animateToPage(
           index,
-          duration: const Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
       },
       borderRadius: BorderRadius.circular(20),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 300),
         padding: EdgeInsets.symmetric(
           horizontal: isSelected ? 20 : 16,
           vertical: 12,
@@ -555,10 +555,10 @@ class _MainHomeScreenModernState extends State<MainHomeScreenModern> {
               size: isSelected ? 24 : 20,
             ),
             if (isSelected) ...[
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,

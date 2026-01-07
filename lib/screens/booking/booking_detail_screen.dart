@@ -8,19 +8,19 @@ import '../../providers/auth_provider.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 // --- Constants for Theme ---
-const Color kPrimaryBlue = Color(0xFF0A2342);
-const Color kAccentTeal = Color(0xFF00A896);
-const Color kAccentOrange = Color(0xFFFA824C);
-const Color kLightGreyBg = Color(0xFFF5F7FA);
+Color kPrimaryBlue = Color(0xFF0A2342);
+Color kAccentTeal = Color(0xFF00A896);
+Color kAccentOrange = Color(0xFFFA824C);
+Color kLightGreyBg = Color(0xFFF5F7FA);
 
 // Gradient for the main ticket
-const LinearGradient kTicketGradient = LinearGradient(
+LinearGradient kTicketGradient = LinearGradient(
   colors: [kPrimaryBlue, kAccentTeal],
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
 );
 
-const String API_BASE_URL = 'https://megatour.vn/api/';
+String API_BASE_URL = 'https://megatour.vn/api/';
 
 // --- Currency Helper ---
 class AppCurrency {
@@ -71,7 +71,7 @@ class AppCurrency {
 class BookingDetailScreen extends StatefulWidget {
   final String bookingCode;
 
-  const BookingDetailScreen({
+  BookingDetailScreen({
     Key? key,
     required this.bookingCode,
   }) : super(key: key);
@@ -185,7 +185,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           // Main Content
           SafeArea(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator())
                 : _error != null
                     ? Center(child: Text(_error!))
                     : _buildRedesignedContent(),
@@ -197,7 +197,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             child: CircleAvatar(
               backgroundColor: Colors.white,
               child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: kPrimaryBlue),
+                icon: Icon(Icons.arrow_back, color: kPrimaryBlue),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
@@ -208,28 +208,28 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   }
 
   Widget _buildRedesignedContent() {
-    if (_booking == null) return const Center(child: Text("No data found"));
+    if (_booking == null) return Center(child: Text(context.l10n.noDataFound));
     final b = _booking!;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 60, 20, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 20.0),
             child: Text(
-              "Booking Details",
+              context.l10n.bookingDetails,
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: kPrimaryBlue),
             ),
           ),
           // Hero Ticket
           _buildMainTicketCard(b),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           // Secondary Info
           _buildInfoSection(
-            title: "Service Information",
+            title: context.l10n.serviceInformation,
             icon: Icons.tour,
             children: [
                _row('Service Type', b['object_model']?.toString() ?? 'N/A', isBold: true),
@@ -238,16 +238,16 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           ),
 
           _buildInfoSection(
-            title: "Payment Summary",
+            title: context.l10n.paymentSummary,
             icon: Icons.payment,
             children: [
               _row('Total Amount', formatMoney(b['total']), isBold: true, valueColor: kPrimaryBlue),
               _row('Amount Paid', formatMoney(b['paid'])),
-              const Divider(height: 24),
+              Divider(height: 24),
               _row('Due Now', formatMoney(b['pay_now']), isBold: true, valueColor: kAccentOrange),
             ]
           ),
-           const SizedBox(height: 30),
+           SizedBox(height: 30),
         ],
       ),
     );
@@ -275,7 +275,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         gradient: kTicketGradient,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: kPrimaryBlue.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8)),
+          BoxShadow(color: kPrimaryBlue.withOpacity(0.3), blurRadius: 15, offset: Offset(0, 8)),
         ],
       ),
       child: ClipRRect(
@@ -286,7 +286,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             Positioned(top: -50, right: -50, child: CircleAvatar(radius: 60, backgroundColor: Colors.white.withOpacity(0.1))),
             
             Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start, // Align everything to the left
                 children: [
@@ -295,20 +295,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                        Text(
-                         'BOOKING REFERENCE', 
+                         context.l10n.bookingReference, 
                          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12, letterSpacing: 1)
                        ),
                        _buildStatusBadge(statusText, statusColor),
                     ],
                   ),
                   
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   // --- BOOKING CODE ROW (Full Width) ---
                   // Now on its own line, it won't be covered by the badge
                   Text(
                     b['code']?.toString() ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white, 
                       fontSize: 22, 
                       fontWeight: FontWeight.w900, 
@@ -318,34 +318,34 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   
-                  const SizedBox(height: 30),
+                  SizedBox(height: 30),
                   
                   // --- DATES ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildDateBlock("CHECK-IN", formatMonth(b['start_date']), formatYear(b['start_date'])),
-                      const Icon(Icons.arrow_right_alt, color: Colors.white, size: 30),
+                      Icon(Icons.arrow_right_alt, color: Colors.white, size: 30),
                       _buildDateBlock("CHECK-OUT", formatMonth(b['end_date']), formatYear(b['end_date']), alignRight: true),
                     ],
                   ),
                   
-                  const SizedBox(height: 30),
+                  SizedBox(height: 30),
                   
                   // --- DIVIDER LINE ---
                   Row(children: List.generate(30, (index) => Expanded(child: Container(height: 1, color: index % 2 == 0 ? Colors.white.withOpacity(0.5) : Colors.transparent)))),
                   
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   
                   // --- GUEST INFO ---
                   Row(
                     children: [
-                      CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), child: const Icon(Icons.person, color: Colors.white)),
-                      const SizedBox(width: 12),
+                      CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), child: Icon(Icons.person, color: Colors.white)),
+                      SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${b['first_name'] ?? ''} ${b['last_name'] ?? ''}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text('${b['first_name'] ?? ''} ${b['last_name'] ?? ''}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                           Text('${b['total_guests'] ?? '1'} Guests', style: TextStyle(color: Colors.white.withOpacity(0.8))),
                         ],
                       )
@@ -365,8 +365,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       crossAxisAlignment: alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 4),
-        Text(date, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        SizedBox(height: 4),
+        Text(date, style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
         Text(year, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
       ],
     );
@@ -374,7 +374,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
   Widget _buildStatusBadge(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -382,7 +382,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       child: Row(
         children: [
            Icon(Icons.check_circle, color: color, size: 16),
-           const SizedBox(width: 4),
+           SizedBox(width: 4),
            Text(text, style: TextStyle(color: color, fontWeight: FontWeight.w800, fontSize: 12)),
         ],
       ),
@@ -391,13 +391,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
   Widget _buildInfoSection({required String title, required IconData icon, required List<Widget> children}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -406,11 +406,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           Row(
             children: [
               Icon(icon, size: 20, color: kPrimaryBlue.withOpacity(0.7)),
-              const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: kPrimaryBlue)),
+              SizedBox(width: 8),
+              Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: kPrimaryBlue)),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ...children,
         ],
       ),
@@ -420,7 +420,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   // FIXED: Renamed from _buildRow to _row to match the calls above
   Widget _row(String label, String value, {bool isBold = false, Color? valueColor}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

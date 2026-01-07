@@ -19,11 +19,11 @@ import 'screens/cart/cart_screen.dart';
 import 'screens/news/article_detail_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
 
             locale: localeProvider.locale,
             supportedLocales: LocaleProvider.supportedLocales,
-            localizationsDelegates: const [
+            localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.blue,
               scaffoldBackgroundColor: Colors.white,
-              appBarTheme: const AppBarTheme(
+              appBarTheme: AppBarTheme(
                 elevation: 0,
                 centerTitle: true,
                 backgroundColor: Colors.white,
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
               ),
             ),
 
-            home: const SplashScreen(),
+            home: SplashScreen(),
 
             onGenerateRoute: (settings) {
               if (settings.name == '/article-detail') {
@@ -108,11 +108,11 @@ class MyApp extends StatelessWidget {
             },
 
             routes: {
-              '/login': (_) => const LoginScreen(),
-              '/register': (_) => const RegisterScreen(),
-              '/home': (_) => const MainHomeScreen(),
-              '/wishlist': (_) => const WishlistScreen(),
-              '/cart': (_) => const CartScreen(),
+              '/login': (_) => LoginScreen(),
+              '/register': (_) => RegisterScreen(),
+              '/home': (_) => MainHomeScreen(),
+              '/wishlist': (_) => WishlistScreen(),
+              '/cart': (_) => CartScreen(),
             },
           );
         },
@@ -122,7 +122,7 @@ class MyApp extends StatelessWidget {
 }
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  SplashScreen({Key? key}) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -137,7 +137,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _startApp() async {
     await context.read<AuthProvider>().initialize();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 2));
 
     if (!mounted) return;
     Navigator.of(context).pushReplacementNamed('/home');
@@ -145,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

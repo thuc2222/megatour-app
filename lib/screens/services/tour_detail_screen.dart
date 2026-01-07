@@ -12,11 +12,11 @@ import 'package:megatour_app/utils/context_extension.dart';
 // =============================================================================
 // 1. THEME CONSTANTS (Vibrant Sunset Style)
 // =============================================================================
-const Color kTourPrimary = Color(0xFFFF512F);
-const Color kTourGradient1 = Color(0xFFFF512F);
-const Color kTourGradient2 = Color(0xFFDD2476);
-const Color kTourText = Color(0xFF1F2937);
-const Color kTourSurface = Color(0xFFF9FAFB);
+Color kTourPrimary = Color(0xFFFF512F);
+Color kTourGradient1 = Color(0xFFFF512F);
+Color kTourGradient2 = Color(0xFFDD2476);
+Color kTourText = Color(0xFF1F2937);
+Color kTourSurface = Color(0xFFF9FAFB);
 
 // =============================================================================
 // 2. TOUR DETAIL SCREEN
@@ -24,7 +24,7 @@ const Color kTourSurface = Color(0xFFF9FAFB);
 class TourDetailScreen extends StatefulWidget {
   final int tourId;
 
-  const TourDetailScreen({
+  TourDetailScreen({
     Key? key,
     required this.tourId,
   }) : super(key: key);
@@ -110,13 +110,13 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     final gallery = _data?['gallery'];
     if (gallery is! List || gallery.length < 2) return;
 
-    _galleryTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _galleryTimer = Timer.periodic(Duration(seconds: 5), (_) {
       if (!mounted) return;
       _currentPage = (_currentPage + 1) % gallery.length;
       if (_pageController.hasClients) {
         _pageController.animateToPage(
           _currentPage,
-          duration: const Duration(milliseconds: 800),
+          duration: Duration(milliseconds: 800),
           curve: Curves.easeInOut,
         );
       }
@@ -262,8 +262,8 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
   // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_data == null) return const Scaffold(body: Center(child: Text('Tour not found')));
+    if (_loading) return Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_data == null) return Scaffold(body: Center(child: Text(context.l10n.tourNotFound)));
 
     return Scaffold(
       backgroundColor: kTourSurface,
@@ -274,26 +274,26 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               _buildSliverAppBar(),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildBookingCard(),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       _buildOverview(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildIncludedExcluded(), // New Section
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildItinerary(), // Slide-able
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildFAQs(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildReviews(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildRelated(),
-                      const SizedBox(height: 120),
+                      SizedBox(height: 120),
                     ],
                   ),
                 ),
@@ -315,13 +315,13 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
       pinned: true,
       backgroundColor: Colors.white,
       leading: Container(
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(8),
         decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-        child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Navigator.pop(context)),
+        child: IconButton(icon: Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Navigator.pop(context)),
       ),
       actions: [
         Container(
-          margin: const EdgeInsets.all(8),
+          margin: EdgeInsets.all(8),
           decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
           child: IconButton(
             icon: Icon(_data!['is_wishlist'] == 1 ? Icons.favorite : Icons.favorite_border, color: kTourPrimary),
@@ -346,40 +346,40 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text(
           _data!['title'] ?? '',
-          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: kTourText, height: 1.2),
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: kTourText, height: 1.2),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Row(
           children: [
-            const Icon(Icons.location_on, color: kTourPrimary, size: 18),
-            const SizedBox(width: 4),
+            Icon(Icons.location_on, color: kTourPrimary, size: 18),
+            SizedBox(width: 4),
             Expanded(
               child: Text(
                 _data!['location']?['name'] ?? '',
-                style: const TextStyle(color: kTourText, fontSize: 15),
+                style: TextStyle(color: kTourText, fontSize: 15),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             if (review != null) ...[
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: Colors.amber.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
                 child: Row(
                   children: [
-                    const Icon(Icons.star, size: 14, color: Colors.amber),
-                    const SizedBox(width: 4),
-                    Text('${review['score_total']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    Icon(Icons.star, size: 14, color: Colors.amber),
+                    SizedBox(width: 4),
+                    Text('${review['score_total']}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                   ],
                 ),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Wrap(
           spacing: 12,
           children: [
@@ -393,7 +393,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
 
   Widget _metaBadge(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -403,8 +403,8 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: Colors.grey),
-          const SizedBox(width: 6),
-          Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          SizedBox(width: 6),
+          Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -412,50 +412,50 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
 
   Widget _buildBookingCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [kTourGradient1, kTourGradient2], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [kTourGradient1, kTourGradient2], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: kTourGradient1.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: kTourGradient1.withOpacity(0.3), blurRadius: 15, offset: Offset(0, 8))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("BOOK YOUR TRIP", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.2, fontSize: 12)),
-          const SizedBox(height: 16),
+          Text(context.l10n.bookYourTrip, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.2, fontSize: 12)),
+          SizedBox(height: 16),
           
           InkWell(
             onTap: () async {
               final d = await showDatePicker(
                 context: context, 
                 firstDate: DateTime.now(), 
-                lastDate: DateTime.now().add(const Duration(days: 365)), 
+                lastDate: DateTime.now().add(Duration(days: 365)), 
                 initialDate: _selectedDate ?? DateTime.now()
               );
               if (d != null) setState(() => _selectedDate = d);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white30)),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_month, color: Colors.white, size: 20),
-                  const SizedBox(width: 12),
+                  Icon(Icons.calendar_month, color: Colors.white, size: 20),
+                  SizedBox(width: 12),
                   Text(
                     _selectedDate == null ? "Select Departure Date" : DateFormat('EEE, dd MMM yyyy').format(_selectedDate!),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
           ),
           
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           
           if (_personTypes.isNotEmpty) 
             ..._personTypes.map((type) {
               String? code = type['code'] ?? type['name'];
-              if (code == null) return const SizedBox.shrink();
+              if (code == null) return SizedBox.shrink();
 
               return _PersonTypeRow(
                 type: type,
@@ -474,11 +474,11 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Guests", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-            Text("Per person", style: TextStyle(color: Colors.white70, fontSize: 13)),
+            Text(context.l10n.guests1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(context.l10n.perPerson, style: TextStyle(color: Colors.white70, fontSize: 13)),
           ],
         ),
         Container(
@@ -486,7 +486,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
           child: Row(
             children: [
               _qtyBtn(Icons.remove, _simpleGuestCount > 1 ? () => setState(() => _simpleGuestCount--) : null),
-              SizedBox(width: 30, child: Center(child: Text('$_simpleGuestCount', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 16)))),
+              SizedBox(width: 30, child: Center(child: Text('$_simpleGuestCount', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 16)))),
               _qtyBtn(Icons.add, () => setState(() => _simpleGuestCount++)),
             ],
           ),
@@ -498,7 +498,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
   Widget _qtyBtn(IconData icon, VoidCallback? onTap) {
     return InkWell(
       onTap: onTap,
-      child: Padding(padding: const EdgeInsets.all(8.0), child: Icon(icon, size: 18, color: onTap != null ? Colors.black : Colors.grey)),
+      child: Padding(padding: EdgeInsets.all(8.0), child: Icon(icon, size: 18, color: onTap != null ? Colors.black : Colors.grey)),
     );
   }
 
@@ -507,10 +507,10 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("Overview"),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         HtmlWidget(
           _data!['content'] ?? '',
-          textStyle: const TextStyle(color: Colors.grey, height: 1.6, fontSize: 15),
+          textStyle: TextStyle(color: Colors.grey, height: 1.6, fontSize: 15),
         ),
       ],
     );
@@ -521,13 +521,13 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     final include = _data!['include'] as List? ?? [];
     final exclude = _data!['exclude'] as List? ?? [];
 
-    if (include.isEmpty && exclude.isEmpty) return const SizedBox.shrink();
+    if (include.isEmpty && exclude.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("What's Included"),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -536,31 +536,31 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: include.map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(bottom: 8),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.check, color: Colors.green, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(item['title'] ?? '', style: const TextStyle(fontSize: 14))),
+                        Icon(Icons.check, color: Colors.green, size: 18),
+                        SizedBox(width: 8),
+                        Expanded(child: Text(item['title'] ?? '', style: TextStyle(fontSize: 14))),
                       ],
                     ),
                   )).toList(),
                 ),
               ),
-            if (include.isNotEmpty && exclude.isNotEmpty) const SizedBox(width: 16),
+            if (include.isNotEmpty && exclude.isNotEmpty) SizedBox(width: 16),
             if (exclude.isNotEmpty)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: exclude.map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(bottom: 8),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.close, color: Colors.red, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(item['title'] ?? '', style: const TextStyle(fontSize: 14))),
+                        Icon(Icons.close, color: Colors.red, size: 18),
+                        SizedBox(width: 8),
+                        Expanded(child: Text(item['title'] ?? '', style: TextStyle(fontSize: 14))),
                       ],
                     ),
                   )).toList(),
@@ -575,19 +575,19 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
   // --- UPDATED: SLIDE-ABLE ITINERARY ---
   Widget _buildItinerary() {
     final list = _data!['itinerary'];
-    if (list is! List || list.isEmpty) return const SizedBox.shrink();
+    if (list is! List || list.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("Itinerary"),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         SizedBox(
           height: 320, // Height for image + content
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: list.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final item = list[i];
               String? imgUrl = item['image'];
@@ -605,34 +605,34 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                     // Day Image
                     if (imgUrl != null && imgUrl.isNotEmpty)
                       ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                         child: Image.network(imgUrl, height: 140, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___)=>Container(height: 140, color: Colors.grey[200])),
                       ),
                     
                     // Day Content
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(color: kTourPrimary, borderRadius: BorderRadius.circular(8)),
-                                  child: Text("Day ${i + 1}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                  child: Text("Day ${i + 1}", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(child: Text(item['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
+                                SizedBox(width: 8),
+                                Expanded(child: Text(item['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(item['desc'] ?? '', style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500)),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
+                            Text(item['desc'] ?? '', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500)),
+                            SizedBox(height: 8),
                             Expanded(
                               child: SingleChildScrollView(
-                                child: HtmlWidget(item['content'] ?? '', textStyle: const TextStyle(fontSize: 13, color: kTourText, height: 1.4)),
+                                child: HtmlWidget(item['content'] ?? '', textStyle: TextStyle(fontSize: 13, color: kTourText, height: 1.4)),
                               ),
                             ),
                           ],
@@ -651,20 +651,20 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
 
   Widget _buildFAQs() {
     final faqs = _data!['faqs'];
-    if (faqs is! List || faqs.isEmpty) return const SizedBox.shrink();
+    if (faqs is! List || faqs.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("FAQs"),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...faqs.map((f) => Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(12), color: Colors.white),
           child: ExpansionTile(
-            title: Text(f['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-            childrenPadding: const EdgeInsets.all(16),
-            children: [HtmlWidget(f['content'] ?? '', textStyle: const TextStyle(color: Colors.grey))],
+            title: Text(f['title'] ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+            childrenPadding: EdgeInsets.all(16),
+            children: [HtmlWidget(f['content'] ?? '', textStyle: TextStyle(color: Colors.grey))],
           ),
         )),
       ],
@@ -673,24 +673,24 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
 
   Widget _buildReviews() {
     final reviews = _data!['review_lists']?['data'];
-    if (reviews is! List || reviews.isEmpty) return const SizedBox.shrink();
+    if (reviews is! List || reviews.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("Reviews (${reviews.length})"),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         SizedBox(
           height: 180,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: reviews.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final r = reviews[i];
               return Container(
                 width: 280,
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -701,16 +701,16 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(backgroundColor: kTourPrimary.withOpacity(0.1), child: const Icon(Icons.person, color: kTourPrimary)),
-                        const SizedBox(width: 12),
-                        Expanded(child: Text(r['author']?['name'] ?? 'Guest', style: const TextStyle(fontWeight: FontWeight.bold))),
-                        Row(children: [const Icon(Icons.star, size: 14, color: Colors.amber), Text('${r['rate_number']}', style: const TextStyle(fontWeight: FontWeight.bold))]),
+                        CircleAvatar(backgroundColor: kTourPrimary.withOpacity(0.1), child: Icon(Icons.person, color: kTourPrimary)),
+                        SizedBox(width: 12),
+                        Expanded(child: Text(r['author']?['name'] ?? 'Guest', style: TextStyle(fontWeight: FontWeight.bold))),
+                        Row(children: [Icon(Icons.star, size: 14, color: Colors.amber), Text('${r['rate_number']}', style: TextStyle(fontWeight: FontWeight.bold))]),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Expanded(child: Text(r['content'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey, height: 1.4))),
+                    SizedBox(height: 12),
+                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4),
+                    Expanded(child: Text(r['content'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey, height: 1.4))),
                   ],
                 ),
               );
@@ -723,19 +723,19 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
 
   Widget _buildRelated() {
     final related = _data!['related'];
-    if (related is! List || related.isEmpty) return const SizedBox.shrink();
+    if (related is! List || related.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionTitle("Similar Tours"),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         SizedBox(
           height: 260,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: related.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final item = related[i];
               String? img = item['image'];
@@ -755,7 +755,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                       Expanded(
                         flex: 3,
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                           child: img != null 
                             ? Image.network(img, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: Colors.grey[200]))
                             : Container(color: Colors.grey[200]),
@@ -764,13 +764,13 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                       Expanded(
                         flex: 2,
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              Text("\$${item['price']}", style: const TextStyle(fontWeight: FontWeight.bold, color: kTourPrimary, fontSize: 16)),
+                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text("\$${item['price']}", style: TextStyle(fontWeight: FontWeight.bold, color: kTourPrimary, fontSize: 16)),
                             ],
                           ),
                         ),
@@ -793,13 +793,13 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
         // Remove padding here so the background color extends to the very bottom edge
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0,-5))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0,-5))],
         ),
         child: SafeArea(
           top: false, // Only respect bottom safe area (home indicator)
           child: Padding(
             // Reduced vertical padding from 20 to 12
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Row(
               children: [
                 Column(
@@ -808,25 +808,25 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                   children: [
                     Text(
                       "\$${_calculateTotal().toStringAsFixed(0)}", 
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTourText)
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTourText)
                     ),
-                    const Text("Total Price", style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    Text(context.l10n.totalPrice, style: TextStyle(fontSize: 11, color: Colors.grey)),
                   ],
                 ),
-                const Spacer(),
+                Spacer(),
                 ElevatedButton(
                   onPressed: _submitting ? null : _bookNow,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kTourPrimary,
                     foregroundColor: Colors.white,
                     // Reduced internal button padding
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
                   ),
                   child: _submitting 
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text("Book Now", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text(context.l10n.bookNow1, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -836,7 +836,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     );
   }
 
-  Widget _sectionTitle(String title) => Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kTourText));
+  Widget _sectionTitle(String title) => Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kTourText));
 }
 
 // =============================================================================
@@ -847,7 +847,7 @@ class _PersonTypeRow extends StatelessWidget {
   final int count;
   final ValueChanged<int> onChanged;
 
-  const _PersonTypeRow({
+  _PersonTypeRow({
     Key? key,
     required this.type,
     required this.count,
@@ -857,15 +857,15 @@ class _PersonTypeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(type['name'] ?? 'Ticket', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-              Text("\$${type['price'] ?? 0}", style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              Text(type['name'] ?? 'Ticket', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+              Text("\$${type['price'] ?? 0}", style: TextStyle(color: Colors.white70, fontSize: 13)),
             ],
           ),
           Container(
@@ -873,7 +873,7 @@ class _PersonTypeRow extends StatelessWidget {
             child: Row(
               children: [
                 _qtyBtn(Icons.remove, count > 0 ? () => onChanged(count - 1) : null),
-                SizedBox(width: 24, child: Center(child: Text('$count', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)))),
+                SizedBox(width: 24, child: Center(child: Text('$count', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)))),
                 _qtyBtn(Icons.add, () => onChanged(count + 1)),
               ],
             ),
@@ -886,7 +886,7 @@ class _PersonTypeRow extends StatelessWidget {
   Widget _qtyBtn(IconData icon, VoidCallback? onTap) {
     return InkWell(
       onTap: onTap,
-      child: Padding(padding: const EdgeInsets.all(8.0), child: Icon(icon, size: 16, color: onTap != null ? Colors.black : Colors.grey)),
+      child: Padding(padding: EdgeInsets.all(8.0), child: Icon(icon, size: 16, color: onTap != null ? Colors.black : Colors.grey)),
     );
   }
 }
@@ -901,7 +901,7 @@ class TourCheckoutScreen extends StatefulWidget {
   final String guestSummary;
   final double total;
 
-  const TourCheckoutScreen({
+  TourCheckoutScreen({
     Key? key,
     required this.bookingCode,
     required this.tourTitle,
@@ -1011,17 +1011,17 @@ class _TourCheckoutScreenState extends State<TourCheckoutScreen> {
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Column(children: [Icon(Icons.check_circle, color: kTourPrimary, size: 64), SizedBox(height: 16), Text('Booking Confirmed!')]),
+        title: Column(children: [Icon(Icons.check_circle, color: kTourPrimary, size: 64), SizedBox(height: 16), Text(context.l10n.bookingConfirmed1)]),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Your tour has been successfully booked.'),
-            const SizedBox(height: 16),
-            SelectableText(code, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kTourText)),
+            Text(context.l10n.yourTourHasBeenSuccessfullyBooked),
+            SizedBox(height: 16),
+            SelectableText(code, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kTourText)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: const Text('Back to Home')),
+          TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: Text(context.l10n.backToHome1)),
         ],
       ),
     );
@@ -1031,28 +1031,28 @@ class _TourCheckoutScreenState extends State<TourCheckoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Confirm Booking', style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+      appBar: AppBar(title: Text(context.l10n.confirmBooking1, style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: IconThemeData(color: Colors.black)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
                 child: Column(
                   children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("Total Amount", style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: kTourPrimary, fontSize: 18))]),
-                    const Divider(height: 24),
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(DateFormat('MMM dd, yyyy').format(widget.date)), Text(widget.guestSummary, style: const TextStyle(fontWeight: FontWeight.bold))]),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(context.l10n.totalAmount, style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(0)}', style: TextStyle(fontWeight: FontWeight.bold, color: kTourPrimary, fontSize: 18))]),
+                    Divider(height: 24),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(DateFormat('MMM dd, yyyy').format(widget.date)), Text(widget.guestSummary, style: TextStyle(fontWeight: FontWeight.bold))]),
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
-              const Text('Guest Details', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              SizedBox(height: 32),
+              Text(context.l10n.guestDetails, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
               _input(_firstName, 'First Name', Icons.person_outline),
               _input(_lastName, 'Last Name', Icons.person_outline),
               _input(_email, 'Email', Icons.email_outlined, type: TextInputType.emailAddress),
@@ -1060,13 +1060,13 @@ class _TourCheckoutScreenState extends State<TourCheckoutScreen> {
               _input(_address, 'Address', Icons.home_outlined),
               _input(_country, 'Country', Icons.flag_outlined),
               _input(_notes, 'Special Requests (Optional)', Icons.chat_bubble_outline, req: false),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               SizedBox(
                 width: double.infinity, height: 54,
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _handleCheckout,
                   style: ElevatedButton.styleFrom(backgroundColor: kTourPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                  child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white) : const Text('Confirm Booking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  child: _isSubmitting ? CircularProgressIndicator(color: Colors.white) : Text(context.l10n.confirmBooking1, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
             ],
@@ -1078,7 +1078,7 @@ class _TourCheckoutScreenState extends State<TourCheckoutScreen> {
 
   Widget _input(TextEditingController c, String label, IconData icon, {TextInputType type = TextInputType.text, bool req = true}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: c, keyboardType: type,
         decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon, color: Colors.grey), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), filled: true, fillColor: Colors.white),

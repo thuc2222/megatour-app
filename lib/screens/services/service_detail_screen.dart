@@ -11,11 +11,11 @@ import 'package:megatour_app/utils/context_extension.dart';
 // =============================================================================
 // 1. THEME: Modern Hotel Gradient
 // =============================================================================
-const Color kHotelPrimary = Color(0xFF6C63FF); 
-const Color kHotelSecondary = Color(0xFF2D3436);
-const Color kHotelSurface = Colors.white;
+Color kHotelPrimary = Color(0xFF6C63FF); 
+Color kHotelSecondary = Color(0xFF2D3436);
+Color kHotelSurface = Colors.white;
 
-const LinearGradient kAmbientGradient = LinearGradient(
+LinearGradient kAmbientGradient = LinearGradient(
   colors: [
     Color(0xFFF3E5F5), // Light Purple
     Color(0xFFE3F2FD), // Light Blue
@@ -29,7 +29,7 @@ class ServiceDetailScreen extends StatefulWidget {
   final int serviceId;
   final String serviceType;
 
-  const ServiceDetailScreen({
+  ServiceDetailScreen({
     Key? key,
     required this.serviceId,
     this.serviceType = 'hotel',
@@ -49,7 +49,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   bool _submitting = false;
 
   DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now().add(const Duration(days: 1));
+  DateTime _endDate = DateTime.now().add(Duration(days: 1));
 
   int _adults = 2;
   int _children = 0;
@@ -106,14 +106,14 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     if (gallery is! List || gallery.length <= 1) return;
 
     _galleryTimer?.cancel();
-    _galleryTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+    _galleryTimer = Timer.periodic(Duration(seconds: 4), (_) {
       if (!mounted) return;
 
       _currentPage = (_currentPage + 1) % gallery.length;
       if (_pageController.hasClients) {
         _pageController.animateToPage(
           _currentPage,
-          duration: const Duration(milliseconds: 500),
+          duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
       }
@@ -235,17 +235,17 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_data == null) {
-      return const Scaffold(body: Center(child: Text('Hotel not found')));
+      return Scaffold(body: Center(child: Text(context.l10n.hotelNotFound)));
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
-        decoration: const BoxDecoration(gradient: kAmbientGradient), // 🟢 Gradient Background
+        decoration: BoxDecoration(gradient: kAmbientGradient), // 🟢 Gradient Background
         child: Stack(
           children: [
             CustomScrollView(
@@ -253,29 +253,29 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 _buildSliverAppBar(),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildHeader(),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         _buildConfig(),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         _buildAvailability(),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         _sectionTitle('Description'),
-                        HtmlWidget(_data!['content'] ?? '', textStyle: const TextStyle(color: Colors.black87, height: 1.5)),
-                        const SizedBox(height: 24),
+                        HtmlWidget(_data!['content'] ?? '', textStyle: TextStyle(color: Colors.black87, height: 1.5)),
+                        SizedBox(height: 24),
                         _buildFacilities(),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         _buildHotelServices(),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         _buildPolicies(),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         _buildReviews(),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         _buildRelatedHotels(),
-                        const SizedBox(height: 120),
+                        SizedBox(height: 120),
                       ],
                     ),
                   ),
@@ -301,9 +301,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: Container(
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(8),
         decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), shape: BoxShape.circle),
-        child: const BackButton(color: Colors.black),
+        child: BackButton(color: Colors.black),
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: (gallery is List && gallery.isNotEmpty)
@@ -323,34 +323,34 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     final stars = _data!['star_rate'] ?? 0;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SizedBox(height: 20),
+      SizedBox(height: 20),
       Text(
         _data!['title'],
-        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: kHotelSecondary),
+        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: kHotelSecondary),
       ),
-      const SizedBox(height: 8),
+      SizedBox(height: 8),
       Row(
         children: [
-          if(stars is int) ...List.generate(stars, (_) => const Icon(Icons.star, size: 18, color: Colors.amber)),
-          const SizedBox(width: 8),
+          if(stars is int) ...List.generate(stars, (_) => Icon(Icons.star, size: 18, color: Colors.amber)),
+          SizedBox(width: 8),
           if (_data!['location'] != null) ...[
-            const Icon(Icons.location_on, size: 16, color: kHotelPrimary),
-            Text(_data!['location']['name'], style: const TextStyle(color: Colors.grey)),
+            Icon(Icons.location_on, size: 16, color: kHotelPrimary),
+            Text(_data!['location']['name'], style: TextStyle(color: Colors.grey)),
           ]
         ],
       ),
       if (review != null)
         Padding(
-          padding: const EdgeInsets.only(top: 12),
+          padding: EdgeInsets.only(top: 12),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(color: Colors.amber.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.star, color: Colors.amber, size: 16),
-              const SizedBox(width: 4),
+              Icon(Icons.star, color: Colors.amber, size: 16),
+              SizedBox(width: 4),
               Text(
                 '${review['score_total']} • ${review['score_text']} (${review['total_review']} reviews)',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFB36B00)),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFB36B00)),
               ),
             ]),
           ),
@@ -360,11 +360,11 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   Widget _buildConfig() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: Offset(0, 5))],
       ),
       child: Column(children: [
         Row(
@@ -374,7 +374,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             Expanded(child: _dateTile('Check Out', _endDate, false)),
           ],
         ),
-        const Divider(height: 30),
+        Divider(height: 30),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -400,11 +400,11 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             shadowColor: kHotelPrimary.withOpacity(0.4),
           ),
           child: _checking
-              ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-              : const Text('CHECK AVAILABILITY', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+              : Text(context.l10n.checkAvailability, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
       ),
-      const SizedBox(height: 20),
+      SizedBox(height: 20),
       if (_rooms.isNotEmpty) ..._rooms.map(_roomTile),
     ]);
   }
@@ -414,12 +414,12 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     final qty = _roomQty[id] ?? 0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: Offset(0, 4))],
       ),
       child: Row(
         children: [
@@ -431,23 +431,23 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
               errorBuilder: (_,__,___) => Container(width: 80, height: 80, color: Colors.grey[200]),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(room['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const SizedBox(height: 4),
-              Text('\$${room['price']}', style: const TextStyle(color: kHotelPrimary, fontWeight: FontWeight.bold, fontSize: 16)),
-              const Text('/ night', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(room['title'] ?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              SizedBox(height: 4),
+              Text('\$${room['price']}', style: TextStyle(color: kHotelPrimary, fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(context.l10n.night, style: TextStyle(color: Colors.grey, fontSize: 12)),
             ]),
           ),
           Column(children: [
             IconButton(
-              icon: const Icon(Icons.add_circle, color: kHotelPrimary),
+              icon: Icon(Icons.add_circle, color: kHotelPrimary),
               onPressed: () => setState(() => _roomQty[id] = qty + 1),
             ),
-            Text('$qty', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text('$qty', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             IconButton(
-              icon: const Icon(Icons.remove_circle_outline, color: Colors.grey),
+              icon: Icon(Icons.remove_circle_outline, color: Colors.grey),
               onPressed: qty > 0 ? () => setState(() => _roomQty[id] = qty - 1) : null,
             ),
           ]),
@@ -458,18 +458,18 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   Widget _buildFacilities() {
     final terms = _data!['terms']?['6']?['child'];
-    if (terms is! List) return const SizedBox.shrink();
+    if (terms is! List) return SizedBox.shrink();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionTitle('Facilities'),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       Wrap(
         spacing: 8, runSpacing: 8,
         children: terms.map<Widget>((e) => Chip(
           label: Text(e['title']),
           backgroundColor: Colors.white,
           side: BorderSide(color: Colors.grey.shade200),
-          avatar: const Icon(Icons.check_circle, size: 16, color: kHotelPrimary),
+          avatar: Icon(Icons.check_circle, size: 16, color: kHotelPrimary),
         )).toList(),
       ),
     ]);
@@ -477,20 +477,20 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   Widget _buildHotelServices() {
     final terms = _data!['terms']?['7']?['child'];
-    if (terms is! List) return const SizedBox.shrink();
+    if (terms is! List) return SizedBox.shrink();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionTitle('Services'),
-      const SizedBox(height: 8),
+      SizedBox(height: 8),
       Column(
         children: terms.map<Widget>((e) => ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8),
             decoration: BoxDecoration(color: kHotelPrimary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.star_outline, color: kHotelPrimary, size: 20),
+            child: Icon(Icons.star_outline, color: kHotelPrimary, size: 20),
           ),
-          title: Text(e['title'], style: const TextStyle(fontWeight: FontWeight.w600)),
+          title: Text(e['title'], style: TextStyle(fontWeight: FontWeight.w600)),
         )).toList(),
       ),
     ]);
@@ -498,18 +498,18 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   Widget _buildPolicies() {
     final policies = _data!['policy'];
-    if (policies is! List) return const SizedBox.shrink();
+    if (policies is! List) return SizedBox.shrink();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionTitle('Policies'),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       ...policies.map((p) => Container(
-        margin: const EdgeInsets.only(bottom: 8),
+        margin: EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
         child: ExpansionTile(
-          title: Text(p['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          childrenPadding: const EdgeInsets.all(16),
-          children: [Text(p['content'], style: const TextStyle(color: Colors.grey))],
+          title: Text(p['title'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          childrenPadding: EdgeInsets.all(16),
+          children: [Text(p['content'], style: TextStyle(color: Colors.grey))],
         ),
       )),
     ]);
@@ -517,34 +517,34 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   Widget _buildReviews() {
     final reviews = _data?['review_lists']?['data'];
-    if (reviews is! List || reviews.isEmpty) return const SizedBox.shrink();
+    if (reviews is! List || reviews.isEmpty) return SizedBox.shrink();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionTitle('Guest Reviews'),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       SizedBox(
         height: 180,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: reviews.length,
-          separatorBuilder: (_,__) => const SizedBox(width: 16),
+          separatorBuilder: (_,__) => SizedBox(width: 16),
           itemBuilder: (_, i) {
             final r = reviews[i];
             final rating = int.tryParse(r['rate_number'].toString()) ?? 5;
             return Container(
               width: 280,
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  CircleAvatar(radius: 16, backgroundColor: kHotelPrimary.withOpacity(0.1), child: const Icon(Icons.person, color: kHotelPrimary, size: 18)),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(r['author']?['name'] ?? 'Guest', style: const TextStyle(fontWeight: FontWeight.bold))),
-                  const Icon(Icons.star, size: 14, color: Colors.amber),
-                  Text('$rating', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  CircleAvatar(radius: 16, backgroundColor: kHotelPrimary.withOpacity(0.1), child: Icon(Icons.person, color: kHotelPrimary, size: 18)),
+                  SizedBox(width: 8),
+                  Expanded(child: Text(r['author']?['name'] ?? 'Guest', style: TextStyle(fontWeight: FontWeight.bold))),
+                  Icon(Icons.star, size: 14, color: Colors.amber),
+                  Text('$rating', style: TextStyle(fontWeight: FontWeight.bold)),
                 ]),
-                const SizedBox(height: 12),
-                Expanded(child: Text(r['content'] ?? '', maxLines: 4, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey))),
+                SizedBox(height: 12),
+                Expanded(child: Text(r['content'] ?? '', maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey))),
               ]),
             );
           },
@@ -555,17 +555,17 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   Widget _buildRelatedHotels() {
     final related = _data!['related'];
-    if (related is! List) return const SizedBox.shrink();
+    if (related is! List) return SizedBox.shrink();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionTitle('You Might Like'),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       SizedBox(
         height: 220,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: related.length,
-          separatorBuilder: (_,__) => const SizedBox(width: 16),
+          separatorBuilder: (_,__) => SizedBox(width: 16),
           itemBuilder: (_, i) {
             final h = related[i];
             return GestureDetector(
@@ -574,11 +574,11 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 width: 160,
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(16)), child: Image.network(h['image'], height: 120, width: double.infinity, fit: BoxFit.cover)),
-                  Padding(padding: const EdgeInsets.all(10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(h['title'], maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text('\$${h['price']}', style: const TextStyle(color: kHotelPrimary, fontWeight: FontWeight.bold)),
+                  ClipRRect(borderRadius: BorderRadius.vertical(top: Radius.circular(16)), child: Image.network(h['image'], height: 120, width: double.infinity, fit: BoxFit.cover)),
+                  Padding(padding: EdgeInsets.all(10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(h['title'], maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4),
+                    Text('\$${h['price']}', style: TextStyle(color: kHotelPrimary, fontWeight: FontWeight.bold)),
                   ]))
                 ]),
               ),
@@ -594,7 +594,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   // ---------------------------------------------------------------------------
 
   Widget _sectionTitle(String title) {
-    return Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kHotelSecondary));
+    return Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kHotelSecondary));
   }
 
   Widget _dateTile(String label, DateTime date, bool start) {
@@ -603,18 +603,18 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         final d = await showDatePicker(
           context: context,
           firstDate: DateTime.now(),
-          lastDate: DateTime.now().add(const Duration(days: 365)),
+          lastDate: DateTime.now().add(Duration(days: 365)),
           initialDate: date,
         );
         if (d != null) setState(() => start ? _startDate = d : _endDate = d);
       },
       child: Column(children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 4),
+        Text(label, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500)),
+        SizedBox(height: 4),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Icon(Icons.calendar_today, size: 16, color: kHotelPrimary),
-          const SizedBox(width: 6),
-          Text(DateFormat('MMM dd').format(date), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Icon(Icons.calendar_today, size: 16, color: kHotelPrimary),
+          SizedBox(width: 6),
+          Text(DateFormat('MMM dd').format(date), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ]),
       ]),
     );
@@ -622,14 +622,14 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
 
   Widget _counter(String label, int value, Function(int) onSet) {
     return Column(children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-      const SizedBox(height: 8),
+      Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+      SizedBox(height: 8),
       Container(
         decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
         child: Row(children: [
-          IconButton(onPressed: value > 0 ? () => onSet(value - 1) : null, icon: const Icon(Icons.remove, size: 18), color: Colors.grey),
-          Text('$value', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          IconButton(onPressed: () => onSet(value + 1), icon: const Icon(Icons.add, size: 18), color: kHotelPrimary),
+          IconButton(onPressed: value > 0 ? () => onSet(value - 1) : null, icon: Icon(Icons.remove, size: 18), color: Colors.grey),
+          Text('$value', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          IconButton(onPressed: () => onSet(value + 1), icon: Icon(Icons.add, size: 18), color: kHotelPrimary),
         ]),
       ),
     ]);
@@ -640,29 +640,29 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     return Positioned(
       left: 0, right: 0, bottom: 0,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, -5))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: Offset(0, -5))],
         ),
         child: Row(
           children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('\$${_calculateTotal().toStringAsFixed(0)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: kHotelPrimary)),
-              if (canBook) const Text('Total estimate', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              Text('\$${_calculateTotal().toStringAsFixed(0)}', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: kHotelPrimary)),
+              if (canBook) Text(context.l10n.totalEstimate1, style: TextStyle(color: Colors.grey, fontSize: 12)),
             ]),
-            const Spacer(),
+            Spacer(),
             ElevatedButton(
               onPressed: _submitting ? null : _bookNow,
               style: ElevatedButton.styleFrom(
                 backgroundColor: kHotelPrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 5,
               ),
               child: _submitting
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('BOOK NOW', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : Text(context.l10n.bookNow, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ],
         ),

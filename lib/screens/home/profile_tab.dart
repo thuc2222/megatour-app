@@ -9,7 +9,7 @@ import 'package:megatour_app/utils/context_extension.dart';
 class ProfileTab extends StatelessWidget {
   final VoidCallback onBookingHistoryTap;
 
-  const ProfileTab({
+  ProfileTab({
     Key? key,
     required this.onBookingHistoryTap,
   }) : super(key: key);
@@ -46,7 +46,7 @@ class ProfileTab extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
 
                       /// Avatar
                       CircleAvatar(
@@ -70,14 +70,14 @@ class ProfileTab extends StatelessWidget {
                               ),
                       ),
 
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
 
                       /// Name
                       Text(
                         isLoggedIn
                             ? (user?.fullName ?? 'User')
                             : l10n.profile,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -88,7 +88,7 @@ class ProfileTab extends StatelessWidget {
                       if (isLoggedIn && user?.email != null)
                         Text(
                           user!.email!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: Colors.white70,
                           ),
@@ -96,7 +96,7 @@ class ProfileTab extends StatelessWidget {
                       else
                         Text(
                           l10n.guestUser, // ✅ Use localized string if available
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: Colors.white70,
                           ),
@@ -114,30 +114,30 @@ class ProfileTab extends StatelessWidget {
           SliverToBoxAdapter(
             child: Column(
               children: [
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 /// STATS
                 if (isLoggedIn)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
                         _statCard(Icons.book_online, l10n.bookings),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         _statCard(Icons.favorite, l10n.wishlist),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         _statCard(Icons.star, l10n.reviews),
                       ],
                     ),
                   ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 /// SETTINGS
                 _sectionHeader(l10n.settings),
-                const LanguageSelector(),
+                LanguageSelector(),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 /// ACCOUNT (NOT LOGGED IN)
                 if (!isLoggedIn) ...[
@@ -184,7 +184,7 @@ class ProfileTab extends StatelessWidget {
                   ),
                 ],
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 /// APP
                 _sectionHeader('App'),
@@ -199,15 +199,15 @@ class ProfileTab extends StatelessWidget {
                 /// LOGOUT
                 if (isLoggedIn)
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     child: ElevatedButton.icon(
                       onPressed: () => _logout(context),
-                      icon: const Icon(Icons.logout),
+                      icon: Icon(Icons.logout),
                       label: Text(l10n.logout),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 48),
+                        minimumSize: Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -215,7 +215,7 @@ class ProfileTab extends StatelessWidget {
                     ),
                   ),
 
-                const SizedBox(height: 140),
+                SizedBox(height: 140),
               ],
             ),
           ),
@@ -230,7 +230,7 @@ class ProfileTab extends StatelessWidget {
   Widget _avatarFallback(dynamic user) {
     return Text(
       user?.firstName?.substring(0, 1).toUpperCase() ?? 'U',
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 36,
         color: Colors.blue,
         fontWeight: FontWeight.bold,
@@ -241,7 +241,7 @@ class ProfileTab extends StatelessWidget {
   Widget _statCard(IconData icon, String label) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Colors.grey.shade100,
@@ -249,11 +249,11 @@ class ProfileTab extends StatelessWidget {
         child: Column(
           children: [
             Icon(icon, color: Colors.blue),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -267,11 +267,11 @@ class ProfileTab extends StatelessWidget {
   Widget _sectionHeader(String text) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: Colors.grey.shade100,
       child: Text(
         text.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.bold,
           color: Colors.grey,
@@ -291,7 +291,7 @@ class ProfileTab extends StatelessWidget {
       leading: Icon(icon, color: Colors.blue),
       title: Text(title),
       subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: Icon(Icons.chevron_right),
       onTap: onTap,
     );
   }
@@ -320,7 +320,7 @@ class ProfileTab extends StatelessWidget {
       context: context,
       applicationName: 'Megatour',
       applicationVersion: '1.0.0',
-      applicationIcon: const Icon(Icons.travel_explore),
+      applicationIcon: Icon(Icons.travel_explore),
       children: [
         Text(l10n.yourTravelBookingCompanion), // ✅ Localized
       ],

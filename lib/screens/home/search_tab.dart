@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class SearchTab extends StatelessWidget {
-  const SearchTab({Key? key}) : super(key: key);
+  SearchTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
+        title: Text(context.l10n.search),
       ),
-      body: const Center(
-        child: Text('Search Tab - Will be implemented'),
+      body: Center(
+        child: Text(context.l10n.searchTabWillBeImplemented),
       ),
     );
   }

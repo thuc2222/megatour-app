@@ -10,17 +10,17 @@ import 'package:megatour_app/utils/context_extension.dart';
 // =============================================================================
 // 1. THEME CONSTANTS
 // =============================================================================
-const Color kEventDark = Color(0xFF1A1A2E);
-const Color kEventPurple = Color(0xFF6C5CE7);
-const Color kEventPink = Color(0xFFE84393);
-const Color kEventSurface = Color(0xFFF8F9FA);
+Color kEventDark = Color(0xFF1A1A2E);
+Color kEventPurple = Color(0xFF6C5CE7);
+Color kEventPink = Color(0xFFE84393);
+Color kEventSurface = Color(0xFFF8F9FA);
 
 // =============================================================================
 // 2. EVENT DETAIL SCREEN
 // =============================================================================
 class EventDetailScreen extends StatefulWidget {
   final int eventId;
-  const EventDetailScreen({Key? key, required this.eventId}) : super(key: key);
+  EventDetailScreen({Key? key, required this.eventId}) : super(key: key);
 
   @override
   State<EventDetailScreen> createState() => _EventDetailScreenState();
@@ -91,13 +91,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final gallery = _eventData?['gallery'];
     if (gallery is! List || gallery.length < 2) return;
     
-    _galleryTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _galleryTimer = Timer.periodic(Duration(seconds: 5), (_) {
       if (!mounted) return;
       _currentGalleryIndex = (_currentGalleryIndex + 1) % gallery.length;
       if (_galleryController.hasClients) {
         _galleryController.animateToPage(
           _currentGalleryIndex,
-          duration: const Duration(milliseconds: 800),
+          duration: Duration(milliseconds: 800),
           curve: Curves.easeInOut,
         );
       }
@@ -200,8 +200,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_eventData == null) return const Scaffold(body: Center(child: Text('Event not found')));
+    if (_loading) return Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_eventData == null) return Scaffold(body: Center(child: Text(context.l10n.eventNotFound)));
 
     return Scaffold(
       backgroundColor: kEventSurface,
@@ -220,7 +220,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     _buildFAQs(),
                     _buildReviews(),
                     _buildRelatedEvents(),
-                    const SizedBox(height: 120),
+                    SizedBox(height: 120),
                   ],
                 ),
               ),
@@ -241,13 +241,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       pinned: true,
       backgroundColor: kEventDark,
       leading: Container(
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(8),
         decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(12)),
-        child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
+        child: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
       ),
       actions: [
         Container(
-          margin: const EdgeInsets.all(8),
+          margin: EdgeInsets.all(8),
           decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(12)),
           child: IconButton(
             icon: Icon(_eventData!['is_wishlist'] == 1 ? Icons.favorite : Icons.favorite_border, color: kEventPink),
@@ -285,18 +285,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   if (_eventData!['location'] != null)
                     Row(
                       children: [
-                        const Icon(Icons.location_on, color: kEventPink, size: 16),
-                        const SizedBox(width: 4),
+                        Icon(Icons.location_on, color: kEventPink, size: 16),
+                        SizedBox(width: 4),
                         Text(
                           _eventData!['location']['name'],
-                          style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     _eventData!['title'] ?? '',
-                    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, height: 1.1),
+                    style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, height: 1.1),
                   ),
                 ],
               ),
@@ -310,8 +310,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Widget _buildHeaderInfo() {
     final review = _eventData!['review_score'];
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: const BoxDecoration(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
@@ -321,16 +321,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(color: kEventPurple.withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.event, color: kEventPurple),
+                child: Icon(Icons.event, color: kEventPurple),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_eventData!['start_time'] ?? 'TBA', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text(_eventData!['duration'] ?? '', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text(_eventData!['start_time'] ?? 'TBA', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(_eventData!['duration'] ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
             ],
@@ -341,12 +341,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 18),
-                    const SizedBox(width: 4),
-                    Text(review['score_total'].toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Icon(Icons.star, color: Colors.amber, size: 18),
+                    SizedBox(width: 4),
+                    Text(review['score_total'].toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ],
                 ),
-                Text('${review['total_review']} reviews', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text('${review['total_review']} reviews', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
         ],
@@ -356,21 +356,21 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildTicketSection() {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       child: Column(
         children: [
           // Date Selector
           InkWell(
             onTap: () async {
-              final d = await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 365)), initialDate: _selectedDate ?? DateTime.now());
+              final d = await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime.now().add(Duration(days: 365)), initialDate: _selectedDate ?? DateTime.now());
               if (d != null) setState(() => _selectedDate = d);
             },
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [kEventPurple, kEventPink]),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                boxShadow: [BoxShadow(color: kEventPurple.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))],
+                gradient: LinearGradient(colors: [kEventPurple, kEventPink]),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                boxShadow: [BoxShadow(color: kEventPurple.withOpacity(0.3), blurRadius: 10, offset: Offset(0, 4))],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -378,14 +378,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("DATE", style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.2)),
+                      Text(context.l10n.date, style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.2)),
                       Text(
                         _selectedDate == null ? "Select Date" : DateFormat('EEE, d MMM yyyy').format(_selectedDate!),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                     ],
                   ),
-                  const Icon(Icons.calendar_month, color: Colors.white),
+                  Icon(Icons.calendar_month, color: Colors.white),
                 ],
               ),
             ),
@@ -396,24 +396,24 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             color: Colors.white,
             child: Row(
               children: [
-                const SizedBox(width: 10, height: 20, child: DecoratedBox(decoration: BoxDecoration(color: kEventSurface, borderRadius: BorderRadius.horizontal(right: Radius.circular(10))))),
+                SizedBox(width: 10, height: 20, child: DecoratedBox(decoration: BoxDecoration(color: kEventSurface, borderRadius: BorderRadius.horizontal(right: Radius.circular(10))))),
                 Expanded(child: LayoutBuilder(builder: (context, constraints) {
                   return Flex(
                     direction: Axis.horizontal,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
-                    children: List.generate((constraints.constrainWidth() / 10).floor(), (_) => const SizedBox(width: 5, height: 1, child: DecoratedBox(decoration: BoxDecoration(color: Colors.grey)))),
+                    children: List.generate((constraints.constrainWidth() / 10).floor(), (_) => SizedBox(width: 5, height: 1, child: DecoratedBox(decoration: BoxDecoration(color: Colors.grey)))),
                   );
                 })),
-                const SizedBox(width: 10, height: 20, child: DecoratedBox(decoration: BoxDecoration(color: kEventSurface, borderRadius: BorderRadius.horizontal(left: Radius.circular(10))))),
+                SizedBox(width: 10, height: 20, child: DecoratedBox(decoration: BoxDecoration(color: kEventSurface, borderRadius: BorderRadius.horizontal(left: Radius.circular(10))))),
               ],
             ),
           ),
 
           // Tickets
           Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
             ),
@@ -424,7 +424,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 final price = ticket['price'];
                 
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: EdgeInsets.only(bottom: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -432,8 +432,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(ticket['name'] ?? 'Ticket', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                            Text("\$$price", style: const TextStyle(color: kEventPink, fontWeight: FontWeight.bold)),
+                            Text(ticket['name'] ?? 'Ticket', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text("\$$price", style: TextStyle(color: kEventPink, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -442,7 +442,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         child: Row(
                           children: [
                             _qtyBtn(Icons.remove, count > 0 ? () => setState(() => _ticketCounts[code] = count - 1) : null),
-                            Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text('$count', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('$count', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
                             _qtyBtn(Icons.add, () => setState(() => _ticketCounts[code] = count + 1)),
                           ],
                         ),
@@ -461,19 +461,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Widget _qtyBtn(IconData icon, VoidCallback? onTap) {
     return InkWell(
       onTap: onTap,
-      child: Padding(padding: const EdgeInsets.all(8.0), child: Icon(icon, size: 18, color: onTap != null ? Colors.black : Colors.grey)),
+      child: Padding(padding: EdgeInsets.all(8.0), child: Icon(icon, size: 18, color: onTap != null ? Colors.black : Colors.grey)),
     );
   }
 
   Widget _buildSpecs() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
           _specCard(Icons.confirmation_number_outlined, "Instant", "Booking"),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           _specCard(Icons.supervised_user_circle_outlined, "Guide", "Included"),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           _specCard(Icons.language, "Language", "English"),
         ],
       ),
@@ -483,7 +483,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Widget _specCard(IconData icon, String title, String subtitle) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -492,8 +492,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         child: Column(
           children: [
             Icon(icon, color: kEventPurple, size: 24),
-            const SizedBox(height: 8),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            SizedBox(height: 8),
+            Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             Text(subtitle, style: TextStyle(color: Colors.grey[600], fontSize: 11)),
           ],
         ),
@@ -503,12 +503,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildDescription() {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("About Event", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
-          const SizedBox(height: 8),
+          Text(context.l10n.aboutEvent, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
+          SizedBox(height: 8),
           HtmlWidget(
             _eventData!['content'] ?? '',
             textStyle: TextStyle(color: Colors.grey[800], height: 1.5),
@@ -520,22 +520,22 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildFAQs() {
     final faqs = _eventData!['faqs'];
-    if (faqs is! List || faqs.isEmpty) return const SizedBox.shrink();
+    if (faqs is! List || faqs.isEmpty) return SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
-          const Text("FAQs", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
-          const SizedBox(height: 10),
+          SizedBox(height: 20),
+          Text(context.l10n.faqs, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
+          SizedBox(height: 10),
           ...faqs.map((f) => Container(
-            margin: const EdgeInsets.only(bottom: 10),
+            margin: EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
             child: ExpansionTile(
-              title: Text(f['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-              childrenPadding: const EdgeInsets.all(16),
+              title: Text(f['title'] ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              childrenPadding: EdgeInsets.all(16),
               children: [
                 HtmlWidget(f['content'] ?? '', textStyle: TextStyle(color: Colors.grey[700])),
               ],
@@ -548,27 +548,27 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildReviews() {
     final reviews = _eventData!['review_lists']?['data'];
-    if (reviews is! List || reviews.isEmpty) return const SizedBox.shrink();
+    if (reviews is! List || reviews.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-          child: Text("Reviews", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
+          child: Text(context.l10n.reviews, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
         ),
         SizedBox(
           height: 180, 
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: reviews.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final r = reviews[i];
               return Container(
                 width: 280,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -582,24 +582,24 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         CircleAvatar(
                           radius: 16,
                           backgroundColor: kEventPurple.withOpacity(0.1),
-                          child: const Icon(Icons.person, size: 18, color: kEventPurple),
+                          child: Icon(Icons.person, size: 18, color: kEventPurple),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(r['author']?['name'] ?? 'Guest', style: const TextStyle(fontWeight: FontWeight.bold))),
+                        SizedBox(width: 8),
+                        Expanded(child: Text(r['author']?['name'] ?? 'Guest', style: TextStyle(fontWeight: FontWeight.bold))),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(color: Colors.amber.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
                           child: Row(children: [
-                            const Icon(Icons.star, size: 12, color: Colors.amber),
-                            const SizedBox(width: 4),
-                            Text('${r['rate_number']}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            Icon(Icons.star, size: 12, color: Colors.amber),
+                            SizedBox(width: 4),
+                            Text('${r['rate_number']}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           ]),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 8),
+                    Text(r['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4),
                     Expanded(
                       child: Text(r['content'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                     ),
@@ -615,22 +615,22 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildRelatedEvents() {
     final related = _eventData!['related'];
-    if (related is! List || related.isEmpty) return const SizedBox.shrink();
+    if (related is! List || related.isEmpty) return SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-          child: Text("You Might Like", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
+          child: Text(context.l10n.youMightLike, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kEventDark)),
         ),
         SizedBox(
           height: 250, 
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: related.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (_, __) => SizedBox(width: 16),
             itemBuilder: (_, i) {
               final item = related[i];
               return GestureDetector(
@@ -649,7 +649,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       Expanded(
                         flex: 3,
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                           child: Image.network(
                             item['image'] ?? '', 
                             width: double.infinity, 
@@ -661,13 +661,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       Expanded(
                         flex: 2,
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                              Text("\$${item['price']}", style: const TextStyle(color: kEventPink, fontWeight: FontWeight.bold, fontSize: 15)),
+                              Text(item['title'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                              Text("\$${item['price']}", style: TextStyle(color: kEventPink, fontWeight: FontWeight.bold, fontSize: 15)),
                             ],
                           ),
                         ),
@@ -687,34 +687,34 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     return Positioned(
       bottom: 0, left: 0, right: 0,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, 30),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, -5))],
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: Offset(0, -5))],
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Row(
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Total Price", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                Text("\$${_calculateTotal().toStringAsFixed(2)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kEventDark)),
+                Text(context.l10n.totalPrice, style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text("\$${_calculateTotal().toStringAsFixed(2)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kEventDark)),
               ],
             ),
-            const Spacer(),
+            Spacer(),
             ElevatedButton(
               onPressed: _submitting ? null : _bookNow,
               style: ElevatedButton.styleFrom(
                 backgroundColor: kEventPurple,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 8,
                 shadowColor: kEventPurple.withOpacity(0.4),
               ),
               child: _submitting 
-                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
-                : const Text("Book Ticket", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
+                : Text(context.l10n.bookTicket, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ],
         ),
@@ -733,7 +733,7 @@ class EventCheckoutScreen extends StatefulWidget {
   final DateTime date;
   final double total;
 
-  const EventCheckoutScreen({
+  EventCheckoutScreen({
     Key? key,
     required this.bookingCode,
     required this.eventTitle,
@@ -839,17 +839,17 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Column(children: [Icon(Icons.check_circle, color: kEventPurple, size: 64), SizedBox(height: 16), Text('Booking Confirmed!')]),
+        title: Column(children: [Icon(Icons.check_circle, color: kEventPurple, size: 64), SizedBox(height: 16), Text(context.l10n.bookingConfirmed1)]),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Your tickets are booked successfully.'),
-            const SizedBox(height: 16),
-            SelectableText(code, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kEventPurple)),
+            Text(context.l10n.yourTicketsAreBookedSuccessfully),
+            SizedBox(height: 16),
+            SelectableText(code, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kEventPurple)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: const Text('Back to Home')),
+          TextButton(onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst), child: Text(context.l10n.backToHome1)),
         ],
       ),
     );
@@ -859,28 +859,28 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kEventSurface,
-      appBar: AppBar(title: const Text('Checkout', style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+      appBar: AppBar(title: Text(context.l10n.checkout1, style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: IconThemeData(color: Colors.black)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
                 child: Column(
                   children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("Total Amount", style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: kEventPink, fontSize: 18))]),
-                    const Divider(height: 24),
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(DateFormat('MMM dd').format(widget.date)), const Text('Event Ticket', style: TextStyle(fontWeight: FontWeight.bold))]),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(context.l10n.totalAmount, style: TextStyle(color: Colors.grey[600])), Text('\$${widget.total.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold, color: kEventPink, fontSize: 18))]),
+                    Divider(height: 24),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(DateFormat('MMM dd').format(widget.date)), Text(context.l10n.eventTicket, style: TextStyle(fontWeight: FontWeight.bold))]),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text('Guest Info', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              SizedBox(height: 24),
+              Text(context.l10n.guestInfo, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
               _input(_firstName, 'First Name', Icons.person),
               _input(_lastName, 'Last Name', Icons.person),
               _input(_email, 'Email', Icons.email, type: TextInputType.emailAddress),
@@ -888,13 +888,13 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
               _input(_address, 'Address', Icons.home),
               _input(_country, 'Country', Icons.flag),
               _input(_notes, 'Notes (Optional)', Icons.note, req: false),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               SizedBox(
                 width: double.infinity, height: 54,
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _handleCheckout,
                   style: ElevatedButton.styleFrom(backgroundColor: kEventPurple, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                  child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white) : const Text('Confirm & Pay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  child: _isSubmitting ? CircularProgressIndicator(color: Colors.white) : Text(context.l10n.confirmPay, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
             ],
@@ -906,7 +906,7 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
 
   Widget _input(TextEditingController c, String label, IconData icon, {TextInputType type = TextInputType.text, bool req = true}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: c, keyboardType: type,
         decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon, color: Colors.grey), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), filled: true, fillColor: Colors.white),

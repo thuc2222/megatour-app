@@ -7,7 +7,7 @@ import '../../models/service_models.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class WishlistScreen extends StatefulWidget {
-  const WishlistScreen({Key? key}) : super(key: key);
+  WishlistScreen({Key? key}) : super(key: key);
 
   @override
   State<WishlistScreen> createState() => _WishlistScreenState();
@@ -28,33 +28,33 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Wishlist'),
+        title: Text(context.l10n.myWishlist),
         actions: [
           if (wishlistProvider.wishlist.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: Icon(Icons.delete_outline),
               onPressed: () => _showClearDialog(context),
             ),
         ],
       ),
       body: wishlistProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : wishlistProvider.errorMessage != null
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.error_outline,
                         size: 64,
                         color: Colors.red,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Text(wishlistProvider.errorMessage!),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => wishlistProvider.loadWishlist(),
-                        child: const Text('Retry'),
+                        child: Text(context.l10n.retry),
                       ),
                     ],
                   ),
@@ -69,29 +69,29 @@ class _WishlistScreenState extends State<WishlistScreen> {
                             size: 80,
                             color: Colors.grey[400],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           Text(
-                            'Your wishlist is empty',
+                            context.l10n.yourWishlistIsEmpty,
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.grey[600],
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
-                            'Save items you like to find them easily later',
+                            context.l10n.saveItemsYouLikeToFindThemEasilyLater,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[500],
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: const Text('Start Exploring'),
+                            child: Text(context.l10n.startExploring),
                           ),
                         ],
                       ),
@@ -99,7 +99,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   : RefreshIndicator(
                       onRefresh: () => wishlistProvider.loadWishlist(),
                       child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16),
                         itemCount: wishlistProvider.wishlist.length,
                         itemBuilder: (context, index) {
                           final service = wishlistProvider.wishlist[index];
@@ -115,7 +115,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     WishlistProvider wishlistProvider,
   ) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
@@ -141,12 +141,12 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       service.image!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Center(
+                        return Center(
                           child: Icon(Icons.image, size: 40),
                         );
                       },
                     )
-                  : const Center(
+                  : Center(
                       child: Icon(Icons.image, size: 40),
                     ),
             ),
@@ -154,30 +154,30 @@ class _WishlistScreenState extends State<WishlistScreen> {
             // Details
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       service.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     
                     if (service.address != null)
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 14, color: Colors.grey),
-                          const SizedBox(width: 4),
+                          Icon(Icons.location_on, size: 14, color: Colors.grey),
+                          SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               service.address!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),
@@ -187,7 +187,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                           ),
                         ],
                       ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -195,11 +195,11 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         if (service.reviewScore != null)
                           Row(
                             children: [
-                              const Icon(Icons.star, size: 14, color: Colors.amber),
-                              const SizedBox(width: 2),
+                              Icon(Icons.star, size: 14, color: Colors.amber),
+                              SizedBox(width: 2),
                               Text(
                                 service.reviewScore ?? "0.0",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -209,7 +209,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         if (service.price != null)
                           Text(
                             '\$${service.price ?? "0"}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.blue,
@@ -224,23 +224,23 @@ class _WishlistScreenState extends State<WishlistScreen> {
             
             // Remove button
             IconButton(
-              icon: const Icon(Icons.favorite, color: Colors.red),
+              icon: Icon(Icons.favorite, color: Colors.red),
               onPressed: () async {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Remove from Wishlist'),
-                    content: const Text(
-                      'Are you sure you want to remove this item from your wishlist?',
+                    title: Text(context.l10n.removeFromWishlist),
+                    content: Text(
+                      context.l10n.areYouSureYouWantToRemoveThisItemFromYourWishlist,
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancel'),
+                        child: Text(context.l10n.cancel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
-                        child: const Text('Remove'),
+                        child: Text(context.l10n.remove),
                       ),
                     ],
                   ),
@@ -277,14 +277,14 @@ class _WishlistScreenState extends State<WishlistScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear Wishlist'),
-        content: const Text(
-          'Are you sure you want to remove all items from your wishlist?',
+        title: Text(context.l10n.clearWishlist),
+        content: Text(
+          context.l10n.areYouSureYouWantToRemoveAllItemsFromYourWishlist,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -310,7 +310,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Clear All'),
+            child: Text(context.l10n.clearAll),
           ),
         ],
       ),
