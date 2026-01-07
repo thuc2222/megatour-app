@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../configs/api_config.dart';
+import '../config/api_config.dart';
 
 class ApiService {
   static ApiService? _instance;

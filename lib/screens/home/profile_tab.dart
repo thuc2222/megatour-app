@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../widgets/language_selector.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class ProfileTab extends StatelessWidget {
   final VoidCallback onBookingHistoryTap;
@@ -18,7 +19,8 @@ class ProfileTab extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final user = auth.user;
     final isLoggedIn = auth.isAuthenticated;
-    //final l10n = AppLocalizations.of(context)!;
+    // 🟢 Defined here to be used throughout the build method
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(
@@ -92,9 +94,9 @@ class ProfileTab extends StatelessWidget {
                           ),
                         )
                       else
-                        const Text(
-                          'Guest User',
-                          style: TextStyle(
+                        Text(
+                          l10n.guestUser, // ✅ Use localized string if available
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.white70,
                           ),
@@ -139,7 +141,7 @@ class ProfileTab extends StatelessWidget {
 
                 /// ACCOUNT (NOT LOGGED IN)
                 if (!isLoggedIn) ...[
-                  _sectionHeader('Account'),
+                  _sectionHeader('Account'), // Can add l10n.account if defined
                   _menuItem(
                     context,
                     Icons.login,
@@ -163,20 +165,20 @@ class ProfileTab extends StatelessWidget {
                     context,
                     Icons.history,
                     l10n.bookingHistory,
-                    'View your bookings',
-                    onBookingHistoryTap, // ✅ SWITCH TO BOOKINGS TAB
+                    l10n.view, // Or 'View your bookings'
+                    onBookingHistoryTap,
                   ),
                   _menuItem(
                     context,
                     Icons.favorite_border,
                     l10n.wishlist,
-                    'Saved services',
+                    l10n.view, // Or 'Saved services'
                     () => Navigator.pushNamed(context, '/wishlist'),
                   ),
                   _menuItem(
                     context,
                     Icons.lock_outline,
-                    'Change Password',
+                    l10n.password, // "Password" or "Change Password"
                     'Update your password',
                     () => _changePassword(context),
                   ),
@@ -250,6 +252,7 @@ class ProfileTab extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -305,19 +308,21 @@ class ProfileTab extends StatelessWidget {
   }
 
   void _changePassword(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Change password available')),
+      SnackBar(content: Text(l10n.changePasswordAvailable)), // ✅ Localized
     );
   }
 
   void _about(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showAboutDialog(
       context: context,
       applicationName: 'Megatour',
       applicationVersion: '1.0.0',
       applicationIcon: const Icon(Icons.travel_explore),
-      children: const [
-        Text('Your travel booking companion.'),
+      children: [
+        Text(l10n.yourTravelBookingCompanion), // ✅ Localized
       ],
     );
   }

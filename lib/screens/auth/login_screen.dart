@@ -1,9 +1,8 @@
-// Example: Update lib/screens/auth/login_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // ✅ ADD THIS
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -31,6 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final authProvider = context.read<AuthProvider>();
     
+    // Dismiss keyboard
+    FocusScope.of(context).unfocus();
+
     final success = await authProvider.login(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -38,12 +40,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
 
+    // 🟢 FIX 1: Define l10n here so we can use it in the SnackBar
+    final l10n = AppLocalizations.of(context)!;
+
     if (success) {
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
-      //final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          // Now l10n is defined and can be used
           content: Text(authProvider.errorMessage ?? l10n.loginFailed),
           backgroundColor: Colors.red,
         ),
@@ -53,7 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //final l10n = AppLocalizations.of(context)!; // ✅ GET TRANSLATIONS
+    // 🟢 This defines l10n for the build method
+    final l10n = AppLocalizations.of(context)!; 
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       body: SafeArea(
@@ -74,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 
                 Text(
-                  l10n.welcomeBack, // ✅ TRANSLATED
+                  l10n.welcomeBack,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -83,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 8),
                 
                 Text(
-                  l10n.loginToContinue, // ✅ TRANSLATED
+                  l10n.loginToContinue,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey,
                       ),
@@ -96,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: l10n.email, // ✅ TRANSLATED
+                    labelText: l10n.email,
                     hintText: 'Enter your email',
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
@@ -105,10 +112,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return l10n.emailRequired; // ✅ TRANSLATED
+                      return l10n.emailRequired;
                     }
                     if (!value.contains('@')) {
-                      return l10n.emailInvalid; // ✅ TRANSLATED
+                      return l10n.emailInvalid;
                     }
                     return null;
                   },
@@ -120,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: l10n.password, // ✅ TRANSLATED
+                    labelText: l10n.password,
                     hintText: 'Enter your password',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
@@ -141,10 +148,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return l10n.passwordRequired; // ✅ TRANSLATED
+                      return l10n.passwordRequired;
                     }
                     if (value.length < 6) {
-                      return l10n.passwordTooShort; // ✅ TRANSLATED
+                      return l10n.passwordTooShort;
                     }
                     return null;
                   },
@@ -165,42 +172,38 @@ class _LoginScreenState extends State<LoginScreen> {
                             });
                           },
                         ),
-                        Text(l10n.rememberMe), // ✅ TRANSLATED
+                        Text(l10n.rememberMe),
                       ],
                     ),
                     TextButton(
                       onPressed: () {},
-                      child: Text(l10n.forgotPassword), // ✅ TRANSLATED
+                      child: Text(l10n.forgotPassword),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
                 
                 // Login button
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, child) {
-                    return ElevatedButton(
-                      onPressed: authProvider.isLoading ? null : _handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                ElevatedButton(
+                  onPressed: authProvider.isLoading ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: authProvider.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          l10n.login,
+                          style: const TextStyle(fontSize: 16),
                         ),
-                      ),
-                      child: authProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Text(
-                              l10n.login, // ✅ TRANSLATED
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                    );
-                  },
                 ),
                 const SizedBox(height: 24),
                 
@@ -208,14 +211,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(l10n.dontHaveAccount), // ✅ TRANSLATED
-                    const Text(' '),
+                    Text(l10n.dontHaveAccount),
+                    const SizedBox(width: 4),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed('/register');
                       },
                       child: Text(
-                        l10n.register, // ✅ TRANSLATED
+                        l10n.register,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../services/service_api.dart';
 import '../../services/guest_booking_storage.dart'; // 🟢 Added to save history
 import '../booking/checkout_screen.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 // =============================================================================
 // 1. THEME: Modern Hotel Gradient

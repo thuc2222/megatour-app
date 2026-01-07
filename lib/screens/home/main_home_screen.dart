@@ -5,6 +5,7 @@ import 'home_tab.dart';
 import 'news_tab.dart';
 import 'bookings_tab.dart';
 import 'profile_tab.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({Key? key}) : super(key: key);

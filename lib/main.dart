@@ -44,14 +44,14 @@ class MyApp extends StatelessWidget {
             title: 'Megatour',
             debugShowCheckedModeBanner: false,
 
-            //locale: localeProvider.locale,
-            //supportedLocales: LocaleProvider.supportedLocales,
-            //localizationsDelegates: const [
-              //AppLocalizations.delegate,
-              //GlobalMaterialLocalizations.delegate,
-              //GlobalWidgetsLocalizations.delegate,
-              //GlobalCupertinoLocalizations.delegate,
-           // ],
+            locale: localeProvider.locale,
+            supportedLocales: LocaleProvider.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
 
             theme: ThemeData(
               primarySwatch: Colors.blue,

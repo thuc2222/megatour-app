@@ -1,5 +1,3 @@
-// lib/widgets/language_selector.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -11,10 +9,9 @@ class LanguageSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = context.watch<LocaleProvider>();
-    // final l10n = AppLocalizations.of(context)!;
+    // 🟢 Define l10n here
+    final l10n = AppLocalizations.of(context)!;
 
-    // The extra return statement has been removed.
-    // Now, this ListTile will be built and returned correctly.
     return ListTile(
       leading: const Icon(Icons.language, color: Colors.blue),
       title: Text(l10n.language),
@@ -28,7 +25,8 @@ class LanguageSelector extends StatelessWidget {
 
   void _showLanguageDialog(BuildContext context) {
     final localeProvider = context.read<LocaleProvider>();
-    // final l10n = AppLocalizations.of(context)!;
+    // 🟢 UNCOMMENTED: Define l10n so it can be used below
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -86,7 +84,8 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = context.watch<LocaleProvider>();
-    // final l10n = AppLocalizations.of(context)!;
+    // 🟢 UNCOMMENTED: Define l10n here for the bottom sheet
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24),

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/service_models.dart';
-import '../configs/api_config.dart';
+import '../config/api_config.dart';
 
 class LocationApi {
   /// 🔍 Location autocomplete using backend-supported `location_name`

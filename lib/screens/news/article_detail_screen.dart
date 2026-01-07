@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
   final Map<String, dynamic> article;

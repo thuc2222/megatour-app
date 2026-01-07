@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/search_provider.dart';
 import '../../models/service_models.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class ServiceListScreen extends StatefulWidget {
   final String serviceType;

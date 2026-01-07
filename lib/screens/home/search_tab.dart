@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class SearchTab extends StatelessWidget {
   const SearchTab({Key? key}) : super(key: key);

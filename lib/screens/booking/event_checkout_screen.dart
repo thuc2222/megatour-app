@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class EventCheckoutScreen extends StatefulWidget {
   final int eventId;

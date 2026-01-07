@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'space_detail_screen.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class SpaceListScreen extends StatefulWidget {
   const SpaceListScreen({Key? key}) : super(key: key);

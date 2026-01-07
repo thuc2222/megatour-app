@@ -1,0 +1,168 @@
+# Flutter L10n Extraction Report
+
+Total extracted strings: 164
+
+1. / day
+2. / night
+3. /day
+4. About Event
+5. Already have an account?
+6. Apply Filters
+7. Are you sure you want to remove all items from your wishlist?
+8. Are you sure you want to remove this item from your wishlist?
+9. BACK TO HOME
+10. BOOK NOW
+11. BOOK YOUR TRIP
+12. BOOKING REFERENCE
+13. Back to Home
+14. Boat not found
+15. Book Now
+16. Book Ticket
+17. Booking Code
+18. Booking Confirmed
+19. Booking Confirmed!
+20. Booking Details
+21. Booking Received!
+22. Browse Services
+23. CHECK AVAILABILITY
+24. CHECKOUT
+25. COMPLETE BOOKING
+26. CONFIRM BOOKING
+27. Cancel
+28. Car Rental
+29. Car Rentals
+30. Car not found
+31. Change password available
+32. Check Availability
+33. Checkout
+34. Clear All
+35. Clear Filters
+36. Clear Wishlist
+37. Confirm & Pay
+38. Confirm Booking
+39. Confirm Password
+40. Confirmed!
+41. Connecting...
+42. Create Account
+43. Cruise & Boats
+44. Customer Details
+45. DATE
+46. DEAL
+47. Done
+48. Email
+49. Enter your email
+50. Enter your first name
+51. Enter your last name
+52. Enter your password
+53. Error loading events
+54. Event Checkout
+55. Event Ticket
+56. Event not found
+57. Events & Tickets
+58. FAQs
+59. FEATURED
+60. Featured Hotels
+61. Filters
+62. Filters coming soon
+63. First Name
+64. GUESTS
+65. Get Tickets
+66. Guest Checkout
+67. Guest Details
+68. Guest Info
+69. Guest Information
+70. Guest User
+71. Guests
+72. Hotel not found
+73. Hotels
+74. Join Megatour
+75. Last Name
+76. Location
+77. Login
+78. Login to view your bookings
+79. Luxury Spaces
+80. Megatour
+81. My Bookings
+82. My Cart
+83. My Wishlist
+84. No boats found
+85. No bookings yet
+86. No cars found
+87. No data found
+88. No events found
+89. No results found
+90. No spaces found
+91. No tours found
+92. Offline Payment Method
+93. Password
+94. Past
+95. Pay later (Offline)
+96. Payment Method
+97. Payment Summary
+98. Per person
+99. Please accept the terms and conditions
+100. Please check your email for payment instructions.
+101. Please save this code for your records.
+102. Please save your booking code.\nYou will need it for payment or support.
+103. Popular Tours
+104. Price per day
+105. Price range
+106. Re-enter your password
+107. Refresh
+108. Register
+109. Registration successful! Please login.
+110. Remove
+111. Remove from Wishlist
+112. Rent
+113. Reserve
+114. Reset
+115. Retry
+116. Reviews
+117. SPECIAL OFFER
+118. Sail into your dream vacation
+119. Save items you like to find them easily later
+120. Search
+121. Search Tab - Will be implemented
+122. Search boats, cruises...
+123. Search cars...
+124. Search destinations...
+125. Search events, location...
+126. Search spaces...
+127. Search tours...
+128. See All
+129. See all
+130. Service Information
+131. Space Checkout
+132. Space not found
+133. Special Offers
+134. Start Exploring
+135. Start your journey with us today
+136. Success
+137. Test API
+138. Test Configs API (No Auth)
+139. Test Login API
+140. Total
+141. Total Amount
+142. Total Estimate
+143. Total Price
+144. Total estimate
+145. Tour not found
+146. Tours
+147. Travel Stories
+148. Try adjusting your search filters
+149. Unique Spaces
+150. Upcoming
+151. View
+152. You Might Like
+153. Your booking has been successfully created.
+154. Your booking is confirmed
+155. Your booking is pending confirmation.
+156. Your booking was successful.
+157. Your car rental is confirmed.
+158. Your cart is empty
+159. Your space booking has been successfully created.
+160. Your space is reserved.
+161. Your tickets are booked successfully.
+162. Your tour has been successfully booked.
+163. Your travel booking companion.
+164. Your wishlist is empty

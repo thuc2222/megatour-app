@@ -3,6 +3,7 @@ import '../../services/service_api.dart';
 import '../../storage/booking_storage.dart';
 import 'booking_success_screen.dart';
 import '../../services/guest_booking_storage.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final String bookingCode;

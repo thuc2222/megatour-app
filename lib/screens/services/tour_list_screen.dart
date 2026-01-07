@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/search_provider.dart';
 import '../../models/service_models.dart';
 import '../services/tour_detail_screen.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class TourListScreen extends StatefulWidget {
   final String title;

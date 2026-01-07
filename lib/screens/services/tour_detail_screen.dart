@@ -7,6 +7,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/auth_provider.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 // =============================================================================
 // 1. THEME CONSTANTS (Vibrant Sunset Style)

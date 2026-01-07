@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'boat_detail_screen.dart';
+import 'package:megatour_app/utils/context_extension.dart';
 
 class BoatListScreen extends StatefulWidget {
   const BoatListScreen({Key? key}) : super(key: key);

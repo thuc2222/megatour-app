@@ -3,7 +3,7 @@
 class ApiConfig {
   // Base URL
   static const String baseUrl = 'https://megatour.vn/api/';
-  
+  static String currentLanguage = 'en';
   // API Endpoints
   static const String configs = 'configs';
   static const String countries = 'configs/countries';
@@ -114,6 +114,7 @@ class ApiConfig {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Accept-Language': currentLanguage,
     };
     
     if (token != null && token.isNotEmpty) {

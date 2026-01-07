@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../storage/booking_storage.dart';
 import 'booking_detail_screen.dart'; // Import your detail screen
+import 'package:megatour_app/utils/context_extension.dart';
 
 class BookingsScreen extends StatelessWidget {
   const BookingsScreen({Key? key}) : super(key: key);
