@@ -5,12 +5,13 @@ workflows:
     instance_type: mac_mini_m1
 
     environment:
-      flutter: 3.16.9
+      flutter: 3.27.0
       xcode: 15.0
       cocoapods: default
 
       vars:
         IOS_BUNDLE_ID: "com.example.megatour"
+        IOS_DEPLOYMENT_TARGET: "14.0"
 
     triggering:
       events:
