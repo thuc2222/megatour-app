@@ -28,11 +28,9 @@ workflows:
 
       - name: iOS full clean (IMPORTANT)
         script: |
-          rm -rf ios/Pods
-          rm -rf ios/Podfile.lock
-          rm -rf ios/.symlinks
-          rm -rf ios/Flutter/Flutter.framework
-          rm -rf ios/Flutter/Flutter.podspec
+          cd ios
+          rm -rf Pods Podfile.lock .symlinks Flutter/Flutter.framework Flutter/Flutter.podspec
+          pod install
 
       - name: Install CocoaPods
         script: |
