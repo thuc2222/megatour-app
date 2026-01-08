@@ -1,13 +1,12 @@
-platform :ios, '14.0'
+platform :ios, '13.0'
 
-# === Flutter SDK path ===
-flutter_root = File.expand_path('..', File.dirname(__FILE__))
-flutter_root = File.expand_path('..', flutter_root)
+flutter_root = ENV['FLUTTER_ROOT']
 
-require File.expand_path(
-  File.join('packages', 'flutter_tools', 'bin', 'podhelper'),
-  flutter_root
-)
+unless flutter_root
+  raise "FLUTTER_ROOT not set. Run pod install via Flutter tools."
+end
+
+require File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper')
 
 flutter_ios_podfile_setup
 
