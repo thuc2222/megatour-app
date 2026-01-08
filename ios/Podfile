@@ -1,7 +1,13 @@
 platform :ios, '14.0'
 
-# BẮT BUỘC PHẢI CÓ
-require File.expand_path('../Flutter/podhelper', __FILE__)
+# === Flutter SDK path ===
+flutter_root = File.expand_path('..', File.dirname(__FILE__))
+flutter_root = File.expand_path('..', flutter_root)
+
+require File.expand_path(
+  File.join('packages', 'flutter_tools', 'bin', 'podhelper'),
+  flutter_root
+)
 
 flutter_ios_podfile_setup
 
