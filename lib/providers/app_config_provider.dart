@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:megatour_app/config/api_config.dart';
 
 class AppCurrency {
   final String code;
@@ -41,7 +42,7 @@ class AppConfigProvider extends ChangeNotifier {
   Future<void> load() async {
     try {
       final res = await http.get(
-        Uri.parse('https://megatour.vn/api/configs'),
+        Uri.parse('${ApiConfig.baseUrl}configs'),
       );
 
       final json = jsonDecode(res.body);

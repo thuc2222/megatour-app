@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 // =============================================================================
 // 1. THEME CONSTANTS
@@ -73,7 +74,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
   Future<void> _loadBoat() async {
     try {
       final res = await http.get(
-        Uri.parse('https://megatour.vn/api/boat/detail/${widget.boatId}'),
+        Uri.parse('${ApiConfig.baseUrl}boat/detail/${widget.boatId}'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -177,7 +178,8 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
         queryParams['type'] = 'day';
       }
 
-      final uri = Uri.https('megatour.vn', '/api/boat/availability-booking/${widget.boatId}', queryParams);
+      final uri = Uri.parse('${ApiConfig.baseUrl}boat/availability-booking/${widget.boatId}')
+    .replace(queryParameters: queryParams);
       final res = await http.get(uri, headers: {
         'Accept': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
@@ -249,7 +251,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
       }
 
       final res = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/addToCart'),
+        Uri.parse('${ApiConfig.baseUrl}booking/addToCart'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -997,7 +999,7 @@ class _BoatCheckoutScreenState extends State<BoatCheckoutScreen> {
 
       // 1. Checkout Preview (Ignore 500s)
       try {
-        await http.get(Uri.parse('https://megatour.vn/api/booking/${widget.bookingCode}/checkout'), headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'});
+        await http.get(Uri.parse('${ApiConfig.baseUrl}booking/${widget.bookingCode}/checkout'), headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'});
       } catch (e) {
         debugPrint('Preview skipped: $e');
       }
@@ -1017,7 +1019,7 @@ class _BoatCheckoutScreenState extends State<BoatCheckoutScreen> {
       };
 
       final checkoutRes = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/doCheckout'),
+        Uri.parse('${ApiConfig.baseUrl}booking/doCheckout'),
         headers: headers,
         body: checkoutBody,
       );

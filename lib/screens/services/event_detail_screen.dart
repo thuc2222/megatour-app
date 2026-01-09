@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 // =============================================================================
 // 1. THEME CONSTANTS
@@ -58,7 +59,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Future<void> _loadEvent() async {
     try {
       final res = await http.get(
-        Uri.parse('https://megatour.vn/api/event/detail/${widget.eventId}'),
+        Uri.parse('${ApiConfig.baseUrl}event/detail/${widget.eventId}'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -149,7 +150,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       });
 
       final res = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/addToCart'),
+        Uri.parse('${ApiConfig.baseUrl}booking/addToCart'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -781,7 +782,7 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
 
       // 1. Checkout Preview
       try {
-        await http.get(Uri.parse('https://megatour.vn/api/booking/${widget.bookingCode}/checkout'), headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'});
+        await http.get(Uri.parse('${ApiConfig.baseUrl}booking/${widget.bookingCode}/checkout'), headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'});
       } catch (e) {
         debugPrint('Preview skipped: $e');
       }
@@ -801,7 +802,7 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
       };
 
       final checkoutRes = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/doCheckout'),
+        Uri.parse('${ApiConfig.baseUrl}booking/doCheckout'),
         headers: headers,
         body: checkoutBody,
       );

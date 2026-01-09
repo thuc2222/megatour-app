@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'space_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 class SpaceListScreen extends StatefulWidget {
   SpaceListScreen({Key? key}) : super(key: key);
@@ -47,7 +48,9 @@ class _SpaceListScreenState extends State<SpaceListScreen> {
         queryParams['location_name'] = locationFilter!;
       }
 
-      final uri = Uri.https('megatour.vn', '/api/space/search', queryParams);
+      final uri = Uri.parse('${ApiConfig.baseUrl}space/search').replace(
+  queryParameters: queryParams,
+);
       
       debugPrint('🏠 Fetching spaces: $uri');
       

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'event_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 class EventListScreen extends StatefulWidget {
   EventListScreen({Key? key}) : super(key: key);
@@ -68,7 +69,7 @@ class _EventListScreenState extends State<EventListScreen> {
             '${priceRange.start.round()}-${priceRange.end.round()}';
       }
 
-      final uri = Uri.https('megatour.vn', '/api/event/search', queryParams);
+      final uri = Uri.parse('${ApiConfig.baseUrl}event/search').replace(queryParameters: queryParams);
       
       debugPrint('📡 Fetching events: $uri');
       

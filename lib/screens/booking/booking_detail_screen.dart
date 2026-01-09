@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-
+import '../../config/api_config.dart';
 import '../../providers/auth_provider.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
@@ -20,7 +20,7 @@ LinearGradient kTicketGradient = LinearGradient(
   end: Alignment.bottomRight,
 );
 
-String API_BASE_URL = 'https://megatour.vn/api/';
+String API_BASE_URL = '${ApiConfig.baseUrl}';
 
 // --- Currency Helper ---
 class AppCurrency {

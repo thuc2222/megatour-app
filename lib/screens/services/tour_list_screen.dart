@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-
+import '../../config/api_config.dart';
 import '../../providers/search_provider.dart';
 import '../../models/service_models.dart';
 import '../services/tour_detail_screen.dart';
@@ -50,7 +50,7 @@ class _TourListScreenState extends State<TourListScreen> {
 
   Future<void> _fetchLocations() async {
     final res =
-        await http.get(Uri.parse('https://megatour.vn/api/locations'));
+        await http.get(Uri.parse('${ApiConfig.baseUrl}locations'));
 
     final json = jsonDecode(res.body);
     if (json['status'] == 1) {

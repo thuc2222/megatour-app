@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'car_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 class CarListScreen extends StatefulWidget {
   CarListScreen({Key? key}) : super(key: key);
@@ -54,7 +55,7 @@ class _CarListScreenState extends State<CarListScreen> {
 
   Future<void> _fetchLocations() async {
     try {
-      final res = await http.get(Uri.parse('https://megatour.vn/api/locations'));
+      final res = await http.get(Uri.parse('${ApiConfig.baseUrl}locations'));
       final body = jsonDecode(res.body);
       if (body['status'] == 1) {
         setState(() {
@@ -78,7 +79,9 @@ class _CarListScreenState extends State<CarListScreen> {
       // Keep your original filter logic if needed
       if (selectedType != null) queryParams['type'] = selectedType!;
 
-      final uri = Uri.https('megatour.vn', '/api/car/search', queryParams);
+      final uri = Uri.parse('${ApiConfig.baseUrl}car/search').replace(
+  queryParameters: queryParams,
+);
       final res = await http.get(uri);
 
       if (res.statusCode == 200) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 class CheckoutWebView extends StatefulWidget {
   final String bookingCode;
@@ -21,8 +22,9 @@ class _CheckoutWebViewState extends State<CheckoutWebView> {
   void initState() {
     super.initState();
 
-    final checkoutUrl =
-        "https://megatour.vn/booking/${widget.bookingCode}/checkout";
+    final checkoutUrl = ApiConfig.webViewCheckout(widget.bookingCode);
+_controller = WebViewController()
+  ..loadRequest(Uri.parse(checkoutUrl));
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)

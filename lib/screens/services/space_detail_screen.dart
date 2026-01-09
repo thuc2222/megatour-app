@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 // =============================================================================
 // 1. THEME CONSTANTS (Vibrant Airbnb Ambient)
@@ -65,7 +66,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
   Future<void> _loadSpace() async {
     try {
       final res = await http.get(
-        Uri.parse('https://megatour.vn/api/space/detail/${widget.spaceId}'),
+        Uri.parse('${ApiConfig.baseUrl}space/detail/${widget.spaceId}'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -148,7 +149,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
       };
 
       final res = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/addToCart'),
+        Uri.parse('${ApiConfig.baseUrl}booking/addToCart'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -736,7 +737,7 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
       final headers = {'Authorization': 'Bearer $token', 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded'};
 
       try {
-        await http.get(Uri.parse('https://megatour.vn/api/booking/${widget.bookingCode}/checkout'), headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'});
+        await http.get(Uri.parse('${ApiConfig.baseUrl}booking/${widget.bookingCode}/checkout'), headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'});
       } catch (e) {
         debugPrint('Preview skipped: $e');
       }
@@ -754,7 +755,7 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
         'term_conditions': 'on',
       };
 
-      final checkoutRes = await http.post(Uri.parse('https://megatour.vn/api/booking/doCheckout'), headers: headers, body: checkoutBody);
+      final checkoutRes = await http.post(Uri.parse('${ApiConfig.baseUrl}booking/doCheckout'), headers: headers, body: checkoutBody);
 
       if (checkoutRes.statusCode == 500 && checkoutRes.body.contains('Route [booking.thankyou] not defined')) {
         if (mounted) _showSuccessDialog(widget.bookingCode);

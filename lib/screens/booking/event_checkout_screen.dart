@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 class EventCheckoutScreen extends StatefulWidget {
   final int eventId;
@@ -94,7 +95,7 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
           .join('&');
 
       final cartRes = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/addToCart'),
+        Uri.parse('${ApiConfig.baseUrl}booking/addToCart'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -148,7 +149,7 @@ class _EventCheckoutScreenState extends State<EventCheckoutScreen> {
           .join('&');
 
       final checkoutRes = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/doCheckout'),
+        Uri.parse('${ApiConfig.baseUrl}booking/doCheckout'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'boat_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 class BoatListScreen extends StatefulWidget {
   BoatListScreen({Key? key}) : super(key: key);
@@ -56,7 +57,7 @@ class _BoatListScreenState extends State<BoatListScreen> {
   Future<void> _loadFilters() async {
     try {
       final res = await http.get(
-        Uri.parse('https://megatour.vn/api/boat/filters'),
+        Uri.parse('${ApiConfig.baseUrl}boat/filters'),
       );
       if (res.statusCode == 200) {
         setState(() => _filters = jsonDecode(res.body));
@@ -93,10 +94,8 @@ class _BoatListScreenState extends State<BoatListScreen> {
         queryParams['orderby'] = _selectedSort;
       }
 
-      final uri = Uri.https(
-        'megatour.vn',
-        '/api/boat/search',
-        queryParams,
+      final uri = Uri.parse('${ApiConfig.baseUrl}boat/search').replace(
+        queryParameters: queryParams,
       );
 
       final res = await http.get(uri);

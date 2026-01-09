@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:megatour_app/utils/context_extension.dart';
+import '../../config/api_config.dart';
 
 class SpaceCheckoutScreen extends StatefulWidget {
   final int spaceId;
@@ -89,7 +90,7 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
       print('Cart Body: $cartEncoded');
 
       final cartRes = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/addToCart'),
+        Uri.parse('${ApiConfig.baseUrl}booking/addToCart'),
         headers: headers,
         body: cartEncoded,
       );
@@ -153,7 +154,7 @@ class _SpaceCheckoutScreenState extends State<SpaceCheckoutScreen> {
       print('Checkout Body: $checkoutEncoded');
 
       final checkoutRes = await http.post(
-        Uri.parse('https://megatour.vn/api/booking/doCheckout'),
+        Uri.parse('${ApiConfig.baseUrl}booking/doCheckout'),
         headers: headers,
         body: checkoutEncoded,
       );
