@@ -1,6 +1,3 @@
-// lib/screens/services/car_list_screen.dart
-// Modern car rental with ambient gradients
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -18,15 +15,56 @@ class _CarListScreenState extends State<CarListScreen> {
   bool isLoading = false;
   List<dynamic> cars = [];
   String? errorMessage;
-  
-  String? searchQuery;
+
   String? selectedType;
   RangeValues priceRange = RangeValues(50, 1000);
+
+  // ================= AUTOCOMPLETE STATE =================
+  final TextEditingController _searchController = TextEditingController();
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlay;
+
+  List<Map<String, dynamic>> _locations = [];
+  String _searchText = '';
+  int? _selectedLocationId;
+  // ======================================================
 
   @override
   void initState() {
     super.initState();
+    _fetchLocations();
     _fetchCars();
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _removeOverlay() {
+    _overlay?.remove();
+    _overlay = null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // API LOGIC
+  // ---------------------------------------------------------------------------
+
+  Future<void> _fetchLocations() async {
+    try {
+      final res = await http.get(Uri.parse('https://megatour.vn/api/locations'));
+      final body = jsonDecode(res.body);
+      if (body['status'] == 1) {
+        setState(() {
+          _locations = (body['data'] as List).map((e) => {
+            'id': e['id'],
+            'title': e['title'].toString(),
+          }).toList();
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _fetchCars() async {
@@ -37,36 +75,22 @@ class _CarListScreenState extends State<CarListScreen> {
 
     try {
       final queryParams = <String, String>{};
-      
-      if (searchQuery != null && searchQuery!.isNotEmpty) {
-        queryParams['service_name'] = searchQuery!;
-      }
+      // Keep your original filter logic if needed
+      if (selectedType != null) queryParams['type'] = selectedType!;
 
       final uri = Uri.https('megatour.vn', '/api/car/search', queryParams);
-      
-      debugPrint('🚗 Fetching cars: $uri');
-      
       final res = await http.get(uri);
-
-      debugPrint('📥 Response: ${res.statusCode}');
 
       if (res.statusCode == 200) {
         final body = json.decode(res.body);
-        
         List<dynamic> carsList = [];
-        
         if (body is Map) {
           if (body['data'] is Map && body['data']['data'] is List) {
             carsList = body['data']['data'];
           } else if (body['data'] is List) {
             carsList = body['data'];
           }
-        } else if (body is List) {
-          carsList = body;
         }
-
-        debugPrint('✅ Loaded ${carsList.length} cars');
-
         setState(() {
           cars = carsList;
           isLoading = false;
@@ -78,31 +102,113 @@ class _CarListScreenState extends State<CarListScreen> {
         });
       }
     } catch (e) {
-      debugPrint('❌ Error: $e');
       setState(() {
         errorMessage = e.toString();
-        cars = [];
         isLoading = false;
       });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          SliverToBoxAdapter(child: _buildSearchBar()),
-          _buildCarList(),
-        ],
-      ),
-    );
+  // ---------------------------------------------------------------------------
+  // CLIENT-SIDE FILTERING (For Search Logic)
+  // ---------------------------------------------------------------------------
+
+  List<dynamic> get _filteredCars {
+    if (_searchText.isEmpty) return cars;
+
+    // Filter by Location ID if something was picked from autocomplete
+    if (_selectedLocationId != null) {
+      return cars.where((car) {
+        final carLocId = car['location_id'] ?? car['location']?['id'];
+        return carLocId?.toString() == _selectedLocationId.toString();
+      }).toList();
+    }
+
+    // Otherwise standard keyword search
+    final q = _searchText.toLowerCase();
+    return cars.where((car) {
+      final loc = car['location']?['name']?.toString().toLowerCase() ?? '';
+      final title = car['title']?.toString().toLowerCase() ?? '';
+      return loc.contains(q) || title.contains(q);
+    }).toList();
   }
 
   // ---------------------------------------------------------------------------
-  // APP BAR
+  // OVERLAY (Selectable Autocomplete)
   // ---------------------------------------------------------------------------
+
+  void _showOverlay() {
+    _removeOverlay();
+
+    final suggestions = _locations
+        .where((l) => l['title'].toLowerCase().contains(_searchText.toLowerCase()))
+        .toList();
+
+    if (suggestions.isEmpty || _searchText.isEmpty) return;
+
+    _overlay = OverlayEntry(
+      builder: (context) => Positioned(
+        width: MediaQuery.of(context).size.width - 32,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0, 60),
+          child: Material(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 250),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: suggestions.length,
+                itemBuilder: (context, index) {
+                  final loc = suggestions[index];
+                  return ListTile(
+                    leading: const Icon(Icons.location_on_outlined, color: Color(0xFF667eea)),
+                    title: Text(loc['title']),
+                    onTap: () {
+                      setState(() {
+                        _selectedLocationId = loc['id'];
+                        _searchText = loc['title'];
+                        _searchController.text = loc['title'];
+                      });
+                      _removeOverlay();
+                      FocusScope.of(context).unfocus();
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlay!);
+  }
+
+  // ---------------------------------------------------------------------------
+  // UI BUILDERS
+  // ---------------------------------------------------------------------------
+
+  @override
+  Widget build(BuildContext context) {
+    return TapRegion(
+      onTapOutside: (event) => _removeOverlay(),
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            _buildAppBar(),
+            SliverToBoxAdapter(child: _buildSearchBar()),
+            _buildCarList(_filteredCars),
+          ],
+        ),
+      ),
+    );
+  }
 
   SliverAppBar _buildAppBar() {
     return SliverAppBar(
@@ -118,69 +224,67 @@ class _CarListScreenState extends State<CarListScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF667eea).withOpacity(0.15),
-                Color(0xFF764ba2).withOpacity(0.15),
+                const Color(0xFF667eea).withOpacity(0.15),
+                const Color(0xFF764ba2).withOpacity(0.15),
               ],
             ),
           ),
         ),
         title: Text(
           context.l10n.carRentals,
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.tune, color: Colors.black),
+          icon: const Icon(Icons.tune, color: Colors.black),
           onPressed: _showFilters,
         ),
       ],
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // SEARCH BAR
-  // ---------------------------------------------------------------------------
-
   Widget _buildSearchBar() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Search Field
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: context.l10n.searchCars,
-                prefixIcon: Icon(Icons.search),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
+          CompositedTransformTarget(
+            link: _layerLink,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              onChanged: (v) => searchQuery = v,
-              onSubmitted: (_) => _fetchCars(),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: context.l10n.searchCars,
+                  prefixIcon: const Icon(Icons.search),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                ),
+                onChanged: (v) {
+                  _searchText = v;
+                  _selectedLocationId = null;
+                  if (v.isEmpty) {
+                    _removeOverlay();
+                  } else {
+                    _showOverlay();
+                  }
+                  setState(() {});
+                },
+              ),
             ),
           ),
-          
-          SizedBox(height: 12),
-          
-          // Quick Filters
+          const SizedBox(height: 12),
           SizedBox(
             height: 45,
             child: ListView(
@@ -190,7 +294,6 @@ class _CarListScreenState extends State<CarListScreen> {
                 _filterChip('Economy', 'economy'),
                 _filterChip('SUV', 'suv'),
                 _filterChip('Luxury', 'luxury'),
-                _filterChip('Electric', 'electric'),
               ],
             ),
           ),
@@ -202,7 +305,7 @@ class _CarListScreenState extends State<CarListScreen> {
   Widget _filterChip(String label, String? value) {
     final selected = selectedType == value;
     return Padding(
-      padding: EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
         selected: selected,
@@ -210,7 +313,7 @@ class _CarListScreenState extends State<CarListScreen> {
           setState(() => selectedType = value);
           _fetchCars();
         },
-        selectedColor: Color(0xFF667eea),
+        selectedColor: const Color(0xFF667eea),
         backgroundColor: Colors.grey[200],
         labelStyle: TextStyle(
           color: selected ? Colors.white : Colors.black,
@@ -220,69 +323,29 @@ class _CarListScreenState extends State<CarListScreen> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // CAR LIST
-  // ---------------------------------------------------------------------------
-
-  Widget _buildCarList() {
+  Widget _buildCarList(List<dynamic> list) {
     if (isLoading) {
-      return SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
     }
-
     if (errorMessage != null) {
-      return SliverFillRemaining(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red),
-              SizedBox(height: 16),
-              Text(errorMessage!),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _fetchCars,
-                child: Text(context.l10n.retry),
-              ),
-            ],
-          ),
-        ),
-      );
+      return SliverFillRemaining(child: Center(child: Text(errorMessage!)));
     }
-
-    if (cars.isEmpty) {
+    if (list.isEmpty) {
       return SliverFillRemaining(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.directions_car_outlined, size: 80, color: Colors.grey[400]),
-              SizedBox(height: 16),
-              Text(
-                context.l10n.noCarsFound,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
+        child: Center(child: Text(context.l10n.noCarsFound, style: const TextStyle(fontWeight: FontWeight.bold))),
       );
     }
 
     return SliverPadding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
-          (context, index) => _carCard(cars[index]),
-          childCount: cars.length,
+          (context, index) => _carCard(list[index]),
+          childCount: list.length,
         ),
       ),
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // CAR CARD
-  // ---------------------------------------------------------------------------
 
   Widget _carCard(dynamic car) {
     final int carId = int.tryParse(car['id'].toString()) ?? 0;
@@ -292,292 +355,109 @@ class _CarListScreenState extends State<CarListScreen> {
     final String? price = car['price']?.toString();
     final String? salePrice = car['sale_price']?.toString();
     final dynamic reviewScore = car['review_score'];
-    
-    // Car specs
-    final String? transmission = car['transmission_type'];
-    final String? seats = car['passenger']?.toString();
-    final String? baggage = car['baggage']?.toString();
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CarDetailScreen(carId: carId),
-          ),
-        );
-      },
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CarDetailScreen(carId: carId))),
       child: Container(
-        margin: EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: Offset(0, 8),
-            ),
+            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 8)),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // IMAGE SECTION
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                   child: imageUrl != null
-                      ? Image.network(
-                          imageUrl,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                        )
-                      : _imagePlaceholder(),
+                      ? Image.network(imageUrl, height: 200, width: double.infinity, fit: BoxFit.cover)
+                      : Container(height: 200, color: Colors.grey[200]),
                 ),
-                
-                // Gradient Overlay
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.3),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                
-                // Sale Badge
                 if (salePrice != null && salePrice != '0')
                   Positioned(
                     top: 12,
                     right: 12,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                        ),
+                        gradient: const LinearGradient(colors: [Color(0xFF667eea), Color(0xFF764ba2)]),
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF667eea).withOpacity(0.3),
-                            blurRadius: 8,
-                          ),
-                        ],
                       ),
-                      child: Text(
-                        context.l10n.deal,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: Text(context.l10n.deal, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                     ),
                   ),
               ],
             ),
-
-            // CONTENT
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Location & Category
                   Row(
                     children: [
                       if (locationName != null)
                         Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Color(0xFF667eea).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                size: 12,
-                                color: Color(0xFF667eea),
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                locationName,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF667eea),
-                                ),
-                              ),
-                            ],
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: const Color(0xFF667eea).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                          child: Row(children: [
+                            const Icon(Icons.location_on, size: 12, color: Color(0xFF667eea)),
+                            const SizedBox(width: 4),
+                            Text(locationName, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF667eea))),
+                          ]),
                         ),
-                      Spacer(),
+                      const Spacer(),
                       if (reviewScore != null)
                         Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.amber.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.star,
-                                size: 12,
-                                color: Colors.amber,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                reviewScore['score_total']?.toString() ?? '0',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: Colors.amber.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+                          child: Row(children: [
+                            const Icon(Icons.star, size: 12, color: Colors.amber),
+                            const SizedBox(width: 4),
+                            Text(reviewScore['score_total']?.toString() ?? '0', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                          ]),
                         ),
                     ],
                   ),
-
-                  SizedBox(height: 12),
-
-                  // Title
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  SizedBox(height: 12),
-
-                  // Car Specs
+                  const SizedBox(height: 12),
+                  Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
-                      if (transmission != null)
-                        _specChip(Icons.settings, transmission),
-                      if (transmission != null && seats != null)
-                        SizedBox(width: 8),
-                      if (seats != null)
-                        _specChip(Icons.person, '$seats seats'),
-                      if (seats != null && baggage != null)
-                        SizedBox(width: 8),
-                      if (baggage != null)
-                        _specChip(Icons.luggage, '$baggage bags'),
+                      _specChip(Icons.settings, car['transmission_type'] ?? 'Auto'),
+                      const SizedBox(width: 8),
+                      _specChip(Icons.person, '${car['passenger'] ?? 4} seats'),
                     ],
                   ),
-
-                  SizedBox(height: 16),
-
-                  // Price & Button
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (salePrice != null && salePrice != '0')
-                            Text(
-                              '\$$price',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              ShaderMask(
-                                shaderCallback: (bounds) => LinearGradient(
-                                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                                ).createShader(bounds),
-                                child: Text(
-                                  '\$${salePrice != null && salePrice != '0' ? salePrice : price}',
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 4, left: 4),
-                                child: Text(
-                                  context.l10n.day,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            Text('\$$price', style: TextStyle(fontSize: 14, color: Colors.grey[600], decoration: TextDecoration.lineThrough)),
+                          ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(colors: [Color(0xFF667eea), Color(0xFF764ba2)]).createShader(bounds),
+                            child: Text('\$${salePrice != null && salePrice != '0' ? salePrice : price}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
                           ),
                         ],
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                          ),
+                          gradient: const LinearGradient(colors: [Color(0xFF667eea), Color(0xFF764ba2)]),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CarDetailScreen(carId: carId),
-                                ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              child: Text(
-                                context.l10n.rent,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
+                        child: InkWell(
+                          onTap: () {},
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            child: Text(context.l10n.rent, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ),
@@ -592,95 +472,17 @@ class _CarListScreenState extends State<CarListScreen> {
     );
   }
 
-  Widget _imagePlaceholder() {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.grey[300]!, Colors.grey[200]!],
-        ),
-      ),
-      child: Icon(Icons.directions_car, size: 64, color: Colors.grey),
-    );
-  }
-
   Widget _specChip(IconData icon, String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.grey[700]),
-          SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+      child: Row(children: [
+        Icon(icon, size: 14, color: Colors.grey[700]),
+        const SizedBox(width: 4),
+        Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700], fontWeight: FontWeight.w500)),
+      ]),
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // FILTERS
-  // ---------------------------------------------------------------------------
-
-  void _showFilters() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => Padding(
-        padding: EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.filters,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 24),
-            
-            Text(context.l10n.pricePerDay),
-            RangeSlider(
-              min: 50,
-              max: 1000,
-              values: priceRange,
-              onChanged: (v) => setState(() => priceRange = v),
-            ),
-            Text('\$${priceRange.start.round()} - \$${priceRange.end.round()}'),
-            
-            SizedBox(height: 24),
-            
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _fetchCars();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF667eea),
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: Text(context.l10n.applyFilters),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  void _showFilters() {}
 }

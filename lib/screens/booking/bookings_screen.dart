@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../storage/booking_storage.dart';
-import 'booking_detail_screen.dart'; // Import your detail screen
+import 'booking_detail_screen.dart';
 import 'package:megatour_app/utils/context_extension.dart';
 
 class BookingsScreen extends StatelessWidget {
@@ -10,31 +10,40 @@ class BookingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F7FA), // Light grey background
+      backgroundColor: const Color(0xFFF5F7FA), // Light grey background
       appBar: AppBar(
-        title: Text(context.l10n.myBookings, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: Text(
+          context.l10n.myBookings, 
+          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black87),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: FutureBuilder(
         future: BookingStorage.all(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
 
-          final bookings = snapshot.data as List<Map<String, dynamic>>;
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final bookings = snapshot.data as List<Map<String, dynamic>>? ?? [];
+          
           if (bookings.isEmpty) {
-            return _buildEmptyState();
+            // Corrected: Pass context to the helper method
+            return _buildEmptyState(context);
           }
 
           return ListView.separated(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             itemCount: bookings.length,
-            separatorBuilder: (_, __) => SizedBox(height: 12),
-            itemBuilder: (_, i) {
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, i) {
               final b = bookings[i];
               return _buildBookingCard(context, b);
             },
@@ -44,14 +53,18 @@ class BookingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  // Corrected: Added BuildContext context parameter
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.airplane_ticket_outlined, size: 80, color: Colors.grey[300]),
-          SizedBox(height: 16),
-          Text(context.l10n.noBookingsYet, style: TextStyle(color: Colors.grey[500], fontSize: 16)),
+          const SizedBox(height: 16),
+          Text(
+            context.l10n.noBookingsYet, 
+            style: TextStyle(color: Colors.grey[500], fontSize: 16)
+          ),
         ],
       ),
     );
@@ -68,16 +81,15 @@ class BookingsScreen extends StatelessWidget {
 
     if (type.contains('hotel')) {
       icon = Icons.hotel_rounded;
-      accentColor = Color(0xFFFA824C); // Orange for Hotels
+      accentColor = const Color(0xFFFA824C); // Orange
       typeLabel = "Hotel Stay";
     } else if (type.contains('flight')) {
       icon = Icons.flight_takeoff;
-      accentColor = Color(0xFF0077B6); // Blue for Flights
+      accentColor = const Color(0xFF0077B6); // Blue
       typeLabel = "Flight Ticket";
     } else {
-      // Default to Tour
       icon = Icons.map_outlined;
-      accentColor = Color(0xFF00A896); // Teal for Tours
+      accentColor = const Color(0xFF00A896); // Teal
       typeLabel = "Tour Package";
     }
 
@@ -87,7 +99,6 @@ class BookingsScreen extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          // Navigate to the detail screen with the code
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -98,10 +109,9 @@ class BookingsScreen extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // --- Left Icon Box ---
               Container(
                 width: 50,
                 height: 50,
@@ -111,9 +121,7 @@ class BookingsScreen extends StatelessWidget {
                 ),
                 child: Icon(icon, color: accentColor, size: 28),
               ),
-              SizedBox(width: 16),
-              
-              // --- Middle Content ---
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,16 +135,16 @@ class BookingsScreen extends StatelessWidget {
                         letterSpacing: 0.5
                       )
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       b['booking_code'] ?? 'Unknown Code',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16, 
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.bold,
                         color: Colors.black87
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       b['payment'] ?? 'Pending',
                       style: TextStyle(
@@ -147,9 +155,7 @@ class BookingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // --- Right Arrow ---
-              Icon(Icons.chevron_right, color: Colors.grey),
+              const Icon(Icons.chevron_right, color: Colors.grey),
             ],
           ),
         ),

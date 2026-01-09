@@ -303,7 +303,7 @@ class ProfileTab extends StatelessWidget {
     final auth = context.read<AuthProvider>();
     await auth.logout();
     if (context.mounted) {
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+      Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
     }
   }
 

@@ -1,30 +1,41 @@
 // lib/providers/settings_provider.dart
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../config/api_config.dart';
 
 class SettingsProvider extends ChangeNotifier {
   String _currentLanguage = 'en';
   String _currentCurrency = 'USD';
   bool _notificationsEnabled = true;
+  
+  // 🟢 Backend language data
+  List<Map<String, dynamic>> _availableLanguages = [];
+  Map<String, dynamic>? _appConfig;
+  bool _configLoaded = false;
 
   // Getters
   String get currentLanguage => _currentLanguage;
   String get currentCurrency => _currentCurrency;
   bool get notificationsEnabled => _notificationsEnabled;
+  bool get configLoaded => _configLoaded;
+  
+  // 🟢 Get languages from backend
+  List<Map<String, dynamic>> get availableLanguages => _availableLanguages;
+  
+  // Get language name
+  String get currentLanguageName {
+    if (_availableLanguages.isEmpty) return 'English';
+    
+    final lang = _availableLanguages.firstWhere(
+      (l) => l['locale'] == _currentLanguage,
+      orElse: () => {'name': 'English'},
+    );
+    return lang['name'] ?? 'English';
+  }
 
-  // Available options
-  final Map<String, String> availableLanguages = {
-    'en': 'English',
-    'vi': 'Tiếng Việt',
-    'fr': 'Français',
-    'de': 'Deutsch',
-    'es': 'Español',
-    'ja': '日本語',
-    'ko': '한국어',
-    'zh': '中文',
-  };
-
+  // Available currencies from backend or default
   final List<String> availableCurrencies = [
     'USD',
     'EUR',
@@ -37,34 +48,83 @@ class SettingsProvider extends ChangeNotifier {
     'CAD',
   ];
 
-  // Get language name
-  String get currentLanguageName =>
-      availableLanguages[_currentLanguage] ?? 'English';
-
   /// ================================
   /// INITIALIZATION
   /// ================================
   Future<void> initialize() async {
+    // 1. Load local preferences first
     final prefs = await SharedPreferences.getInstance();
-    
     _currentLanguage = prefs.getString('language') ?? 'en';
     _currentCurrency = prefs.getString('currency') ?? 'USD';
     _notificationsEnabled = prefs.getBool('notifications') ?? true;
+    
+    // 2. Load backend config
+    await loadBackendConfig();
     
     notifyListeners();
   }
 
   /// ================================
-  /// LANGUAGE
+  /// LOAD BACKEND CONFIG
+  /// ================================
+  Future<void> loadBackendConfig() async {
+    try {
+      final url = '${ApiConfig.baseUrl}${ApiConfig.configs}';
+      final res = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.getHeaders(),
+      );
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        _appConfig = data;
+        
+        // Extract languages
+        if (data['languages'] is List) {
+          _availableLanguages = List<Map<String, dynamic>>.from(
+            data['languages'].map((l) => Map<String, dynamic>.from(l)),
+          );
+        }
+        
+        _configLoaded = true;
+        debugPrint('✅ Backend config loaded: ${_availableLanguages.length} languages');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Failed to load backend config: $e');
+      // Fallback to default languages
+      _availableLanguages = [
+        {'locale': 'en', 'name': 'English'},
+        {'locale': 'vi', 'name': 'Tiếng Việt'},
+        {'locale': 'fr', 'name': 'Français'},
+        {'locale': 'ar', 'name': 'Saudi Arabia'},
+        {'locale': 'zh', 'name': '中文'},
+      ];
+      _configLoaded = true;
+    }
+    notifyListeners();
+  }
+
+  /// ================================
+  /// LANGUAGE CHANGE
   /// ================================
   Future<void> setLanguage(String languageCode) async {
-    if (!availableLanguages.containsKey(languageCode)) return;
+    // Validate language exists in backend
+    final langExists = _availableLanguages.any(
+      (l) => l['locale'] == languageCode,
+    );
+    
+    if (!langExists) {
+      debugPrint('⚠️ Language $languageCode not supported by backend');
+      return;
+    }
     
     _currentLanguage = languageCode;
     
+    // Save to local storage
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language', languageCode);
     
+    debugPrint('✅ Language changed to: $languageCode');
     notifyListeners();
   }
 
@@ -95,7 +155,7 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   /// ================================
-  /// CURRENCY CONVERSION
+  /// CURRENCY FORMATTING
   /// ================================
   String formatPrice(double price) {
     switch (_currentCurrency) {
@@ -123,16 +183,22 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   /// ================================
-  /// RESET SETTINGS
+  /// GET LANGUAGE FLAG EMOJI
   /// ================================
-  Future<void> resetSettings() async {
-    _currentLanguage = 'en';
-    _currentCurrency = 'USD';
-    _notificationsEnabled = true;
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    
-    notifyListeners();
+  String getLanguageFlag(String locale) {
+    switch (locale) {
+      case 'en':
+        return '🇬🇧';
+      case 'vi':
+        return '🇻🇳';
+      case 'fr':
+        return '🇫🇷';
+      case 'ar':
+        return '🇸🇦';
+      case 'zh':
+        return '🇨🇳';
+      default:
+        return '🌐';
+    }
   }
 }

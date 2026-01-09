@@ -57,7 +57,6 @@ def generate_key(text):
 # MERGE LOGIC (NEW)
 # =========================
 def update_arb(strings, output_path):
-    # 1. Đọc file cũ nếu có
     existing_arb = {}
     if os.path.exists(output_path):
         try:
@@ -67,41 +66,31 @@ def update_arb(strings, output_path):
         except:
             print("⚠️ Could not load existing ARB, creating new.")
 
-    # Giữ lại các key hệ thống
     new_arb = {k: v for k, v in existing_arb.items() if k.startswith("@@")}
     if "@@locale" not in new_arb:
         new_arb["@@locale"] = "en"
 
-    # 2. Map Value -> Key của file cũ để tái sử dụng key
-    # (Nếu text "Hello" đã có key "helloWorld", ta dùng lại key đó chứ không tạo "hello")
     value_to_key_map = {v: k for k, v in existing_arb.items() if not k.startswith("@")}
 
-    # 3. Thêm strings mới quét được
     added_count = 0
     for text in strings:
         if text in value_to_key_map:
-            # Text này đã có trong file cũ, giữ nguyên key cũ
             key = value_to_key_map[text]
             new_arb[key] = text
         else:
-            # Text mới, tạo key mới
             base_key = generate_key(text)
             key = base_key
             i = 1
-            while key in new_arb: # Tránh trùng key mới
+            while key in new_arb:
                 key = f"{base_key}{i}"
                 i += 1
             new_arb[key] = text
             added_count += 1
 
-    # 4. Giữ lại các key cũ mà code đang dùng (quan trọng!)
-    # Những key mà script không quét được (do bạn đã chuyển sang biến l10n.xxx) 
-    # vẫn cần được giữ lại trong file ARB.
     for k, v in existing_arb.items():
         if k not in new_arb:
             new_arb[k] = v
 
-    # 5. Ghi file
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(new_arb, f, indent=2, ensure_ascii=False)
@@ -117,7 +106,6 @@ if __name__ == "__main__":
     print(" FLUTTER L10N MERGER V3")
     print("-" * 30)
     
-    # Quét project
     lib_path = Path(PROJECT_PATH) / "lib"
     all_strings = []
     dart_files = list(lib_path.rglob("*.dart"))
